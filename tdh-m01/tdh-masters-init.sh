@@ -16,6 +16,18 @@ rt=
 usage() {
     echo ""
     echo "Usage: $PNAME [options] <run>"
+    echo "  -d|--disksize <xxGB>  : Size of attached disk"
+    echo "  -h|--help             : Display usage and exit"
+    echo "  -p|--prefix <name>    : Prefix name to use for instances"
+    echo "  -S|--ssd              : Use SSD as attached disk type"
+    echo "  -t|--type             : Machine type to use for instance(s)"
+    echo "  -z|--zone <name>      : Set GCP zone"
+    echo ""
+    echo " Where <action> is 'run'. Any other action enables a dryrun" 
+    echo ""
+    echo "  Default GCP Zone is $zone"
+    echo "  Default Machine Type is $mtype"
+    echo ""
 }
 
 
@@ -88,6 +100,7 @@ for name in $names; do
         break
     fi
 
+    #
     # Device format and mount
     device="/dev/sdb"
     mountpoint="/data"
@@ -103,9 +116,39 @@ for name in $names; do
         break
     fi
 
+    # disable  iptables and cups
+    echo "( gcloud compute ssh $host sudo systemctl stop firewalld; sudo systemctl disable firewalld; sudo service cups stop; sudo chkconfig cups off )"
+    if [ $dryrun -eq 0 ]; then
+        ( gcloud compute ssh $host sudo systemctl stop firewalld; sudo systemctl disable firewalld; \
+        sudo service cups stop; sudo chkconfig cups off )
+    fi
+
+    #
     # prereq's
-    #sudo yum install -y java-1.8.0-openjdk wget tmux
-    #sudo yum erase mariadb-libs
+    echo "( gcloud compute ssh ${host} < ${tdh_path}/bin/tdh-prereqs.sh )"
+    if [ $dryrun -eq 0 ]; then
+        ( gcloud compute ssh ${host} < ${tdh_path}/bin/tdh-prereqs.sh )
+    fi
+
+    rt=$?
+    if [ $rt -gt 0 ]; then
+        echo "Error in tdh-prereqs for $host"
+        break
+    fi
+
+    #
+    # mysqld
+    echo "( gcloud compute ssh ${host} < ${tdh_path}/bin/tdh-mysql-install.sh )"
+    if [ $dryrun -eq 0 ]; then
+        ( gcloud compute ssh ${host} < ${tdh_path}/bin/tdh-mysql-install.sh )
+    fi
+
+    rt=$?
+    if [ $rt -gt 0 ]; then
+        echo "Error in tdh-mysql-install for $host"
+        break
+    fi
+
     echo "Initialization complete for $host"
     echo ""
 done
