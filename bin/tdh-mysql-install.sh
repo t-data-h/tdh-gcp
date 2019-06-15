@@ -83,13 +83,17 @@ fi
 
 
 if [ "$role" == "slave" ]; then
-    ( gcloud compute ssh mv my.cnf my-1.cnf )
-    ( gcloud compute ssh sed -E 's/^(server-id[[:blank:]]*=[[:blank:]]*).*/\12/' my-1.cnf > my.cnf )
+    ( gcloud compute ssh $gcphost mv my.cnf my-1.cnf )
+    ( gcloud compute ssh $gcphost sed -E 's/^(server-id[[:blank:]]*=[[:blank:]]*).*/\12/' my-1.cnf > my.cnf )
+    rt=$?
+    if [ $rt -gt 0 ]; then
+        echo "Error in sed of slave my.cnf"
+    fi
 fi
 
 
 ( gcloud compute ssh $gcphost sudo cp mysql-community.repo /etc/yum.repos.d )
-( gcloud compute ssh $gcphost sudo yum install -y mysql-community-libs  mysql-community-client mysql-connector-java )
+( gcloud compute ssh $gcphost sudo yum install -y mysql-community-libs mysql-community-client mysql-connector-java )
 
 
 if [ "$role" == "master" ] || [ "$role" == "slave" ]; then
@@ -97,12 +101,23 @@ if [ "$role" == "master" ] || [ "$role" == "slave" ]; then
     ( gcloud compute ssh $gcphost sudo cp my.cnf /etc/my.cnf && chmod 644 /etc/my.cnf )
     ( gcloud compute ssh $gcphost sudo mysqld --initialize-insecure --user=mysql )
     ( gcloud compute ssh $gcphost sudo service mysqld start )
+    
+    rt=$?
+    if [ $rt -gt 0 ]; then
+        echo "Error starting mysql daemon"
+        exit $rt
+    fi
 
-    printf "[mysql]\nuser=root\npassword=$pw\n" > .my.cnf
+    ( gcloud compute ssh $gcphost ( printf "[mysql]\nuser=root\npassword=$pw\n" > .my.cnf ) )
 
     ( gcloud compute ssh $gcphost mysql -u root --skip-password -e "ALTER USER 'root'@'localgcphost' IDENTIFIED BY '$pw'" )
+    rt=$?
+
+    if [ $rt -gt 0 ]; then
+        echo "Error in mysql ALTER USER"
+    fi
 fi
 
 echo "$PNAME finished."
 
-exit 0
+exit $rt

@@ -81,6 +81,8 @@ fi
 
 if [ -n "$namelist" ]; then
     names="$namelist"
+else
+    echo "Using default 3 masters"
 fi
 
 echo "Creating masters for '$names'"
