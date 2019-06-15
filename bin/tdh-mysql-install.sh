@@ -83,8 +83,8 @@ fi
 
 
 if [ "$role" == "slave" ]; then
-    ( gcloud compute ssh $host mv my.cnf my-1.cnf )
-    ( gcloud compute ssh $host sed -E 's/^(server-id[[:blank:]]*=[[:blank:]]*).*/\12/' my-1.cnf > my.cnf )
+    ( gcloud compute ssh $host --command 'mv my.cnf my-1.cnf' )
+    ( gcloud compute ssh $host --command "sed -E 's/^(server-id[[:blank:]]*=[[:blank:]]*).*/\12/' my-1.cnf > my.cnf" )
     rt=$?
     if [ $rt -gt 0 ]; then
         echo "Error in sed of slave my.cnf"
@@ -92,15 +92,15 @@ if [ "$role" == "slave" ]; then
 fi
 
 
-( gcloud compute ssh $host sudo cp mysql-community.repo /etc/yum.repos.d )
-( gcloud compute ssh $host sudo yum install -y mysql-community-libs mysql-community-client mysql-connector-java )
+( gcloud compute ssh $host --command 'sudo cp mysql-community.repo /etc/yum.repos.d' )
+( gcloud compute ssh $host --command 'sudo yum install -y mysql-community-libs mysql-community-client mysql-connector-java' )
 
 
 if [ "$role" == "master" ] || [ "$role" == "slave" ]; then
-    ( gcloud compute ssh $host sudo yum install -y mysql-community-server )
-    ( gcloud compute ssh $host sudo cp my.cnf /etc/my.cnf && chmod 644 /etc/my.cnf )
-    ( gcloud compute ssh $host sudo mysqld --initialize-insecure --user=mysql )
-    ( gcloud compute ssh $host sudo service mysqld start )
+    ( gcloud compute ssh $host --command 'sudo yum install -y mysql-community-server' )
+    ( gcloud compute ssh $host --command 'sudo cp my.cnf /etc/my.cnf && chmod 644 /etc/my.cnf' )
+    ( gcloud compute ssh $host --command 'sudo mysqld --initialize-insecure --user=mysql' )
+    ( gcloud compute ssh $host --command 'sudo service mysqld start' )
     
     rt=$?
     if [ $rt -gt 0 ]; then
@@ -108,9 +108,8 @@ if [ "$role" == "master" ] || [ "$role" == "slave" ]; then
         exit $rt
     fi
 
-    ( gcloud compute ssh $host ( printf "[mysql]\nuser=root\npassword=$pw\n" > .my.cnf ) )
-
-    ( gcloud compute ssh $host mysql -u root --skip-password -e "ALTER USER 'root'@'localgcphost' IDENTIFIED BY '$pw'" )
+    ( gcloud compute ssh $host --command "printf \"[mysql]\nuser=root\npassword=$pw\n\" > .my.cnf"  )
+    ( gcloud compute ssh $host --command "mysql -u root --skip-password -e \"ALTER USER 'root'@'localhost' IDENTIFIED BY '$pw'\"" )
     rt=$?
 
     if [ $rt -gt 0 ]; then

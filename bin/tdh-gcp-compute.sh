@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 PNAME=${0##*\/}
-VERSION="0.2.3"
+VERSION="0.2.4"
 
 zone="us-west1-b"
 mtype="n1-standard-4"

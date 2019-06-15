@@ -107,9 +107,11 @@ for name in $names; do
     device="/dev/sdb"
     mountpoint="/data"
 
-    echo "( gcloud compute ssh ${host} -- ${tdh_path}/bin/tdh-gcp-format.sh $device $mountpoint )"
+    echo "( gcloud compute ssh ${host} --command './tdh-gcp-format.sh $device $mountpoint' )"
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute ssh ${host} -- ${tdh_path}/bin/tdh-gcp-format.sh $device $mountpoint )
+        ( gcloud compute scp ${tdh_path}/bin/tdh-gcp-format.sh ${host}: )
+        ( gcloud compute ssh ${host} --command 'chmod +x tdh-gcp-format.sh' )
+        ( gcloud compute ssh ${host} --command "./tdh-gcp-format.sh $device $mountpoint" )
     fi
 
     rt=$?
@@ -119,17 +121,18 @@ for name in $names; do
     fi
 
     # disable  iptables and cups
-    echo "( gcloud compute ssh $host -- sudo systemctl stop firewalld; sudo systemctl disable firewalld; sudo service cups stop; sudo chkconfig cups off )"
+    echo "( gcloud compute ssh $host --command 'sudo systemctl stop firewalld; sudo systemctl disable firewalld; sudo service cups stop; sudo chkconfig cups off' )"
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute ssh $host -- sudo systemctl stop firewalld; sudo systemctl disable firewalld; \
-        sudo service cups stop; sudo chkconfig cups off )
+        ( gcloud compute ssh $host --command "sudo systemctl stop firewalld; sudo systemctl disable firewalld; sudo service cups stop; sudo chkconfig cups off" )
     fi
 
     #
     # prereq's
-    echo "( gcloud compute ssh ${host} -- ${tdh_path}/bin/tdh-prereqs.sh )"
+    echo "( gcloud compute ssh ${host} --command ./tdh-prereqs.sh )"
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute ssh ${host} -- ${tdh_path}/bin/tdh-prereqs.sh )
+        ( gcloud compute scp ${tdh_path}/bin/tdh-prereqs.sh ${host}: )
+        ( gcloud compute ssh ${host} --command 'chmod +x tdh-prereqs.sh' )
+        ( gcloud compute ssh ${host} --command ./tdh-prereqs.sh )
     fi
 
     rt=$?
@@ -140,9 +143,11 @@ for name in $names; do
 
     #
     # mysqld
-    echo "( gcloud compute ssh ${host} -- ${tdh_path}/bin/tdh-mysql-install.sh )"
+    echo "( gcloud compute ssh ${host} --command ./tdh-mysql-install.sh )"
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute ssh ${host} -- ${tdh_path}/bin/tdh-mysql-install.sh )
+        ( gcloud compute scp ${tdh_path}/bin/tdh-mysql-install.sh ${host}: )
+        ( gcloud compute ssh ${host} --command 'chmod +x ./tdh-mysql-install.sh' )
+        ( gcloud compute ssh ${host} --command ./tdh-mysql-install.sh )
     fi
 
     rt=$?
