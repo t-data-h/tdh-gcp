@@ -107,9 +107,9 @@ for name in $names; do
     device="/dev/sdb"
     mountpoint="/data"
 
-    echo "( gcloud compute ssh ${host} < ${tdh_path}/bin/tdh-gcp-format.sh $device $mountpoint )"
+    echo "( gcloud compute ssh ${host} -- ${tdh_path}/bin/tdh-gcp-format.sh $device $mountpoint )"
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute ssh ${host} < ${tdh_path}/bin/tdh-gcp-format.sh $device $mountpoint )
+        ( gcloud compute ssh ${host} -- ${tdh_path}/bin/tdh-gcp-format.sh $device $mountpoint )
     fi
 
     rt=$?
@@ -119,17 +119,17 @@ for name in $names; do
     fi
 
     # disable  iptables and cups
-    echo "( gcloud compute ssh $host sudo systemctl stop firewalld; sudo systemctl disable firewalld; sudo service cups stop; sudo chkconfig cups off )"
+    echo "( gcloud compute ssh $host -- sudo systemctl stop firewalld; sudo systemctl disable firewalld; sudo service cups stop; sudo chkconfig cups off )"
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute ssh $host sudo systemctl stop firewalld; sudo systemctl disable firewalld; \
+        ( gcloud compute ssh $host -- sudo systemctl stop firewalld; sudo systemctl disable firewalld; \
         sudo service cups stop; sudo chkconfig cups off )
     fi
 
     #
     # prereq's
-    echo "( gcloud compute ssh ${host} < ${tdh_path}/bin/tdh-prereqs.sh )"
+    echo "( gcloud compute ssh ${host} -- ${tdh_path}/bin/tdh-prereqs.sh )"
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute ssh ${host} < ${tdh_path}/bin/tdh-prereqs.sh )
+        ( gcloud compute ssh ${host} -- ${tdh_path}/bin/tdh-prereqs.sh )
     fi
 
     rt=$?
@@ -140,9 +140,9 @@ for name in $names; do
 
     #
     # mysqld
-    echo "( gcloud compute ssh ${host} < ${tdh_path}/bin/tdh-mysql-install.sh )"
+    echo "( gcloud compute ssh ${host} -- ${tdh_path}/bin/tdh-mysql-install.sh )"
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute ssh ${host} < ${tdh_path}/bin/tdh-mysql-install.sh )
+        ( gcloud compute ssh ${host} -- ${tdh_path}/bin/tdh-mysql-install.sh )
     fi
 
     rt=$?
