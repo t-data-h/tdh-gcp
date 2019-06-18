@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 PNAME=${0##*\/}
-VERSION="0.2.4"
+VERSION="0.2.5"
 
 zone="us-west1-b"
 mtype="n1-standard-4"
@@ -15,6 +15,8 @@ diskname=
 attach=0
 ssd=0
 dryrun=0
+
+# -----------------------------------
 
 # default zone
 if [ -z "$GCP_ZONE" ]; then

@@ -6,8 +6,9 @@ tdh_path=$(dirname "$(readlink -f "$0")")
 host="$1"
 role="$2"
 pw=
-rt= 
+rt=
 
+# -----------------------------------
 
 usage()
 {
@@ -24,7 +25,7 @@ usage()
 read_password() {
     local prompt="Password: "
     local pval=
-    
+
     echo "Please provide the mysql root password."
     echo ""
     read -s -p "$prompt" pw
@@ -101,7 +102,7 @@ if [ "$role" == "master" ] || [ "$role" == "slave" ]; then
     ( gcloud compute ssh $host --command 'sudo cp my.cnf /etc/my.cnf && chmod 644 /etc/my.cnf' )
     ( gcloud compute ssh $host --command 'sudo mysqld --initialize-insecure --user=mysql' )
     ( gcloud compute ssh $host --command 'sudo service mysqld start' )
-    
+
     rt=$?
     if [ $rt -gt 0 ]; then
         echo "Error starting mysql daemon"
