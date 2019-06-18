@@ -26,23 +26,23 @@ usage() {
     echo "  -d|--disksize <xxGB>  : Size of attached disk"
     echo "  -h|--help             : Display usage and exit"
     echo "  -p|--prefix <name>    : Prefix name to use for instances"
+    echo "                          Default prefix is '$prefix'"
     echo "  -P|--pwfile <file>    : File containing mysql root password"
+    echo "                          Note this file is deleted at completion"
     echo "  -S|--ssd              : Use SSD as attached disk type"
     echo "  -t|--type             : Machine type to use for instance(s)"
+    echo "                          Default is '$mtype'"
     echo "  -y|--noprompt         : Will not prompt for password"
-    echo "                          --pwfile must be provided for mysql"
-    echo "  -z|--zone <name>      : Set GCP zone"
+    echo "                          --pwfile must be provided for mysqld"
+    echo "  -z|--zone <name>      : Set GCP zone to use. Default is '$zone'"
     echo ""
     echo " Where <action> is 'run'. Any other action enables a dryrun," 
     echo " followed by a list of names that become '\$prefix-\$name'"
     echo " eg. '$PNAME test m01 m02 m03' will dryrun 3 master nodes with"
     echo " the names: $prefix-m01, $prefix-m02, and $prefix-m03"
     echo ""
-    echo "  Default GCP Zone is:     $zone"
-    echo "  Default Machine Type is: $mtype"
-    echo "  Default host prefix is:  $prefix"
-    echo ""
 }
+
 
 read_password()
 {
