@@ -1,7 +1,11 @@
 #!/bin/bash
 #
+#  Bootstrap mysqld for a GCP Instance
+#
 PNAME=${0##*\/}
 tdh_path=$(dirname "$(readlink -f "$0")")
+
+# -----------------------------------
 
 host=
 role=
@@ -72,7 +76,7 @@ if [ -z "$host" ] || [ -z "$role" ]; then
 fi
 
 if [ -z "$pw" ]; then
-    echo "Error, no password set."
+    echo "Error, password was not provided."
     usage
     exit 1
 fi
@@ -87,7 +91,7 @@ if [ "$role" == "slave" ]; then
     ( gcloud compute ssh $host --command "sed -E 's/^(server-id[[:blank:]]*=[[:blank:]]*).*/\12/' my-1.cnf > my.cnf" )
     rt=$?
     if [ $rt -gt 0 ]; then
-        echo "Error in sed of slave my.cnf"
+        echo "Error in sed for slave my.cnf"
     fi
 fi
 
@@ -110,8 +114,8 @@ if [ "$role" == "master" ] || [ "$role" == "slave" ]; then
 
     ( gcloud compute ssh $host --command "printf \"[mysql]\nuser=root\npassword=$pw\n\" > .my.cnf"  )
     ( gcloud compute ssh $host --command "mysql -u root --skip-password -e \"ALTER USER 'root'@'localhost' IDENTIFIED BY '$pw'\"" )
-    rt=$?
 
+    rt=$?
     if [ $rt -gt 0 ]; then
         echo "Error in mysql ALTER USER"
     fi
