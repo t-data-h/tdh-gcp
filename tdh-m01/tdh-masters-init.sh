@@ -15,7 +15,7 @@ rt=
 
 usage() {
     echo ""
-    echo "Usage: $PNAME [options] <run>"
+    echo "Usage: $PNAME [options] <run>  host1 host2 ..."
     echo "  -d|--disksize <xxGB>  : Size of attached disk"
     echo "  -h|--help             : Display usage and exit"
     echo "  -p|--prefix <name>    : Prefix name to use for instances"
@@ -24,6 +24,9 @@ usage() {
     echo "  -z|--zone <name>      : Set GCP zone"
     echo ""
     echo " Where <action> is 'run'. Any other action enables a dryrun" 
+    echo " Followed by a list of names that will become \$prefix-\$name"
+    echo " eg. '$PNAME test m01 m02 m03' will dryrun 3 master nodes with"
+    echo " the names $prefix-m01, $prefix-m02, and $prefix-m03"
     echo ""
     echo "  Default GCP Zone is $zone"
     echo "  Default Machine Type is $mtype"

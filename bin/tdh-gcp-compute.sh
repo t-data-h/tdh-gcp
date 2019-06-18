@@ -40,7 +40,7 @@ usage()
     echo " Manage GCP Compute Engine instances: "
     echo ""
     echo "Usage: $PNAME [options] <action> <instance-name>"
-    echo "  -A|--attach           : Attach a data disk on 'create' instance"
+    echo "  -A|--attach           : Init and attach a data disk on 'create'"
     echo "  -b|--bootsize <xxGB>  : Size of instance boot disk"
     echo "  -d|--disksize <xxGB>  : Size of attached disk"
     echo "  -h|--help             : Display usage and exit"
