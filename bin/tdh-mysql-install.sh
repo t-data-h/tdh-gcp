@@ -3,8 +3,8 @@
 PNAME=${0##*\/}
 tdh_path=$(dirname "$(readlink -f "$0")")
 
-host="$1"
-role="$2"
+host=
+role=
 pw=
 rt=
 
@@ -78,7 +78,6 @@ if [ -z "$pw" ]; then
 fi
 
 
-# Mysql
 ( gcloud compute scp ${tdh_path}/etc/mysql-community.repo ${host}: )
 ( gcloud compute scp ${tdh_path}/etc/tdh-mysql.cnf ${host}:my.cnf )
 
