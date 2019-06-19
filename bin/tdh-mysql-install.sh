@@ -26,24 +26,6 @@ usage()
 }
 
 
-read_password() {
-    local prompt="Password: "
-    local pval=
-
-    echo "Please provide the mysql root password."
-    echo ""
-    read -s -p "$prompt" pw
-    echo ""
-    read -s -p "Repeat $prompt" pval
-
-    if [[ "$pw" != "$pval" ]]; then
-        echo "Error! Passwords do not match. Abort"
-        return 1
-    fi
-
-    return 0
-}
-
 
 while [ $# -gt 0 ]; do
     case "$1" in

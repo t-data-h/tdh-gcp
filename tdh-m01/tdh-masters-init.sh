@@ -3,6 +3,8 @@
 #  Initialize master GCP instances.
 #
 PNAME=${0##*\/}
+VERSION="v0.2.6"
+
 tdh_path=$(dirname "$(readlink -f "$0")")
  
 # -----------------------------------

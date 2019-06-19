@@ -36,8 +36,7 @@ fi
 
 rt=$?
 if [ $rt -gt 0 ]; then
-    echo "Error mounting device"
-    exit $rt
+    echo "Error mounting device $device"
 fi
 
 echo "$PNAME finished."
