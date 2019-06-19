@@ -3,7 +3,7 @@
 #  Initialize master GCP instances.
 #
 PNAME=${0##*\/}
-VERSION="v0.2.7"
+VERSION="v0.3.1"
 
 tdh_path=$(dirname "$(readlink -f "$0")")
  
@@ -14,9 +14,12 @@ names="m01 m02 m03"
 mtype="n1-standard-4"
 zone="us-west1-b"
 disksize="200GB"
-pwfile=
+role="master"
+myid=1
 dryrun=1
 noprompt=0
+ssd=0
+pwfile=
 action=
 rt=
 
@@ -25,12 +28,14 @@ rt=
 usage() {
     echo ""
     echo "Usage: $PNAME [options] <run>  host1 host2 ..."
-    echo "  -d|--disksize <xxGB>  : Size of attached disk"
+    echo "  -d|--disksize <xxGB>  : Size of attached disk, Default is $disksize"
     echo "  -h|--help             : Display usage and exit"
     echo "  -p|--prefix <name>    : Prefix name to use for instances"
     echo "                          Default prefix is '$prefix'"
     echo "  -P|--pwfile <file>    : File containing mysql root password"
     echo "                          Note this file is deleted at completion"
+    echo "  -s|--server-id <n>    : Starting mysqld server-id, Default is 1"
+    echo "                          1 is always master, all other ids are slaves"
     echo "  -S|--ssd              : Use SSD as attached disk type"
     echo "  -t|--type             : Machine type to use for instance(s)"
     echo "                          Default is '$mtype'"
@@ -96,6 +101,13 @@ while [ $# -gt 0 ]; do
         -n|--dryrun)
             dryrun=1
             ;;
+        -S|-ssd)
+            ssd=1
+            ;;
+        -s|--server-id)
+            myid=$2
+            shift
+            ;;
         -t|--type)
             mtype="$2"
             shift
@@ -149,12 +161,22 @@ fi
 echo "Creating masters for '$names'"
 echo ""
 
+
 for name in $names; do
+    #
+    # Create instance
     host="${prefix}-${name}"
-   
-    echo "( $tdh_path/bin/tdh-gcp-compute.sh --prefix ${prefix} --type $mtype --attach --disksize $disksize create ${name} )"
+    cmd="${tdh_path}/tdh-gcp-compute.sh --prefix ${prefix} --type ${mtype} --attach --disksize ${disksize}"
+
+    if [ $ssd -gt 0 ]; then
+        cmd="${cmd} --ssd"
+    fi
+
+    cmd="${cmd} create ${name}"
+    
+    echo "( $cmd )"
     if [ $dryrun -eq 0 ]; then
-        ( $tdh_path/bin/tdh-gcp-compute.sh --prefix ${prefix} --type $mtype --attach --disksize $disksize create ${name} )
+        ( $cmd ) 
     fi
 
     rt=$?
@@ -170,7 +192,7 @@ for name in $names; do
 
     echo "( gcloud compute ssh ${host} --command './tdh-gcp-format.sh $device $mountpoint' )"
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute scp ${tdh_path}/bin/tdh-gcp-format.sh ${host}: )
+        ( gcloud compute scp ${tdh_path}/tdh-gcp-format.sh ${host}: )
         ( gcloud compute ssh ${host} --command 'chmod +x tdh-gcp-format.sh' )
         ( gcloud compute ssh ${host} --command "./tdh-gcp-format.sh $device $mountpoint" )
     fi
@@ -181,6 +203,7 @@ for name in $names; do
         break
     fi
 
+    #
     # disable  iptables and cups
     echo "( gcloud compute ssh $host --command 'sudo systemctl stop firewalld; sudo systemctl disable firewalld; sudo service cups stop; sudo chkconfig cups off' )"
     if [ $dryrun -eq 0 ]; then
@@ -191,7 +214,7 @@ for name in $names; do
     # prereq's
     echo "( gcloud compute ssh ${host} --command ./tdh-prereqs.sh )"
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute scp ${tdh_path}/bin/tdh-prereqs.sh ${host}: )
+        ( gcloud compute scp ${tdh_path}/tdh-prereqs.sh ${host}: )
         ( gcloud compute ssh ${host} --command 'chmod +x tdh-prereqs.sh' )
         ( gcloud compute ssh ${host} --command ./tdh-prereqs.sh )
     fi
@@ -203,13 +226,26 @@ for name in $names; do
     fi
 
     #
-    # mysqld
-    echo "( gcloud compute ssh ${host} --command './tdh-mysql-install.sh -P {$pwfile}' )"
+    # ssh 
+    echo "( gcloud compute ssh ${host} --command 'mkdir -p .ssh; chmod 700 .ssh; cat tdh-ansible-rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys')"
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute scp ${tdh_path}/bin/tdh-mysql-install.sh ${host}: )
-        ( gcloud compute ssh ${host} --command 'chmod +x ./tdh-mysql-install.sh' )
-        ( gcloud compute ssh ${host} --command "./tdh-mysql-install.sh -P ${pwfile}" )
+        ( gcloud compute scp ${tdh_path}/../etc/tdh-ansible-rsa.pub ${host}: )
+        ( gcloud compute ssh ${host} --command 'mkdir -p .ssh; chmod 700 .ssh' )
+        ( gcloud compute ssh ${host} --command 'cat tdh-ansible-rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys' )
     fi
+
+
+    #
+    # mysqld
+    if [ $myid -gt 1 ]; then
+        role="slave"
+    fi
+
+    echo "( $tdh_path/tdh-mysql-install.sh -s $myid -P $pwfile $host $role  )"
+    if [ $dryrun -eq 0 ]; then
+        ( ${tdh_path}/tdh-mysql-install.sh -s ${myid} -P ${pwfile} ${host} ${role} )
+    fi
+    ((++myid))
 
     rt=$?
     if [ $rt -gt 0 ]; then

@@ -11,6 +11,7 @@ host=
 role=
 pw=
 rt=
+id=1
 
 # -----------------------------------
 
@@ -21,6 +22,7 @@ usage()
     echo "  -h|--help          = Display help and exit"
     echo "  -p|--password <pw> = The root mysql password"
     echo "  -P|--pwfile <file> = File containing root mysql password"
+    echo "  -s|--server-id <n> = Server ID to use for mysql instance"
     echo " Where ROLE is 'master', 'slave', or 'client'"
     echo ""
 }
@@ -41,6 +43,10 @@ while [ $# -gt 0 ]; do
             if [ -r "$2" ]; then
                 pw=$(cat $2)
             fi
+            shift
+            ;;
+        -s|--server-id)
+            id=$2
             shift
             ;;
         *)
@@ -69,8 +75,11 @@ fi
 
 
 if [ "$role" == "slave" ]; then
+    if [ $id -eq 1 ]; then
+        id=2
+    fi
     ( gcloud compute ssh $host --command 'mv my.cnf my-1.cnf' )
-    ( gcloud compute ssh $host --command "sed -E 's/^(server-id[[:blank:]]*=[[:blank:]]*).*/\12/' my-1.cnf > my.cnf" )
+    ( gcloud compute ssh $host --command "sed -E 's/^(server-id[[:blank:]]*=[[:blank:]]*).*/\1{$id}/' my-1.cnf > my.cnf" )
     rt=$?
     if [ $rt -gt 0 ]; then
         echo "Error in sed for slave my.cnf"
