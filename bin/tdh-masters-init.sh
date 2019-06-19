@@ -3,7 +3,7 @@
 #  Initialize master GCP instances.
 #
 PNAME=${0##*\/}
-VERSION="v0.2.6"
+VERSION="v0.2.7"
 
 tdh_path=$(dirname "$(readlink -f "$0")")
  
@@ -43,6 +43,12 @@ usage() {
     echo " eg. '$PNAME test m01 m02 m03' will dryrun 3 master nodes with"
     echo " the names: $prefix-m01, $prefix-m02, and $prefix-m03"
     echo ""
+}
+
+
+version()
+{
+    echo "$PNAME: v$VERSION"
 }
 
 
@@ -134,7 +140,7 @@ fi
 
 if [ -z "$pwfile" ]; then
     if [ $noprompt -gt 0 ]; then
-        echo "Error! Password File not specified with --noprompt"
+        echo "Error! Password File required with --noprompt"
         exit 1
     fi
     read_password

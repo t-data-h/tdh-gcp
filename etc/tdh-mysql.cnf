@@ -30,7 +30,7 @@ symbolic-links = 0
 #log_bin=/var/lib/mysql/mysql_binary_log
 
 datadir=/var/lib/mysql
-socket=/var/lib/mysql/mysql.socket
+socket=/var/lib/mysql/mysql.sock
 
 # InnoDB settings
 innodb_file_format                  = Barracuda
