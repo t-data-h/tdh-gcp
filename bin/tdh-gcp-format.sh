@@ -22,10 +22,12 @@ if [ $rt -gt 0 ]; then
     exit $rt
 fi
 
+sleep 2
+
 uuid=$( ls -l /dev/disk/by-uuid/ | grep $devname | awk '{ print $9 }' )
 
 if [ -z "$uuid" ]; then
-    echo "Error obtaining disk UUID from ''/dev/disk/by-uuid'"
+    echo "Error obtaining disk UUID from '/dev/disk/by-uuid'"
     exit 1
 fi
 

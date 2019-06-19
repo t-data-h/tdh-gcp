@@ -54,7 +54,7 @@ usage()
     echo "  -z|--zone <name>      : Set GCP zone (use -l to list)"
     echo ""
     echo " Where <action> is one of the following "
-    echo "     init               :  Initialize new GCP instance"
+    echo "     create             :  Initialize new GCP instance"
     echo "     start              :  Start an existing GCP instance"
     echo "     stop               :  Stop a running instance"
     echo "     delete             :  Delete an instance"
@@ -191,7 +191,7 @@ while [ $# -gt 0 ]; do
         -n|--dryrun)
             dryrun=1
             ;;
-        -s|--use-ssd)
+        -S|--ssd)
             ssd=1
             ;;
         -t|--type)
@@ -290,6 +290,10 @@ delete)
 
 status)
     ( gcloud compute instances describe ${name} )
+    ;;
+*)
+    echo "Action Not Recognized!"
+    rt=1
     ;;
 esac
 

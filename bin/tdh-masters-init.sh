@@ -185,11 +185,11 @@ for name in $names; do
         break
     fi
 
+
     #
     # Device format and mount
     device="/dev/sdb"
     mountpoint="/data"
-
     echo "( gcloud compute ssh ${host} --command './tdh-gcp-format.sh $device $mountpoint' )"
     if [ $dryrun -eq 0 ]; then
         ( gcloud compute scp ${tdh_path}/tdh-gcp-format.sh ${host}: )
@@ -203,12 +203,14 @@ for name in $names; do
         break
     fi
 
+
     #
     # disable  iptables and cups
     echo "( gcloud compute ssh $host --command 'sudo systemctl stop firewalld; sudo systemctl disable firewalld; sudo service cups stop; sudo chkconfig cups off' )"
     if [ $dryrun -eq 0 ]; then
         ( gcloud compute ssh $host --command "sudo systemctl stop firewalld; sudo systemctl disable firewalld; sudo service cups stop; sudo chkconfig cups off" )
     fi
+
 
     #
     # prereq's
@@ -224,6 +226,7 @@ for name in $names; do
         echo "Error in tdh-prereqs for $host"
         break
     fi
+
 
     #
     # ssh 
