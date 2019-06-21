@@ -9,9 +9,9 @@ devname=${device##*\/}
 # -----------------------------------
 if [ -z "$device" ] || [ -z "$mount" ]; then
     echo "Usage: $PNAME <device> <mountpoint>"
+    exit 1
 fi
 
-# -----------------------------------
 # Format and mount attached disk
 ( sudo mkdir -p $mount )
 ( sudo mkfs.ext4 -F $device )
@@ -24,6 +24,7 @@ fi
 
 sleep 2
 
+# Get UUID
 uuid=$( ls -l /dev/disk/by-uuid/ | grep $devname | awk '{ print $9 }' )
 
 if [ -z "$uuid" ]; then
@@ -31,9 +32,14 @@ if [ -z "$uuid" ]; then
     exit 1
 fi
 
-( cp /etc/fstab /tmp/fstab.new )
+echo " $device  UUID='$uuid'"
+
+# add mount to fstab
+fstab=$(mktemp /tmp/tdh-fstab.XXXXXXXX)
+
+( cp /etc/fstab $fstab )
 ( echo "UUID=$uuid  $mount                  ext4     defaults         1 2" >> /tmp/fstab.new )
-( sudo cp /tmp/fstab.new /etc/fstab )
+( sudo cp $fstab /etc/fstab; sudo chmod 644 /etc/fstab )
 ( sudo mount $mount )
 
 rt=$?
