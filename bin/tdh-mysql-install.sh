@@ -40,8 +40,9 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         -P|--pwfile)
-            if [ -r "$2" ]; then
-                pw=$(cat $2)
+            pwfile="$2"
+            if [ -r $pwfile ]; then
+                pw=$(cat $2) 
             fi
             shift
             ;;
@@ -55,6 +56,7 @@ while [ $# -gt 0 ]; do
             shift $#
             ;;
     esac
+    shift
 done
 
 
@@ -69,9 +71,10 @@ if [ -z "$pw" ]; then
     exit 1
 fi
 
-
-( gcloud compute scp ${tdh_path}/etc/mysql-community.repo ${host}: )
-( gcloud compute scp ${tdh_path}/etc/tdh-mysql.cnf ${host}:my.cnf )
+# copy repo, repo key, and server config
+( gcloud compute scp ${tdh_path}/../etc/mysql-community.repo ${host}: )
+( gcloud compute scp ${tdh_path}/../etc/RPM-GPG-KEY-mysql ${host}: )
+( gcloud compute scp ${tdh_path}/../etc/tdh-mysql.cnf ${host}:my.cnf )
 
 
 if [ "$role" == "slave" ]; then
@@ -80,6 +83,7 @@ if [ "$role" == "slave" ]; then
     fi
     ( gcloud compute ssh $host --command 'mv my.cnf my-1.cnf' )
     ( gcloud compute ssh $host --command "sed -E 's/^(server-id[[:blank:]]*=[[:blank:]]*).*/\1{$id}/' my-1.cnf > my.cnf" )
+    ( gcloud compute ssh $host --command "rm my-1.cnf" )
     rt=$?
     if [ $rt -gt 0 ]; then
         echo "Error in sed for slave my.cnf"
@@ -87,13 +91,16 @@ if [ "$role" == "slave" ]; then
 fi
 
 
+# Install Client
 ( gcloud compute ssh $host --command 'sudo cp mysql-community.repo /etc/yum.repos.d' )
+( gcloud compute ssh $host --command 'sudo cp RPM-GPG-KEY-mysql /etc/pki/rpm-gpg/')
 ( gcloud compute ssh $host --command 'sudo yum install -y mysql-community-libs mysql-community-client mysql-connector-java' )
 
 
+# Install Server
 if [ "$role" == "master" ] || [ "$role" == "slave" ]; then
     ( gcloud compute ssh $host --command 'sudo yum install -y mysql-community-server' )
-    ( gcloud compute ssh $host --command 'sudo cp my.cnf /etc/my.cnf && chmod 644 /etc/my.cnf' )
+    ( gcloud compute ssh $host --command 'sudo cp my.cnf /etc/my.cnf && sudo chmod 644 /etc/my.cnf' )
     ( gcloud compute ssh $host --command 'sudo mysqld --initialize-insecure --user=mysql' )
     ( gcloud compute ssh $host --command 'sudo service mysqld start' )
 
