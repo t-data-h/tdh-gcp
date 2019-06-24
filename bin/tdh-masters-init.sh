@@ -216,6 +216,7 @@ for name in $names; do
     # prereq's
     echo "( gcloud compute ssh ${host} --command ./tdh-prereqs.sh )"
     if [ $dryrun -eq 0 ]; then
+        ( gcloud compute scp ${tdh_path}/../etc/bashrc ${host}:.bashrc )
         ( gcloud compute scp ${tdh_path}/tdh-prereqs.sh ${host}: )
         ( gcloud compute ssh ${host} --command 'chmod +x tdh-prereqs.sh' )
         ( gcloud compute ssh ${host} --command ./tdh-prereqs.sh )

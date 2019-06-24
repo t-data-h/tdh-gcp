@@ -1,0 +1,31 @@
+
+export JAVA_HOME="/usr/lib/jvm/java"
+
+export HADOOP_CONF_DIR="/etc/hadoop/conf"
+export HADOOP_ECOSYSTEM_INITS="hadoop-init.sh mysqld-tdh-init.sh hbase-init.sh hive-init.sh kafka-init.sh spark-history-init.sh"
+
+if [ -f "${HOME}/hadoop/etc/tdh-env-user.sh" ]; then
+    . "${HOME}/hadoop/etc/tdh-env-user.sh"
+elif [ -f "/etc/hadoop/tdh-env-user.sh" ]; then
+    . "/etc/hadoop/tdh-env-user.sh"
+fi
+
+function hconf()
+{
+    if [ -n "$1" ]; then
+        export HADOOP_CONF_DIR="$1"
+    fi
+    echo "HADOOP_CONF_DIR=$HADOOP_CONF_DIR"
+}
+
+# hadoop aliases
+alias hals="hdfs dfs -ls"
+alias hacat="hdfs dfs -cat"
+alias harm="hdfs dfs -rm -r -skipTrash"
+alias haput="hdfs dfs -put"
+alias hadus="hdfs dfs -du -h -s"
+alias hadu="hdfs dfs -du -h"
+alias spark="spark-shell --master yarn"
+alias yarn="yarn application -list"
+alias hblksz="hdfs dfs -stat 'name=%n blocksize=%o'"
+

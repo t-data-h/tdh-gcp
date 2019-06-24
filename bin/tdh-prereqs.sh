@@ -14,7 +14,6 @@ if [ $rt -gt 0 ]; then
     echo "Error in yum install."
 fi
 
-
 echo "$PNAME finished"
 
 exit 0
