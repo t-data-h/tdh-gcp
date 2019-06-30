@@ -18,7 +18,7 @@ id=1
 usage()
 {
     echo ""
-    echo "Usage: $PNAME [options]  <host>  <ROLE>"
+    echo "Usage: $PNAME [options]  <host> <ROLE>"
     echo "  -h|--help          = Display help and exit"
     echo "  -p|--password <pw> = The root mysql password"
     echo "  -P|--pwfile <file> = File containing root mysql password"
@@ -82,7 +82,7 @@ if [ "$role" == "slave" ]; then
         id=2
     fi
     ( gcloud compute ssh $host --command 'mv my.cnf my-1.cnf' )
-    ( gcloud compute ssh $host --command "sed -E 's/^(server-id[[:blank:]]*=[[:blank:]]*).*/\1{$id}/' my-1.cnf > my.cnf" )
+    ( gcloud compute ssh $host --command "sed -E 's/^(server-id[[:blank:]]*=[[:blank:]]*).*/\1$id/' my-1.cnf > my.cnf" )
     ( gcloud compute ssh $host --command "rm my-1.cnf" )
     rt=$?
     if [ $rt -gt 0 ]; then

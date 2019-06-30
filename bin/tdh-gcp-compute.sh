@@ -1,14 +1,14 @@
 #!/bin/bash
 #
 PNAME=${0##*\/}
-VERSION="v0.3.1"
+VERSION="v0.4.1"
 
 # -----------------------------------
 
 zone="us-west1-b"
 mtype="n1-standard-4"
-disksize="256GB"
 bootsize="64GB"
+disksize="256GB"
 prefix="tdh"
 
 name=
@@ -279,13 +279,16 @@ create)
 
 stop)
     echo "( gcloud compute instances stop ${name} )"
-    if [ -z "$dryrun" ]; then
+    if [ $dryrun -eq 0 ]; then
         ( gcloud compute instances stop ${name} )
     fi
     ;;
 
 delete)
     echo "( gcloud compute instances delete ${name} )"
+    if [ $dryrun -eq 0 ]; then
+        ( gcloud compute instances delete ${name} )
+    fi
     ;;
 
 status)
