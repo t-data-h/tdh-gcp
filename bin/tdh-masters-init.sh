@@ -199,11 +199,18 @@ for name in $names; do
         echo "Error in GCP initialization of $host" 
         break
     fi
+done
 
-    if [ $dryrun -eq 0 ]; then
-        sleep 5
-    fi
+if [ $rt -gt 0 ]; then
+    exit $rt
+fi
+echo ""
+if [ $dryrun -eq 0 ]; then
+    sleep 5
+fi
 
+for name in $names; do
+    host="${prefix}-${name}"
     #
     # Device format and mount
     if [ $attach -gt 0 ]; then
@@ -225,9 +232,9 @@ for name in $names; do
 
     #
     # disable  iptables and cups
-    echo "( gcloud compute ssh $host --command 'sudo systemctl stop firewalld; sudo systemctl disable firewalld; sudo service cups stop; sudo chkconfig cups off' )"
+    echo "( gcloud compute ssh $host --command 'sudo systemctl stop firewalld; sudo systemctl disable firewalld' )"
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute ssh $host --command "sudo systemctl stop firewalld; sudo systemctl disable firewalld; sudo service cups stop; sudo chkconfig cups off" )
+        ( gcloud compute ssh $host --command "sudo systemctl stop firewalld; sudo systemctl disable firewalld" )
     fi
 
 
