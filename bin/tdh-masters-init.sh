@@ -3,7 +3,7 @@
 #  Initialize master GCP instances.
 #
 PNAME=${0##*\/}
-VERSION="v0.4.1"
+VERSION="0.4.2"
 
 tdh_path=$(dirname "$(readlink -f "$0")")
  
@@ -182,10 +182,9 @@ for name in $names; do
     
     if [ $attach -gt 0 ]; then
         cmd="${cmd} --attach --disksize ${disksize}"
-
-        if [ $ssd -gt 0 ]; then
-            cmd="${cmd} --ssd"
-        fi
+    fi
+    if [ $ssd -gt 0 ]; then
+        cmd="${cmd} --ssd"
     fi
 
     cmd="${cmd} create ${name}"
@@ -201,7 +200,9 @@ for name in $names; do
         break
     fi
 
-    sleep 5
+    if [ $dryrun -eq 0 ]; then
+        sleep 5
+    fi
 
     #
     # Device format and mount

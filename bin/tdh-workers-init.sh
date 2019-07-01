@@ -3,7 +3,7 @@
 #  Initialize worker GCP instances.
 #
 PNAME=${0##*\/}
-VERSION="v0.4.1"
+VERSION="0.4.2"
 
 tdh_path=$(dirname "$(readlink -f "$0")")
  
@@ -132,10 +132,10 @@ for name in $names; do
 
     if [ $attach -gt 0 ]; then 
         cmd="${cmd} --attach --disksize ${disksize}"
+    fi
 
-        if [ $ssd -gt 0 ]; then
-            cmd="${cmd} --ssd"
-        fi
+    if [ $ssd -gt 0 ]; then
+        cmd="${cmd} --ssd"
     fi
 
     cmd="${cmd} create ${name}"
@@ -150,11 +150,21 @@ for name in $names; do
         echo "Error in GCP initialization of $host" 
         break
     fi
+done
 
+if [ $rt -gt 0 ]; then
+    exit $rt
+fi
+echo ""
+if [ $dryrun -eq 0 ]; then
+    echo "Brief sleep... "
     sleep 5
+fi
 
+for name in $names; do
     #
     # Device format and mount
+    host="${prefix}-${name}"
     if [ $attach -gt 0 ]; then
         device="/dev/sdb"
         mountpoint="/data1"
