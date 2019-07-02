@@ -246,6 +246,9 @@ for name in $names; do
         ( gcloud compute scp ${tdh_path}/tdh-prereqs.sh ${host}: )
         ( gcloud compute ssh ${host} --command 'chmod +x tdh-prereqs.sh' )
         ( gcloud compute ssh ${host} --command ./tdh-prereqs.sh )
+        ( gcloud compute ssh ${host} --command 'yum install -y ansible' )
+        ( gcloud compute scp ${tdh_path}/../etc/tdh-ansible-hosts.yml ${host}: )
+        ( gcloud compute ssh ${host} --command 'cp tdh-ansible-hosts.yml /etc/ansible/hosts' )
     fi
 
     rt=$?
