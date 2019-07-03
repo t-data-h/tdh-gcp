@@ -1,0 +1,4 @@
+---
+master_hostname: 'tdh-m01'
+mysql_hostname: '{{master_hostname}}'
+

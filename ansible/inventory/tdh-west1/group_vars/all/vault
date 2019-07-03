@@ -1,0 +1,6 @@
+---
+mysql_root_password: 'Tr@ce321!'
+mysql_repl_password: 'tdhrepl321!'
+
+hive_password: 'tdhwesthive'
+hue_password: 'tdhwesthue'

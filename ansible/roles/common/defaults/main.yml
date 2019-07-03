@@ -1,0 +1,10 @@
+---
+mysql_master_hostname: localhost
+
+mysql_root_password: 'rootsql'
+mysql_repl_password: 'replsql'
+
+hive_password: 'tdhhive'
+hue_password: 'tdhhue'
+
+
