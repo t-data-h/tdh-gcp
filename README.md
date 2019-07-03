@@ -4,7 +4,7 @@ TDH-GCP Scripts
 Scripts for building compute instances.
 
 tdh-gcp-compute.sh:  
-  Script for creating a new GCP Compute Instance. Will create an instance 
+  Script for creating a new GCP Compute Instance. Will create an instance
 and optionally attach a data disk to the instance.
 
 tdh-gcp-format.sh:  
@@ -16,11 +16,18 @@ tdh-mysql-install.sh:
 tdh-prereqs.sh:
   Install host prerequisites
 
+tdh-masters-init.sh:
+    Wraps above scripts with defaults regarding initializing master hosts
+
+tdh-workers-init.sh:
+    Builds GCP worker nodes for TDH Environment.
+
+
 
 ## GCP Machine-Types:
 
 ### Small
-- Master/Util   :  n1-standard-2  :  2 vCPU and 7.5 Gb 
+- Master/Util   :  n1-standard-2  :  2 vCPU and 7.5 Gb
    or              n1-standard-4  :  4 vCPU and 15 Gb
 - Worker/Data   :  n1-highmem-4   :  4 vCPU and 26 Gb
    or              n1-highmem-8   :  8 vCPU and 52 Gb
