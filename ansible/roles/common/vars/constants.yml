@@ -1,0 +1,7 @@
+---
+# Defines the running modes
+mode:
+  new: 'new'
+  upgrade: 'upgrade'
+  backup: 'backup'
+  new_node: 'new_node'

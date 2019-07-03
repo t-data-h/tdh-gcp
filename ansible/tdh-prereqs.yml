@@ -1,0 +1,11 @@
+---
+# Install host prerequisites
+
+- name: prereqs
+  hosts: all
+  become: yes
+  tasks:
+    
+    service:
+    name: mysqld
+    state: started
