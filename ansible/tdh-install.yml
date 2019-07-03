@@ -1,0 +1,21 @@
+---
+# Install host prerequisites
+- name: Install TDH
+  hosts: all
+  var_files:
+    - roles/common/vars/constants.yml
+  tasks:
+    - set_fact:
+      current_mode: '{{ mode.new }}'
+
+- name: Deploy TDH Masters
+  hosts: masters
+  tags: [ 'tdh_master' ]
+  roles:
+    - 'tdh_master'
+
+- name: Deploy TDH Workers
+  hosts: workers
+  tags: [ 'tdh_worker' ]
+  roles:
+    - 'tdh_worker'
