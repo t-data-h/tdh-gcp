@@ -5,18 +5,17 @@ if [ -f /etc/bashrc ]; then
 	. /etc/bashrc
 fi
 
-
-export JAVA_HOME="/usr/lib/jvm/java"
 export PS1="$(whoami){$(hostname -s)}$ "
 
+export JAVA_HOME="/usr/lib/jvm/java"
 
 export HADOOP_CONF_DIR="/etc/hadoop/conf"
 export HADOOP_ECOSYSTEM_INITS="hadoop-init.sh mysqld-tdh-init.sh hbase-init.sh hive-init.sh kafka-init.sh spark-history-init.sh"
 
-if [ -f "${HOME}/hadoop/etc/tdh-env-user.sh" ]; then
-    . "${HOME}/hadoop/etc/tdh-env-user.sh"
-elif [ -f "/etc/hadoop/tdh-env-user.sh" ]; then
+if [ -f "/etc/hadoop/tdh-env-user.sh" ]; then
     . "/etc/hadoop/tdh-env-user.sh"
+elif [ -f "/opt/TDH/etc/tdh-env-user.sh" ]; then
+    . "/opt/TDH/etc/tdh-env-user.sh"
 fi
 
 function hconf()

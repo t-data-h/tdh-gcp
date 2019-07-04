@@ -1,0 +1,4 @@
+---
+- name: source sysctl.conf
+  become: true
+  shell: "systctl --system"
