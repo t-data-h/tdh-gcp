@@ -3,12 +3,12 @@
 #  Initialize worker GCP instances.
 #
 PNAME=${0##*\/}
-VERSION="0.4.2"
+VERSION="0.4.9"
 
 tdh_path=$(dirname "$(readlink -f "$0")")
- 
+
 # -----------------------------------
- 
+
 prefix="tdh"
 names="d01 d02 d03"
 mtype="n1-highmem-8"
@@ -39,7 +39,7 @@ usage() {
     echo "                          Default is '$mtype'"
     echo "  -z|--zone <name>      : Set GCP zone to use. Default is '$zone'"
     echo ""
-    echo " Where <action> is 'run'. Any other action enables a dryrun," 
+    echo " Where <action> is 'run'. Any other action enables a dryrun,"
     echo " followed by a list of names that become '\$prefix-\$name'"
     echo " eg. '$PNAME test d01 d02 d03' will dryrun 3 worker nodes with"
     echo " the names: $prefix-d01, $prefix-d02, and $prefix-d03"
@@ -110,7 +110,7 @@ fi
 
 if [ "$action" == "run" ]; then
     dryrun=0
-else 
+else
     echo "  <DRYRUN> enabled"
 fi
 
@@ -130,7 +130,7 @@ for name in $names; do
     host="${prefix}-${name}"
     cmd="${tdh_path}/tdh-gcp-compute.sh --prefix ${prefix} --type ${mtype} --bootsize ${bootsize}"
 
-    if [ $attach -gt 0 ]; then 
+    if [ $attach -gt 0 ]; then
         cmd="${cmd} --attach --disksize ${disksize}"
     fi
 
@@ -139,15 +139,15 @@ for name in $names; do
     fi
 
     cmd="${cmd} create ${name}"
-    
+
     echo "( $cmd )"
     if [ $dryrun -eq 0 ]; then
-        ( $cmd ) 
+        ( $cmd )
     fi
 
     rt=$?
     if [ $rt -gt 0 ]; then
-        echo "Error in GCP initialization of $host" 
+        echo "Error in GCP initialization of $host"
         break
     fi
 done
@@ -208,7 +208,7 @@ for name in $names; do
 
 
     #
-    # ssh 
+    # ssh
     echo "( gcloud compute ssh ${host} --command 'mkdir -p .ssh; chmod 700 .ssh; cat tdh-ansible-rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys')"
     if [ $dryrun -eq 0 ]; then
         ( gcloud compute scp ${tdh_path}/../etc/tdh-ansible-rsa.pub ${host}: )
