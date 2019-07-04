@@ -1,0 +1,5 @@
+---
+sysctl_conf_template: sysctl.conf
+rc_local_template: rc.local
+security_limits_conf: limits.conf
+se_linux_conf: selinux.conf

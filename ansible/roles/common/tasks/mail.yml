@@ -1,2 +1,20 @@
 ---
 - include_vars: ../vars/constants.yml
+
+- name: Check for TDH drop
+  stat:
+    path: '{{ tdh_drop_file }}'
+  register: tdhstat
+  
+- name: Distribute TDH
+  block:
+    - name: Create tmp directory
+      file:
+        path: '{{ tdh_drop_path }}'
+        state: directory
+    - name: Copy TDH
+      become: true
+      copy:
+        src: '{{ tdh_drop_file }}'
+        dest: '{{ tdh_drop_path }}'
+  when: tdhstat.stat.exists
