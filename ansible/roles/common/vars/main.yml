@@ -1,5 +1,7 @@
 
 
+tdh_drop_location: '/tmp/TDH'
+
 remove_packages:
  - mariadb-libs
 
@@ -13,4 +15,3 @@ mysql_tdh_roles:
         - db_name: hue
           db_user: hue
           db_password: {{ hue_password }}'
-
