@@ -3,7 +3,6 @@
 #  Initialize master GCP instances.
 #
 PNAME=${0##*\/}
-
 tdh_path=$(dirname "$(readlink -f "$0")")
 
 if [ -f ${tdh_path}/tdh-gcp-config.sh ]; then
@@ -12,13 +11,12 @@ fi
 
 # -----------------------------------
 
-prefix="tdh"
-names="m01 m02 m03"
-mtype="n1-standard-4"
-zone="us-west1-b"
-bootsize="64GB"
-disksize="200GB"
-role="master"
+names="m01 m02"
+prefix="$TDH_GCP_PREFIX"
+zone="$GCP_DEFAULT_ZONE"
+mtype="$GCP_DEFAULT_MACHINETYPE"
+bootsize="$GCP_DEFAULT_BOOTSIZE"
+disksize="$GCP_DEFAULT_DISKSIZE"
 myid=1
 dryrun=1
 noprompt=0
@@ -27,6 +25,18 @@ ssd=0
 pwfile=
 action=
 rt=
+
+# -----------------------------------
+
+# default zone
+if [ -n "$GCP_ZONE" ]; then
+    zone="$GCP_ZONE"
+fi
+
+# default machinetype
+if [ -n "$GCP_MACHINE_TYPE" ]; then
+    mtype="$GCP_MACHINE_TYPE"
+fi
 
 # -----------------------------------
 
@@ -50,8 +60,8 @@ usage() {
     echo "                          --pwfile must be provided for mysqld"
     echo "  -z|--zone <name>      : Set GCP zone to use. Default is '$zone'"
     echo ""
-    echo " Where <action> is 'run'. Any other action enables a dryrun,"
-    echo " followed by a list of names that become '\$prefix-\$name'"
+    echo " Where <action> is 'run' or other, where any other action enables a "
+    echo " dryrun, followed by a list of names that become '\$prefix-\$name'."
     echo " eg. '$PNAME test m01 m02 m03' will dryrun 3 master nodes with"
     echo " the names: $prefix-m01, $prefix-m02, and $prefix-m03"
     echo ""

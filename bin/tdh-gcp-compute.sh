@@ -9,11 +9,11 @@ fi
 
 # -----------------------------------
 
-zone="us-west1-b"
-mtype="n1-standard-4"
-bootsize="64GB"
-disksize="256GB"
-prefix="tdh"
+prefix="$TDH_GCP_PREFIX"
+zone="$GCP_DEFAULT_ZONE"
+mtype="$GCP_DEFAULT_MACHINETYPE"
+bootsize="$GCP_DEFAULT_BOOTSIZE"
+disksize="$GCP_DEFAULT_DISKSIZE"
 
 name=
 action=
@@ -25,16 +25,12 @@ dryrun=0
 # -----------------------------------
 
 # default zone
-if [ -z "$GCP_ZONE" ]; then
-    export GCP_ZONE="$zone"
-else
+if [ -n "$GCP_ZONE" ]; then
     zone="$GCP_ZONE"
 fi
 
 # default machinetype
-if [ -z "$GCP_MACHINE_TYPE" ]; then
-    export GCP_MACHINE_TYPE="$mtype"
-else
+if [ -n "$GCP_MACHINE_TYPE" ]; then
     mtype="$GCP_MACHINE_TYPE"
 fi
 

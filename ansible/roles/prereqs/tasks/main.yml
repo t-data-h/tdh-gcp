@@ -1,8 +1,7 @@
 ---
 - name: Remove Packages
   become: true
-  yum: name={{ item }} state=absent
-  with_items: '{{ remove_packages }}'
+  yum: name={{ remove_packages }} state=absent
 
 - name: Add/Update OpenJDK
   become: true
@@ -39,7 +38,9 @@
     mode: 0644
 
 # selinux
-#- name: Copy selinux.conf
-#  become: true
-#  template: src='{{ se_linux_conf }}' dest="/etc/selinux/
-#  mode: 0644
+- name: Copy selinux.conf
+  become: true
+  template:
+    src: '{{ se_linux_conf }}'
+    dest: "/etc/selinux/"
+    mode: 0644
