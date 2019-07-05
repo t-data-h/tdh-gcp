@@ -1,5 +1,4 @@
-
-
+---
 tdh_drop_path: '/tmp/TDH/'
 tdh_drop_file: '/tmp/TDH/drop/TDH.tar.gz'
 
@@ -10,9 +9,11 @@ mysql_metastore_user: hive
 mysql_repl_user: mysqlrepl
 
 mysql_tdh_roles:
-  - db_name: metastore
-    db_user: hive
+  - db_name: "metastore"
+    db_user: "hive"
     db_password: '{{ hive_password }}'
-  - db_name: hue
-    db_user: hue
-    db_password: {{ hue_password }}'
+  - db_name: "hue"
+    db_user: "hue"
+    db_password: '{{ hue_password }}'
+
+mysql_backup_dir: "/data/backup"
