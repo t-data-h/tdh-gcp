@@ -2,6 +2,10 @@
 #
 PNAME=${0##*\/}
 
+if [ -f ${tdh_path}/tdh-gcp-config.sh ]; then
+    . ${tdh_path}/tdh-gcp-config.sh
+fi
+
 device="$1"
 mount="$2"
 devname=${device##*\/}

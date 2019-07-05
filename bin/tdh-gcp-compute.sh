@@ -1,7 +1,11 @@
 #!/bin/bash
 #
 PNAME=${0##*\/}
-VERSION="0.4.9"
+tdh_path=$(dirname "$(readlink -f "$0")")
+
+if [ -f ${tdh_path}/tdh-gcp-config.sh ]; then
+    . ${tdh_path}/tdh-gcp-config.sh
+fi
 
 # -----------------------------------
 
@@ -67,7 +71,7 @@ usage()
 
 version()
 {
-    echo "$PNAME: v$VERSION"
+    echo "$PNAME: v$TDH_GCP_VERSION"
 }
 
 
