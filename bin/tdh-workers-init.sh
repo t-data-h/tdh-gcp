@@ -3,7 +3,6 @@
 #  Initialize worker GCP instances.
 #
 PNAME=${0##*\/}
-
 tdh_path=$(dirname "$(readlink -f "$0")")
 
 if [ -f ${tdh_path}/tdh-gcp-config.sh ]; then
@@ -12,19 +11,30 @@ fi
 
 # -----------------------------------
 
-prefix="tdh"
 names="d01 d02 d03"
+prefix="$TDH_GCP_PREFIX"
+zone="$GCP_DEFAULT_ZONE"
 mtype="n1-highmem-8"
-zone="us-west1-b"
-bootsize="64GB"
-disksize="256GB"
-role="master"
+bootsize="$GCP_DEFAULT_BOOTSIZE"
+disksize="$GCP_DEFAULT_DISKSIZE"
 myid=1
 attach=0
 dryrun=1
 ssd=0
 action=
 rt=
+
+# ----------------------------------
+
+# default zone
+if [ -n "$GCP_ZONE" ]; then
+    zone="$GCP_ZONE"
+fi
+
+# default machinetype
+if [ -n "$GCP_MACHINE_TYPE" ]; then
+    mtype="$GCP_MACHINE_TYPE"
+fi
 
 # -----------------------------------
 
@@ -42,8 +52,8 @@ usage() {
     echo "                          Default is '$mtype'"
     echo "  -z|--zone <name>      : Set GCP zone to use. Default is '$zone'"
     echo ""
-    echo " Where <action> is 'run'. Any other action enables a dryrun,"
-    echo " followed by a list of names that become '\$prefix-\$name'"
+    echo " Where <action> is 'run' or other, where any other action enables a "
+    echo " dryrun,followed by a list of names that become '\$prefix-\$name'."
     echo " eg. '$PNAME test d01 d02 d03' will dryrun 3 worker nodes with"
     echo " the names: $prefix-d01, $prefix-d02, and $prefix-d03"
     echo ""
