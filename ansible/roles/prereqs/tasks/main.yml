@@ -2,31 +2,41 @@
 - name: Remove Packages
   become: true
   yum: name={{ item }} state=absent
-  with_items: "{{ remove_packages }}"
+  with_items: '{{ remove_packages }}'
 
 - name: Add/Update OpenJDK
   become: true
-  yum: name="java-1.8.0-openjdk-devel" state=present
+  yum:
+    name: "java-1.8.0-openjdk-devel"
+    state: present
 
 - name: Install Python-MySQL library
   become: true
-  yum: name="MySQL-python" state=present
+  yum:
+    name: "MySQL-python"
+    state: present
 
-- name: Copy sysctl.conf
+- name: Copy sysctl config
   become: true
-  template: src='{{ sysctl_conf_template }}' dest="/etc/sysctl.conf"
-  mode: 0644
-  notify: source sysctl.conf
+  template:
+    src: '{{ sysctl_conf_template }}'
+    dest: "/etc/sysctl.conf"
+    mode: 0644
+  notify: source sysctl_conf
 
-- name: Copy rc.local
+- name: Copy rc local
   become: true
-  template: src='{{ rc_local_template }}' dest="/etc/rc.d/rc.local"
-  mode: 0755
+  template:
+    src: '{{ rc_local_template }}'
+    dest: "/etc/rc.d/rc.local"
+    mode: 0755
 
 - name: Copy security limits.conf
   become: true
-  template: src='{{ security_limits_conf }}' dest="/etc/security/limits.conf"
-  mode: 0644
+  template:
+    src: '{{ security_limits_conf }}'
+    dest: "/etc/security/limits.conf"
+    mode: 0644
 
 # selinux
 #- name: Copy selinux.conf

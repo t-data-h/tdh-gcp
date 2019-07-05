@@ -1,10 +1,4 @@
 ---
-# Install host prerequisites
-- name: Install TDH
-  hosts: all
-  vars_files:
-    - roles/common/vars/constants.yml
-
 - name: Deploy TDH Masters
   hosts: masters
   tags: [ 'tdh_master' ]
