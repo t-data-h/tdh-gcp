@@ -5,6 +5,10 @@
 PNAME=${0##*\/}
 tdh_path=$(dirname "$(readlink -f "$0")")
 
+if [ -f ${tdh_path}/tdh-gcp-config.sh ]; then
+    . ${tdh_path}/tdh-gcp-config.sh
+fi
+
 # -----------------------------------
 
 host=
@@ -27,6 +31,10 @@ usage()
     echo ""
 }
 
+version()
+{
+    echo "$PNAME: v$VERSION"
+}
 
 
 while [ $# -gt 0 ]; do
@@ -42,7 +50,7 @@ while [ $# -gt 0 ]; do
         -P|--pwfile)
             pwfile="$2"
             if [ -r $pwfile ]; then
-                pw=$(cat $2) 
+                pw=$(cat $2)
             fi
             shift
             ;;
@@ -50,6 +58,9 @@ while [ $# -gt 0 ]; do
             id=$2
             shift
             ;;
+        -V|--version)
+            version
+            exit 0
         *)
             host="$1"
             role="$2"
