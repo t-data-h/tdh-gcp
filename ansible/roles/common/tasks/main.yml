@@ -19,22 +19,19 @@
         file:
             path: '{{ tdh_tarball_path }}'
             state: directory
-
       - name: Copy TDH
         become: true
         copy:
             src: '{{ tdh_drop_file }}'
             dest: '{{ tdh_tarball_path }}' #  + '/{{tdh_tarball_file }}' ?
-
-      block:
-          - name: Stop TDH
-            shell: '/opt/TDH/bin/tdh-init.sh stop'
-
-          - name: Move aside old tdh
-            become: true
-            command: mv {{ tdh_install_path }} /opt/TDH.old
-      when: tdhstat.stat.exists
-
+      - name: Stop and move aside tdh
+        block:
+            - name: Stop TDH
+              shell: '/opt/TDH/bin/tdh-init.sh stop'
+            - name: Move aside old tdh
+              become: true
+              shell: 'mv {{ tdh_install_path }} /opt/TDH.old'
+        when: tdhstat.stat.exists
       - name: Extract tarball
         unarchive:
             src: '{{ tdh_tarball_path }}/{{ tdh_tarball_file }}'
