@@ -1,6 +1,7 @@
 ---
-tdh_drop_file: '/tmp/TDH.tar.gz'
+tdh_tarball_file: 'TDH.tar.gz'
 tdh_tarball_path: '/tmp/TDH/'
+tdh_drop_file: '/tmp/{{ tdh_tarball_file }}'
 
 remove_packages:
  - mariadb-libs

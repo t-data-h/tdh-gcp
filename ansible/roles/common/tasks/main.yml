@@ -12,11 +12,18 @@
   block:
     - name: Create tmp directory
       file:
-        path: '{{ tdh_drop_path }}'
+        path: '{{ tdh_tarball_path }}'
         state: directory
     - name: Copy TDH
       become: true
       copy:
         src: '{{ tdh_drop_file }}'
-        dest: '{{ tdh_drop_path }}'
+        dest: '{{ tdh_tarball_path }}'
+    - name: Stop TDH
+      shell: '/opt/TDH/bin/tdh-init.sh stop'
+    - name: Extract tarball
+      unarchive:
+        src: '{{ tdh_tarball_path }}/{{ tdh_tarball_file }}'
+        dest: '/opt'
+        creates: '/opt/TDH' 
   when: tdhstat.stat.exists
