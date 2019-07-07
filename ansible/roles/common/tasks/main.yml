@@ -39,7 +39,7 @@
             creates: '{{ tdh_install_path }}'
       - name: Cleanup tarball
         file:
-            path: '{{ tdh_drop_file }}'
+            path: '{{ tdh_dropfile }}'
             state: absent
       - name: Create Hadoop link
         file:
