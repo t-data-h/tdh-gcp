@@ -46,3 +46,4 @@
     src: '{{ se_linux_conf }}'
     dest: "/etc/selinux/"
     mode: 0644
+  notify: selinux_setenforce
