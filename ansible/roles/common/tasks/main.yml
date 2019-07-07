@@ -72,26 +72,26 @@
  #
  # Anaconda Deploy
  #
- - name: Check for Anaconda Drop
-   stat:
-       path: '{{ tdh_python3_dropfile }}'
-   register: tdhpythonstat
+- name: Check for Anaconda Drop
+  stat:
+      path: '{{ tdh_python3_dropfile }}'
+  register: tdhpythonstat
 
- - name: Deploy anaconda3
-   block:
-       - name: Remove previous
-         become: true
-         file:
-             path: '{{ tdh_python3_install_path }}'
-             state: absent
-       - name: Extract Anaconda distribution
-         become: true
-         unarchive:
-             src: '{{ tdh_python3_dropfile }}'
-             dest: '{{ tdh_python_path }}'
-             creates: '{{ tdh_python3_install_path }}'
-       - name: Cleanup Anaconda tarball
-         file:
-             path: '{{ tdh_python3_dropfile }}'
-             state: absent
-    when: tdhpythonstat.stat.exists
+- name: Deploy anaconda3
+  block:
+      - name: Remove previous
+        become: true
+        file:
+            path: '{{ tdh_python3_install_path }}'
+            state: absent
+      - name: Extract Anaconda distribution
+        become: true
+        unarchive:
+            src: '{{ tdh_python3_dropfile }}'
+            dest: '{{ tdh_python_path }}'
+            creates: '{{ tdh_python3_install_path }}'
+      - name: Cleanup Anaconda tarball
+        file:
+            path: '{{ tdh_python3_dropfile }}'
+            state: absent
+  when: tdhpythonstat.stat.exists
