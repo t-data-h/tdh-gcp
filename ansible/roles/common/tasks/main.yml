@@ -41,6 +41,11 @@
         file:
             path: '{{ tdh_drop_file }}'
             state: absent
+      - name: Create Hadoop link
+        file:
+            src: '{{ tdh_install_path }}'
+            dest: '/opt/hadoop'
+            state: link
   when: tdhdropstat.stat.exists
 #
 # TDH Config Deploy
