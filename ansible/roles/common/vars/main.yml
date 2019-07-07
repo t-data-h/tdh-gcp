@@ -1,7 +1,7 @@
 ---
 tdh_tarball_file: 'TDH.tar.gz'
 tdh_tarball_path: '/tmp/TDH/'
-tdh_drop_file: '/tmp/{{ tdh_tarball_file }}'
+tdh_drop_file: '{{ tdh_tarball_path }}/{{ tdh_tarball_file }}'
 tdh_install_path: '/opt/TDH'
 
 tdh_python3_file: 'tdh-anaconda3.tar.gz'

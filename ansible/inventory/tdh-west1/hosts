@@ -1,6 +1,6 @@
 
 
-[master]
+[masters]
 tdh-m[01:02]
 
 [workers]
@@ -15,4 +15,3 @@ tdh-m02
 [mysql:children]
 mysql_master
 mysql_slave
-
