@@ -13,10 +13,12 @@ fi
 
 names="m01 m02"
 prefix="$TDH_GCP_PREFIX"
+
 zone="$GCP_DEFAULT_ZONE"
 mtype="$GCP_DEFAULT_MACHINETYPE"
 bootsize="$GCP_DEFAULT_BOOTSIZE"
 disksize="$GCP_DEFAULT_DISKSIZE"
+
 myid=1
 dryrun=1
 noprompt=0
@@ -28,7 +30,7 @@ rt=
 
 # -----------------------------------
 
-# default zone
+# override default zone
 if [ -n "$GCP_ZONE" ]; then
     zone="$GCP_ZONE"
 fi
@@ -159,6 +161,7 @@ while [ $# -gt 0 ]; do
 done
 
 if [ -z "$action" ]; then
+    version
     usage
     exit 1
 fi
