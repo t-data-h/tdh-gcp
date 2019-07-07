@@ -16,9 +16,11 @@
 - name: Distribute TDH
   block:
       - name: Create tmp directory
+        become: true
         file:
             path: '{{ tdh_tarball_path }}'
             state: directory
+            mode: '0777'
       - name: Stop and move aside TDH
         block:
             - name: Stop TDH
@@ -28,6 +30,7 @@
               shell: 'mv {{ tdh_install_path }} /opt/TDH.old'
         when: tdhstat.stat.exists
       - name: Extract tarball
+        become: true
         unarchive:
             src: '{{ tdh_tarball_path }}/{{ tdh_tarball_file }}'
             dest: '/opt'
