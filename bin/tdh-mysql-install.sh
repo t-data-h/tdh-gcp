@@ -116,7 +116,8 @@ if [ "$role" == "master" ] || [ "$role" == "slave" ]; then
     ( gcloud compute ssh $host --command 'sudo yum install -y mysql-community-server' )
     ( gcloud compute ssh $host --command 'sudo cp my.cnf /etc/my.cnf && sudo chmod 644 /etc/my.cnf' )
     ( gcloud compute ssh $host --command 'sudo mysqld --initialize-insecure --user=mysql' )
-    ( gcloud compute ssh $host --command 'sudo service mysqld start' )
+    ( gcloud compute ssh $host --command 'sudo systemctl start mysqld' )
+    ( gcloud compute ssh $host --command 'sudo systemctl enable mysqld' )
 
     rt=$?
     if [ $rt -gt 0 ]; then
