@@ -23,10 +23,12 @@ usage()
 {
     echo ""
     echo "Usage: $PNAME [options]  <host> <ROLE>"
-    echo "  -h|--help          = Display help and exit"
-    echo "  -p|--password <pw> = The root mysql password"
-    echo "  -P|--pwfile <file> = File containing root mysql password"
-    echo "  -s|--server-id <n> = Server ID to use for mysql instance"
+    echo "  -h|--help             : Display help and exit"
+    echo "  -p|--password <pw>    : The root mysql password"
+    echo "  -P|--pwfile <file>    : File containing root mysql password"
+    echo "  -s|--server-id <n>    : Server ID to use for mysql instance"
+    echo "  -V|--version          : Show version info and exit"
+    echo "  -V|--version          : Show version info"
     echo " Where ROLE is 'master', 'slave', or 'client'"
     echo ""
 }
@@ -72,6 +74,7 @@ done
 
 
 if [ -z "$host" ] || [ -z "$role" ]; then
+    version
     usage
     exit 1
 fi
@@ -113,7 +116,8 @@ if [ "$role" == "master" ] || [ "$role" == "slave" ]; then
     ( gcloud compute ssh $host --command 'sudo yum install -y mysql-community-server' )
     ( gcloud compute ssh $host --command 'sudo cp my.cnf /etc/my.cnf && sudo chmod 644 /etc/my.cnf' )
     ( gcloud compute ssh $host --command 'sudo mysqld --initialize-insecure --user=mysql' )
-    ( gcloud compute ssh $host --command 'sudo service mysqld start' )
+    ( gcloud compute ssh $host --command 'sudo systemctl start mysqld' )
+    ( gcloud compute ssh $host --command 'sudo systemctl enable mysqld' )
 
     rt=$?
     if [ $rt -gt 0 ]; then

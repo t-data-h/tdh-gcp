@@ -1,2 +1,16 @@
 ---
-#- name: Master
+- name: Master Provisioning
+  hosts: mysql_master
+- name: Namenode Directory exists?
+  stat: '{{ tdh_namenode_dir }}'
+- name: Provisioning Steps
+  block:
+      - name:  Format namenode
+        shell: 'hadoop namenode -format'
+      - name: TDH Provisioning Step 1 (mysql)
+        shell: '{{ tdh_install_path }}/bin/01-mysql-provision.sh'
+      - name: TDH Provisioning Step 2
+        shell: '{{ tdh_install_path }}/bin/03-tdh-provision.sh'
+      - name: TDH Provisioning Step 3
+        shell: '{{ tdh_install_path }}/bin/05-spark-provision.sh'
+when: nndir.stat.exists == false
