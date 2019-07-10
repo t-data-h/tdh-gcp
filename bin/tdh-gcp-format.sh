@@ -6,11 +6,14 @@ if [ -f ${tdh_path}/tdh-gcp-config.sh ]; then
     . ${tdh_path}/tdh-gcp-config.sh
 fi
 
+# -----------------------------------
+
 device="$1"
 mount="$2"
 devname=${device##*\/}
 
 # -----------------------------------
+
 if [ -z "$device" ] || [ -z "$mount" ]; then
     echo "Usage: $PNAME <device> <mountpoint>"
     exit 1

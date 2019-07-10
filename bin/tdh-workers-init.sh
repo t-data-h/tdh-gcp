@@ -13,10 +13,12 @@ fi
 
 names="d01 d02 d03"
 prefix="$TDH_GCP_PREFIX"
+
 zone="$GCP_DEFAULT_ZONE"
 mtype="n1-highmem-8"
 bootsize="$GCP_DEFAULT_BOOTSIZE"
 disksize="$GCP_DEFAULT_DISKSIZE"
+
 myid=1
 attach=0
 dryrun=1
@@ -117,6 +119,7 @@ while [ $# -gt 0 ]; do
 done
 
 if [ -z "$action" ]; then
+    version
     usage
     exit 1
 fi

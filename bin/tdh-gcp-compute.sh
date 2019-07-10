@@ -52,6 +52,7 @@ usage()
     echo "  -S|--ssd              : Use SSD as attached disk type"
     echo "  -t|--type             : Machine type to use for instance(s)"
     echo "  -z|--zone <name>      : Set GCP zone (use -l to list)"
+    echo "  -V|--version          : Show version info and exit"
     echo ""
     echo " Where <action> is one of the following "
     echo "     create             :  Initialize new GCP instance"
@@ -217,6 +218,7 @@ done
 
 
 if [ -z "$name" ]; then
+    version
     usage
     exit 1
 fi

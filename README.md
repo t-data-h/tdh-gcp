@@ -3,25 +3,26 @@ TDH-GCP Scripts
 
 Scripts for building compute instances.
 
-tdh-gcp-compute.sh:  
-  Script for creating a new GCP Compute Instance. Will create an instance
+**tdh-gcp-compute.sh**:
+  Base script for creating a new GCP Compute Instance. Will create an instance
 and optionally attach a data disk to the instance.
 
-tdh-gcp-format.sh:  
+**tdh-masters-init.sh**:
+    Wraps *tdh-gcp-copmpute.sh* with defaults for initializing master hosts.
+
+**tdh-workers-init.sh**:
+    Builds GCP worker nodes.
+
+Support scripts used by the init scripts.
+
+**tdh-gcp-format.sh**:  
   Script for formatting and mounting a new data drive for a given instance.
 
-tdh-mysql-install.sh:  
+**tdh-mysql-install.sh**:  
   Bootstraps a Mysql 5.7 Server for an instance.
 
-tdh-prereqs.sh:
+**tdh-prereqs.sh**:
   Install host prerequisites
-
-tdh-masters-init.sh:
-    Wraps above scripts with defaults regarding initializing master hosts
-
-tdh-workers-init.sh:
-    Builds GCP worker nodes for TDH Environment.
-
 
 
 ## GCP Machine-Types:
