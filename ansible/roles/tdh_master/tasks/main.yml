@@ -1,12 +1,10 @@
 ---
 - name: Namenode Directory exists?
-  hosts: 'mysql_master'
   stat: '{{ tdh_namenode_dir }}'
   register: nndir
 
 - block:
   - name: Create Mysql Replication User
-    hosts: 'mysql_master'
     mysql_user:
       login_user: 'root'
       login_password: '{{ mysql_root_password }}'
@@ -34,6 +32,23 @@
       mode: getmaster
     register: master_status
 
+  - block:
+    - name:  Format namenode
+      shell: 'hadoop namenode -format'
+
+    - name: TDH Provisioning Step 1 (mysql)
+      shell: '{{ tdh_install_path }}/bin/01-mysql-provision.sh'
+
+    - name: TDH Provisioning Step 2
+      shell: '{{ tdh_install_path }}/bin/03-tdh-provision.sh'
+
+    - name: TDH Provisioning Step 3
+      shell: '{{ tdh_install_path }}/bin/05-spark-provision.sh'
+    when: nndir.stat.exists == false
+
+  when: inventory_hostname in groups['master01']
+
+- block:
   - name: Get Slave Info
     mysql_replication:
       login_user: 'root'
@@ -60,13 +75,4 @@
       mode: startslave
     when: not slave_status.Is_Slave
 
-  - name:  Format namenode
-    shell: 'hadoop namenode -format'
-  - name: TDH Provisioning Step 1 (mysql)
-    shell: '{{ tdh_install_path }}/bin/01-mysql-provision.sh'
-  - name: TDH Provisioning Step 2
-    shell: '{{ tdh_install_path }}/bin/03-tdh-provision.sh'
-  - name: TDH Provisioning Step 3
-    shell: '{{ tdh_install_path }}/bin/05-spark-provision.sh'
-
-  when: nndir.stat.exists == false
+  when: inventory_hostname in groups['master02']
