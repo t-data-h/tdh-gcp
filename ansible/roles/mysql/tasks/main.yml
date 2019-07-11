@@ -24,14 +24,14 @@
     login_user: 'root'
     login_password: '{{ mysql_root_password }}'
     mode: getmaster
-register: master_status
+  register: master_status
 
 - name: Get Slave Info
   mysql_replication:
     login_user: 'root'
     login_password: '{{ mysql_root_password }}'
     mode: getslave
-register: slave_status
+  register: slave_status
 
 - name: Configure Slave Replication
   mysql_replication:
@@ -51,4 +51,3 @@ register: slave_status
     login_password: '{{ mysql_root_password }}'
     mode: startslave
   when: not slave_status.Is_Slave
-    

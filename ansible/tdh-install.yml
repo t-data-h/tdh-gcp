@@ -10,7 +10,7 @@
   tags: [ 'tdh_master' ]
   roles:
       - 'mysql'
-      
+
 - name: Deploy TDH Masters
   hosts: masters
   tags: [ 'tdh_master' ]
