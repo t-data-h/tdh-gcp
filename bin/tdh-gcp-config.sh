@@ -1,7 +1,7 @@
 #!/bin/bash
 export TDH_GCP_INCLUDE=1
 
-TDH_GCP_VERSION="0.5.4"
+TDH_GCP_VERSION="0.5.5"
 TDH_GCP_PREFIX="tdh"
 
 GCP_DEFAULT_ZONE="us-west1-b"
