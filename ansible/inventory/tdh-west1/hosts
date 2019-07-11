@@ -1,10 +1,17 @@
 
+[master01]
+tdh-m01
 
-[masters]
-tdh-m[01:02]
+[master02]
+tdh-m02
+
+[masters:children]
+master01
+master02
 
 [workers]
 tdh-d[01:03]
+
 
 [mysql_master]
 tdh-m01
