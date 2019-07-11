@@ -1,4 +1,8 @@
 ---
-master_hostname: 'tdh-m01'
-mysql_hostname: '{{master_hostname}}'
+master_hostname: 'tdh-m2'
+slave_hostname: 'tdh-m02'
+mysql_hostname: '{{ master_hostname }}'
 
+mysql_repl_user: 'tdhrepl'
+mysql_hive_user: 'hive'
+mysql_hue_user: 'hue'
