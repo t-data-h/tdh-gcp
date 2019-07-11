@@ -69,4 +69,4 @@
   - name: TDH Provisioning Step 3
     shell: '{{ tdh_install_path }}/bin/05-spark-provision.sh'
 
-when: nndir.stat.exists == false
+  when: nndir.stat.exists == false
