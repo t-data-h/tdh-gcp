@@ -15,7 +15,6 @@
       host: '%'
 
   - name: Create Hive User
-    hosts: 'mysql_master'
     mysql_user:
         login_user: 'root'
         login_password: '{{ mysql_root_password }}'
