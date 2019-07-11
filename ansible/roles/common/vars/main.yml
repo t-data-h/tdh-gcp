@@ -20,15 +20,12 @@ tdh_datanode_dir: '/data/hdfs/dn'
 remove_packages:
  - mariadb-libs
 
-mysql_metastore_user: hive
-mysql_repl_user: mysqlrepl
-
 mysql_tdh_roles:
-  - db_name: "metastore"
-    db_user: "hive"
+  - db_name: 'metastore'
+    db_user: '{{ mysql_hive_user }}'
     db_password: '{{ hive_password }}'
-  - db_name: "hue"
-    db_user: "hue"
+  - db_name: 'hue'
+    db_user: '{{ mysql_hue_user }}'
     db_password: '{{ hue_password }}'
 
-mysql_backup_dir: "/data/backup"
+mysql_backup_dir: '/data/backup'
