@@ -71,8 +71,8 @@
   - name: TDH Provisioning Step 2
     shell: '{{ tdh_install_path }}/bin/03-tdh-provision.sh'
 
-   - name: TDH Provisioning Step 3
-     shell: '{{ tdh_install_path }}/bin/05-spark-provision.sh'
-     when: nndir.stat.exists == false
+  - name: TDH Provisioning Step 3
+    shell: '{{ tdh_install_path }}/bin/05-spark-provision.sh'
+    when: nndir.stat.exists == false
 
   when: inventory_hostname in groups['master01']
