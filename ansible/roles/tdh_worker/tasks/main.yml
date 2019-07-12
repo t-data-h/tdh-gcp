@@ -1,6 +1,10 @@
 ---
 # TDH Worker
 - name: Create HDFS Datanode path
+  become: true
   file:
-      path: '{{ tdh_datanode_dir }}'
-      state: present
+    path: '{{ tdh_datanode_dir }}'
+    owner: '{{ tdh_user }}'
+    group: '{{ tdh_user }}'
+    mode: 0750
+    state: directory

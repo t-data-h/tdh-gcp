@@ -7,22 +7,18 @@
   stat:
     path: '{{ tdh_dropfile }}'
   register: tdhdropstat
-
 - name: Check for TDH Config Drop
   stat:
     path: '{{ tdh_config_dropfile }}'
   register: tdhconfigstat
-
 - name: Check for existing Install
   stat:
     path: '{{ tdh_install_path }}'
   register: tdhstat
-
 - name: Check for Anaconda Drop
   stat:
     path: '{{ tdh_python3_dropfile }}'
   register: tdhpythonstat
-
 - name: Create tmp directory
   become: true
   file:
@@ -32,76 +28,62 @@
 
 # Deploy TDH
 - block:
-
   - name: Stop TDH
     shell: '/opt/TDH/bin/tdh-init.sh stop'
     when: inventory_hostname in groups['master01']
-
   - name:  Remove previous TDH
     become: true
     file:
       path: '{{ tdh_install_path }}'
       state: absent
-
   - name: Extract tarball
     become: true
     unarchive:
       src: '{{ tdh_dropfile }}'
       dest: '/opt'
       creates: '{{ tdh_install_path }}'
-
   - name: Cleanup tarball
     file:
       path: '{{ tdh_dropfile }}'
       state: absent
-
   - name: Create Hadoop link
     become: true
     file:
       src: '{{ tdh_install_path }}'
       dest: '/opt/hadoop'
       state: link
-
   when: tdhdropstat.stat.exists
 
 # TDH Config Deploy
 - block:
-
   - name: Extract Config
     unarchive:
       src: '{{ tdh_config_dropfile }}'
       dest: '{{ tdh_tmp_path }}'
       creates: '{{ tdh_config_path }}'
-
   - name: Push TDH config
     shell: 'rsync -aK {{ tdh_config_path }}/ {{ tdh_install_path }}/'
-
   - name: Cleanup install
     file:
       path: '{{ tdh_config_path }}'
       state: absent
-
   when: tdhconfigstat.stat.exists
 
  # Anaconda Deploy
 - block:
-
   - name: Remove previous
     become: true
     file:
       path: '{{ tdh_python3_install_path }}'
       state: absent
-
   - name: Extract Anaconda distribution
     become: true
     unarchive:
       src: '{{ tdh_python3_dropfile }}'
       dest: '{{ tdh_python_path }}'
       creates: '{{ tdh_python3_install_path }}'
-
   - name: Cleanup Anaconda tarball
     file:
       path: '{{ tdh_python3_dropfile }}'
       state: absent
-
   when: tdhpythonstat.stat.exists
