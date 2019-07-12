@@ -26,8 +26,8 @@ Create the following yaml file as *inventory/ENV/group_vars/all/vault*:
 mysql_root_password: 'rootpw'
 mysql_repl_password' 'replpw'
 
-hive_password: 'hivepw'
-hue_password: 'huepw'
+mysql_hive_password: 'hivepw'
+mysql_hue_password: 'huepw'
 ```
 
 The file should be encrypted via the command:

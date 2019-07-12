@@ -37,7 +37,7 @@
     shell: '/opt/TDH/bin/tdh-init.sh stop'
     when: inventory_hostname in groups['master01']
 
-  - name: Move aside old TDH
+  - name:  Remove previous TDH
     become: true
     file:
       path: '{{ tdh_install_path }}'
