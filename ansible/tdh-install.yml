@@ -5,14 +5,14 @@
   vars_files:
     - roles/common/vars/constants.yml
 
-- name: Deploy TDH Masters
-  hosts: master01
-  tags: [ 'tdh_master' ]
-  roles:
-    - 'tdh_master'
-
 - name: Deploy TDH Workers
   hosts: workers
   tags: [ 'tdh_worker' ]
   roles:
     - 'tdh_worker'
+
+- name: Deploy TDH Masters
+  hosts: master01
+  tags: [ 'tdh_master' ]
+  roles:
+    - 'tdh_master'
