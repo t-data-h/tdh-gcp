@@ -29,7 +29,7 @@
 # Deploy TDH
 - block:
   - name: Stop TDH
-    shell: '/opt/TDH/bin/tdh-init.sh stop'
+    shell: '{{ tdh_install_path }}/bin/tdh-init.sh stop'
     when: inventory_hostname in groups['master01']
   - name:  Remove previous TDH
     become: true

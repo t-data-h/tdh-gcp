@@ -53,6 +53,10 @@
   when: inventory_hostname in groups['master02']
 
 - block:
+  - name: TDH Provisioning Step 1
+    shell: '{{ tdh_install_path }}/bin/03-tdh-provision.sh'
+  - name: TDH Provisioning Step 2
+    shell: '{{ tdh_install_path }}/bin/05-spark-provision.sh'
   - name: Create HDFS Namenode path
     become: true
     file:
@@ -63,11 +67,5 @@
       state: directory
   - name:  Format namenode
     shell: 'hadoop namenode -format'
-  - name: TDH Provisioning Step 1 (mysql)
-    shell: '{{ tdh_install_path }}/bin/01-mysql-provision.sh'
-  - name: TDH Provisioning Step 2
-    shell: '{{ tdh_install_path }}/bin/03-tdh-provision.sh'
-  - name: TDH Provisioning Step 3
-    shell: '{{ tdh_install_path }}/bin/05-spark-provision.sh'
-    when: nndir.stat.exists == false
-  when: inventory_hostname in groups['master01']
+    when: inventory_hostname in groups['master01']
+  when: nndir.stat.exists == false

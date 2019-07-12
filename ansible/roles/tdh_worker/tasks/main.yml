@@ -1,5 +1,12 @@
 ---
 # TDH Worker
+
+- name: TDH Provisioning Step 1
+  shell: '{{ tdh_install_path }}/bin/03-tdh-provision.sh'
+
+- name: TDH Provisioning Step 2
+  shell: '{{ tdh_install_path }}/bin/05-spark-provision.sh'
+
 - name: Create HDFS Datanode path
   become: true
   file:
