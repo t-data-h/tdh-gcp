@@ -1,5 +1,5 @@
 ---
-# TDH Ansible Prerequisites
+# TDH Prerequisites
 #
 - name: Remove Packages
   become: true
@@ -39,7 +39,6 @@
     dest: "/etc/security/limits.conf"
     mode: 0644
 
-# selinux
 - name: Copy selinux.conf
   become: true
   template:
@@ -47,3 +46,11 @@
     dest: "/etc/selinux/"
     mode: 0644
   notify: selinux_setenforce
+
+- name: Create Log Directory
+  become: true
+  file:
+    path: '{{ tdh_log_dir }}'
+    group: '{{ tdh_group }}'
+    state: directory
+    mode: 0775
