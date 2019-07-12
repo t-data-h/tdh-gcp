@@ -2,5 +2,5 @@
 # TDH Worker
 - name: Create HDFS Datanode path
   file:
-      path: {{ tdh_datanode_dir }}
+      path: '{{ tdh_datanode_dir }}'
       state: present
