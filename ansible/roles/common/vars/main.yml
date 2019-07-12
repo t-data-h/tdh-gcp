@@ -19,9 +19,6 @@ tdh_namenode_dir: '/data/hdfs/nn'
 tdh_datanode_dir: '/data/hdfs/dn'
 tdh_log_dir: '/var/log/hadoop'
 
-remove_packages:
- - mariadb-libs
-
 mysql_tdh_roles:
   - db_name: 'metastore'
     db_user: '{{ mysql_hive_user }}'
