@@ -11,6 +11,9 @@ TDH_HADOOP_DIR="${GITREPO}/tdh-hadoop"
 TDH_CONF_DIR="${TDH_HADOOP_DIR}/conf"
 TDH_GCP_DIR="./tdh-gcp/"
 
+#
+# TDH Config
+#
 
 cd $TDH_CONF_DIR
 
