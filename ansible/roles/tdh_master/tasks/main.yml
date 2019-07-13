@@ -14,38 +14,33 @@
       priv: '*.*:ALL'
       state: present
       host: '%'
+  when: inventory_hostname in groups['master01']
+
+- block:
   - name: Get Master Info
     mysql_replication:
       login_user: 'root'
       login_password: '{{ mysql_root_password }}'
+      login_host: '{{ mysql_hostnmae }}'
+      login_port: '{{ mysql_port }}'
       mode: getmaster
     register: master_status
   - name: Show Master Status
     debug: var='master_status'
-  when: inventory_hostname in groups['master01']
-
-- block:
   - name: Get Slave Info
     mysql_replication:
       login_user: 'root'
       login_password: '{{ mysql_root_password }}'
       mode: getslave
     register: slave_status
-  - name: Show Slave Status
-    debug: var='slave_status'
-  - name: Reset Slave
-    mysql_replication:
-      login_user: 'root'
-      login_password: '{{ mysql_root_password }}'
-      mode: resetslave
-  - name: Configure Slave Replication
+  - name: Configure slave
     mysql_replication:
       login_user: 'root'
       login_password: '{{ mysql_root_password }}'
       mode: changemaster
       master_user: '{{ mysql_repl_user }}'
       master_password: '{{ mysql_repl_password }}'
-      master_host: ' {{ master_hostname }}'
+      master_host: '{{ mysql_hostname }}'
       master_log_file: '{{ master_status.File }}'
       master_log_pos: '{{ master_status.Position }}'
     when: not slave_status.Is_Slave
