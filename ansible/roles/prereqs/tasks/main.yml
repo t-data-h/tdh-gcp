@@ -3,7 +3,9 @@
 #
 - name: Remove Packages
   become: true
-  yum: name={{ yum_remove_packages }} state=absent
+  yum: 
+    name: '{{ yum_remove_packages }}'
+    state: absent
 
 - name: Add/Update OpenJDK
   become: true
@@ -13,7 +15,8 @@
 
 - name: Install Packages
   become: true
-  yum: name={{ yum_install_packages }} state=present
+  yum: 
+    name: '{{ yum_install_packages }}'
     state: present
 
 - name: Copy sysctl config
