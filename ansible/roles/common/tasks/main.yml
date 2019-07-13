@@ -18,7 +18,7 @@
 - name: Check for Anaconda Drop
   stat:
     path: '{{ tdh_python3_dropfile }}'
-  register: tdhpythonstat
+  register: tdhpystat
 - name: Create tmp directory
   become: true
   file:
@@ -89,5 +89,5 @@
     file:
       path: '{{ tdh_python3_dropfile }}'
       state: absent
-  when: tdhpythonstat.stat.exists
+  when: tdhpystat.stat.exists
   become: true
