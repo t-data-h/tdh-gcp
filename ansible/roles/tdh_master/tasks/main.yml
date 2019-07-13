@@ -16,6 +16,8 @@
       host: '%'
   - name: Remove all anonymous user accounts
     mysql_user:
+      login_user: 'root'
+      login_password: '{{ mysql_root_password }}'
       name: ""
       host_all: yes
       state: absent
@@ -35,7 +37,7 @@
     mysql_replication:
       login_user: 'root'
       login_password: '{{ mysql_root_password }}'
-      login_host: '{{ mysql_master_hostnmae }}'
+      login_host: '{{ mysql_master_hostname }}'
       login_port: '{{ mysql_port }}'
       mode: getmaster
     register: master_status
