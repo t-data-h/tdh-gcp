@@ -1,6 +1,6 @@
 ---
-mysql_master_hostname: 'tdh-m01'
-mysql_slave_hostname: 'tdh-m02'
+mysql_master_hostname: 'tdh-m01.c.t3-dataintellence.internal'
+mysql_slave_hostname: 'tdh-m02.c.t3-dataintellence.internal'
 mysql_hostname: '{{ mysql_master_hostname }}'
 mysql_port: 3306
 
