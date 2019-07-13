@@ -31,22 +31,22 @@
   - name: Stop TDH
     shell: '{{ tdh_install_path }}/bin/tdh-init.sh stop'
     when: inventory_hostname in groups['master01']
-  - name:  Remove previous TDH
+  - name:  Remove previous TDH installation
     become: true
     file:
       path: '{{ tdh_install_path }}'
       state: absent
-  - name: Extract tarball
+  - name: Extract TDH package
     become: true
     unarchive:
       src: '{{ tdh_dropfile }}'
       dest: '/opt'
       creates: '{{ tdh_install_path }}'
-  - name: Cleanup tarball
+  - name: Cleanup TDH install package
     file:
       path: '{{ tdh_dropfile }}'
       state: absent
-  - name: Create Hadoop link
+  - name: Create a hadoop link
     become: true
     file:
       src: '{{ tdh_install_path }}'
@@ -56,14 +56,14 @@
 
 # TDH Config Deploy
 - block:
-  - name: Extract Config
+  - name: Extract TDH Config package
     unarchive:
       src: '{{ tdh_config_dropfile }}'
       dest: '{{ tdh_tmp_path }}'
       creates: '{{ tdh_config_path }}'
-  - name: Push TDH config
+  - name: Syncronize TDH Config
     shell: 'rsync -aK {{ tdh_config_path }}/ {{ tdh_install_path }}/'
-  - name: Cleanup install
+  - name: Cleanup TDH Config package
     file:
       path: '{{ tdh_config_path }}'
       state: absent
@@ -71,18 +71,18 @@
 
  # Anaconda Deploy
 - block:
-  - name: Remove previous
+  - name: Remove previous Anaconda
     become: true
     file:
       path: '{{ tdh_python3_install_path }}'
       state: absent
-  - name: Extract Anaconda distribution
+  - name: Extract Anaconda package
     become: true
     unarchive:
       src: '{{ tdh_python3_dropfile }}'
       dest: '{{ tdh_python_path }}'
       creates: '{{ tdh_python3_install_path }}'
-  - name: Cleanup Anaconda tarball
+  - name: Cleanup Anaconda package
     file:
       path: '{{ tdh_python3_dropfile }}'
       state: absent
