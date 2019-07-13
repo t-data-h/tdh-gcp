@@ -72,18 +72,15 @@
  # Anaconda Deploy
 - block:
   - name: Remove previous Anaconda
-    become: true
     file:
       path: '{{ tdh_python3_path }}'
       state: absent
   - name: Ensure python3 path exists
-    become: true
     file:
       path: '{{ tdh_python3_install_path }}'
       state: directory
       mode: 0755
   - name: Extract Anaconda package
-    become: true
     unarchive:
       src: '{{ tdh_python3_dropfile }}'
       dest: '{{ tdh_python3_install_path }}'
@@ -93,3 +90,4 @@
       path: '{{ tdh_python3_dropfile }}'
       state: absent
   when: tdhpythonstat.stat.exists
+  become: true
