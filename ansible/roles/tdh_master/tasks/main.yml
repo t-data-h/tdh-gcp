@@ -33,6 +33,11 @@
     register: slave_status
   - name: Show Slave Status
     debug: var='slave_status'
+  - name: Reset Slave
+    mysql_replication:
+      login_user: 'root'
+      login_password: '{{ mysql_root_password }}'
+      mode: resetslave
   - name: Configure Slave Replication
     mysql_replication:
       login_user: 'root'
