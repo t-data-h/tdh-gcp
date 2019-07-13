@@ -12,7 +12,7 @@ tdh_config_path: '{{ tdh_tmp_path }}/tdh-conf'
 tdh_python3_tarball_file: 'tdh-anaconda3.tar.gz'
 tdh_python3_dropfile: '{{ tdh_tmp_path }}/{{ tdh_python3_tarball_file }}'
 tdh_python3_install_path: '/opt/python'
-tdh_python3_path: '{{ tdh_python3_path }}/anaconda3'
+tdh_python3_path: '{{ tdh_python3_install_path }}/anaconda3'
 
 tdh_data_dir: '/data'
 tdh_namenode_dir: '/data/hdfs/nn'
