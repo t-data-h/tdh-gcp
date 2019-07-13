@@ -63,9 +63,13 @@
       creates: '{{ tdh_config_path }}'
   - name: Syncronize TDH Config
     shell: 'rsync -aK {{ tdh_config_path }}/ {{ tdh_install_path }}/'
-  - name: Cleanup TDH Config package
+  - name: Cleanup TDH Config install path
     file:
       path: '{{ tdh_config_path }}'
+      state: absent
+  - name:  Cleanup TDH Config Package
+    file:
+      path: '{{ tdh_config_dropfile }}'
       state: absent
   when: tdhconfigstat.stat.exists
 
