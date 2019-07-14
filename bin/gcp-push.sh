@@ -1,13 +1,25 @@
 #!/bin/bash
 #
 #
+PNAME=${0##*\/}
 DISTPATH="${HOME}/tmp/dist"
 
 
 usage()
 {
     echo ""
-    echo "$0  [path] [archive_name] <gcphost>"
+    echo "$PNAME  [path] <archive_name> <gcphost>"
+    echo ""
+    echo "  Where 'path' is the directory to be archived."
+    echo " The script assumes that the archive will contain the final"
+    echo " directory, so a path of a '/a/b/c' will create the archive from 'b'"
+    echo " with the tarfile containing './c/' as the root directory"
+    echo ""
+    echo "  Archive name is an altername name to call the tarball. The value"
+    echo " 'foo' will result in an archive of foo.tar.gz"
+    echo ""
+    echo "  The environment variable 'GCH_PUSH_HOST' is honored as the "
+    echo " the default 'gcphost' to use."
     echo ""
 }
 
