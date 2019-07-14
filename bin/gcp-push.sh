@@ -2,12 +2,20 @@
 #
 #
 PNAME=${0##*\/}
+tdh_path=$(dirname "$(readlink -f "$0")")
+
+if [ -f ${tdh_path}/tdh-gcp-config.sh ]; then
+    . ${tdh_path}/tdh-gcp-config.sh
+fi
+
+# -----------------------------------
+
 DISTPATH="${HOME}/tmp/dist"
+if [ -n "$GCP_DIST_PATH" ]; then
+    DISTPATH="$GCP_DIST_PATH"
+fi
 
-APATH=$( realpath $1 )
-ANAME="$2"
-GCPHOST="$3"
-
+# -----------------------------------
 
 usage()
 {
@@ -24,53 +32,86 @@ usage()
     echo " value 'somepkg' will result in an archive of somepkg.tar.gz"
     echo " By default, the archive will be named after the final directory."
     echo ""
-    echo "  The environment variable 'GCH_PUSH_HOST' is honored as the "
+    echo "  The environment variable 'GCP_PUSH_HOST' is honored as the "
     echo " the default 'gcphost' to use. If not set, all three parameters"
     echo " are required."
     echo ""
 }
 
+version()
+{
+    echo "$PNAME: v$TDH_GCP_VERSION"
+}
 
-if [ -n "$GCP_DIST_PATH" ]; then
-    DISTPATH="$GCP_DIST_PATH"
+
+# MAIN
+#
+apath=
+aname=
+gcphost=
+rt=0
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -h|--help)
+            usage
+            exit $rt
+            ;;
+        -V|--version)
+            version
+            exit $rt
+            ;;
+        *)
+            apath=
+            aname="$2"
+            gcphost="$3
+            shift $#
+            ;;
+    esac
+    shift
+done
+
+if [ -z "$apath" ]; then
+    usage
+    exit 1
 fi
 
-if [ -z "$GCPHOST" ]; then
-    GCPHOST="$GCP_PUSH_HOST"
+if [ -z "$gcphost" ]; then
+    gcphost="$GCP_PUSH_HOST"
 fi
 
-if [ -z "$GCPHOST" ]; then
+if [ -z "$gcphost" ]; then
     echo "Error! GCP_PUSH_HOST not defined or provided."
     usage
     exit 1
 fi
 
-if [ -z "$APATH" ]; then
+if [ -z "$apath" ]; then
     echo "Invalid Path."
     usage
     exit 1
 fi
 
-target=$(dirname "$(readlink -f "$APATH")")
-name=${APATH##*\/}
+target=$(dirname "$(readlink -f "$apath")")
+name=${apath##*\/}
 
-if [ -z "$ANAME" ]; then
-    ANAME="$name"
+if [ -z "$aname" ]; then
+    aname="$name"
 fi
 
 cd $target
 
-( tar -cvf ${DISTPATH}/${ANAME}.tar ./${name} )
-( gzip ${DISTPATH}/${ANAME}.tar )
-( gcloud compute ssh ${GCPHOST} --command "mkdir -p /tmp/dist" )
-( gcloud compute scp ${DISTPATH}/${ANAME}.tar.gz ${GCPHOST}:/tmp/dist/ )
+( tar -cvf ${DISTPATH}/${aname}.tar ./${name} )
+( gzip ${DISTPATH}/${aname}.tar )
+( gcloud compute ssh ${gcphost} --command "mkdir -p /tmp/dist" )
+( gcloud compute scp ${DISTPATH}/${aname}.tar.gz ${gcphost}:/tmp/dist/ )
 
 rt=$?
 if [ $rt -gt 0 ]; then
     echo "Error in gcp"
 fi
 
-( rm ${DISTPATH}/${ANAME}.tar.gz )
+( rm ${DISTPATH}/${aname}.tar.gz )
 
 echo "$PNAME Finished."
 exit $rt

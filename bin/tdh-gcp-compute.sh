@@ -171,11 +171,11 @@ while [ $# -gt 0 ]; do
             ;;
         -h|--help)
             usage
-            exit 0
+            exit $rt
             ;;
         -l|--list)
             list_machine_types
-            exit 0
+            exit $rt
             ;;
         -d|--disksize)
             disksize="$2"
@@ -205,7 +205,7 @@ while [ $# -gt 0 ]; do
             ;;
         -V|--version)
             version
-            exit 0
+            exit $rt
             ;;
         *)
             action="$1"
