@@ -49,6 +49,8 @@
       login_password: '{{ mysql_root_password }}'
       mode: getslave
     register: slave_status
+  - name: Show Slave Status
+    debug: var='slave_status'
   - name: Configure slave
     mysql_replication:
       login_user: 'root'
