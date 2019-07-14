@@ -30,6 +30,20 @@
       host: '{{ mysql_slave_hostname }}'
       priv: '*.*:ALL,GRANT'
       state: present
+  - name: Create Hive Database
+    mysql_db:
+      login_user: 'root'
+      login_password: '{{ mysql_root_password }}'
+      name: '{{ mysql_hive_db }}'
+      state: present
+  - name: Create Hive User
+    mysql_user:
+      login_user: 'root'
+      login_password: '{{ mysql_root_password }}'
+      name: '{{ mysql_hive_user }}'
+      password: '{{ mysql_hive_ password }}'
+      host: '{{ item }}'
+    with_items: '{{ tdh_mysql_client_hosts }}'
   when: inventory_hostname in groups['master01']
 
 - block:
@@ -72,8 +86,10 @@
 
 - block:
   - name: TDH Provisioning Step 1
-    shell: '{{ tdh_install_path }}/bin/03-tdh-provision.sh'
+    shell: '{{ tdh_install_path }}/bin/01-tdh-mysql-provision.sh'
   - name: TDH Provisioning Step 2
+    shell: '{{ tdh_install_path }}/bin/03-tdh-provision.sh'
+  - name: TDH Provisioning Step 3
     shell: '{{ tdh_install_path }}/bin/05-spark-provision.sh'
   - name: Create HDFS Namenode path
     become: true
