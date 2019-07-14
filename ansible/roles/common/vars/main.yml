@@ -11,16 +11,13 @@ tdh_config_path: '{{ tdh_tmp_path }}/tdh-conf'
 
 tdh_python3_tarball_file: 'tdh-anaconda3.tar.gz'
 tdh_python3_dropfile: '{{ tdh_tmp_path }}/{{ tdh_python3_tarball_file }}'
-tdh_python_path: '/opt/python'
-tdh_python3_install_path: '{{ tdh_python_path }}/anaconda3'
+tdh_python3_install_path: '/opt/python'
+tdh_python3_path: '{{ tdh_python3_install_path }}/anaconda3'
 
 tdh_data_dir: '/data'
 tdh_namenode_dir: '/data/hdfs/nn'
 tdh_datanode_dir: '/data/hdfs/dn'
 tdh_log_dir: '/var/log/hadoop'
-
-remove_packages:
- - mariadb-libs
 
 mysql_tdh_roles:
   - db_name: 'metastore'

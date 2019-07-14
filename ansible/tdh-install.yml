@@ -12,7 +12,7 @@
     - 'tdh_worker'
 
 - name: Deploy TDH Masters
-  hosts: master01
+  hosts: masters
   tags: [ 'tdh_master' ]
   roles:
     - 'tdh_master'
