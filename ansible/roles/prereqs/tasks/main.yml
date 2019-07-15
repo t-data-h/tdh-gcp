@@ -3,7 +3,7 @@
 #
 - name: Remove Packages
   become: true
-  yum: 
+  yum:
     name: '{{ yum_remove_packages }}'
     state: absent
 
@@ -15,7 +15,7 @@
 
 - name: Install Packages
   become: true
-  yum: 
+  yum:
     name: '{{ yum_install_packages }}'
     state: present
 
