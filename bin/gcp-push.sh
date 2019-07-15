@@ -65,7 +65,7 @@ while [ $# -gt 0 ]; do
             exit $rt
             ;;
         *)
-            apath=
+            apath="$1"
             aname="$2"
             gcphost="$3"
             shift $#
@@ -73,11 +73,6 @@ while [ $# -gt 0 ]; do
     esac
     shift
 done
-
-if [ -z "$apath" ]; then
-    usage
-    exit 1
-fi
 
 if [ -z "$gcphost" ]; then
     gcphost="$GCP_PUSH_HOST"
@@ -90,12 +85,13 @@ if [ -z "$gcphost" ]; then
 fi
 
 if [ -z "$apath" ]; then
-    echo "Invalid Path."
+    echo "Invalid path given."
     usage
     exit 1
 fi
 
-target=$(dirname "$(readlink -f "$apath")")
+apath=$(readlink -f "$apath")
+target=$(dirname "$apath")
 name=${apath##*\/}
 
 if [ -z "$aname" ]; then
