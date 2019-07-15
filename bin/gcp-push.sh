@@ -1,5 +1,6 @@
 #!/bin/bash
 #
+#  Creates an archive of a given path and pushes to remote GCP host.
 #
 PNAME=${0##*\/}
 tdh_path=$(dirname "$(readlink -f "$0")")
@@ -11,9 +12,15 @@ fi
 # -----------------------------------
 
 DISTPATH="${HOME}/tmp/dist"
+
 if [ -n "$GCP_DIST_PATH" ]; then
     DISTPATH="$GCP_DIST_PATH"
 fi
+
+apath=
+aname=
+gcphost=
+rt=0
 
 # -----------------------------------
 
@@ -22,15 +29,15 @@ usage()
     echo ""
     echo "$PNAME [path] <archive_name> <gcphost>"
     echo ""
-    echo "  path         : is the directory to be archived."
+    echo "  path         : is the directory to be archived (required)."
     echo "  archive_name : an altername name to call the tarball. The value"
     echo "                 of 'somepkg' will result in 'somepkg.tar.gz'"
     echo "                 By default, the the final directory name is used."
     echo "  gcphost      : Name of gcp host. To override GCP_PUSH_HOST"
     echo ""
     echo "   The script assumes that the archive will contain the final"
-    echo " directory, so a path of a '/a/b/c' will create the archive from 'b'"
-    echo " with the tarfile containing './c/' as the root directory"
+    echo " directory, so a path of a '/a/b/target' will create the archive from 'b'"
+    echo " with the tarfile containing './target/' as the root directory"
     echo ""
     echo "  The environment variable 'GCP_PUSH_HOST' is honored as the "
     echo " the default 'gcphost' to use. If not set, all three parameters"
@@ -46,10 +53,6 @@ version()
 
 # MAIN
 #
-apath=
-aname=
-gcphost=
-rt=0
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -100,8 +103,15 @@ if [ -z "$aname" ]; then
 fi
 
 cd $target
-
+echo " ( tar -cvf ${DISTPATH}/${aname}.tar ./${name} )"
 ( tar -cvf ${DISTPATH}/${aname}.tar ./${name} )
+
+rt=$?
+if [ $rt -gt 0 ]; then
+    echo "Error creating archive"
+    exit 1
+fi
+
 ( gzip ${DISTPATH}/${aname}.tar )
 ( gcloud compute ssh ${gcphost} --command "mkdir -p /tmp/dist" )
 ( gcloud compute scp ${DISTPATH}/${aname}.tar.gz ${gcphost}:/tmp/dist/ )
