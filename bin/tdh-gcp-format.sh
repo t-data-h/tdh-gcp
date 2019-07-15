@@ -29,7 +29,7 @@ if [ $rt -gt 0 ]; then
     exit $rt
 fi
 
-sleep 2
+sleep 3
 
 # Get UUID
 uuid=$( ls -l /dev/disk/by-uuid/ | grep $devname | awk '{ print $9 }' )

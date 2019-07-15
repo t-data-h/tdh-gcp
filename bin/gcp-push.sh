@@ -1,76 +1,124 @@
 #!/bin/bash
 #
+#  Creates an archive of a given path and pushes to remote GCP host.
 #
 PNAME=${0##*\/}
+tdh_path=$(dirname "$(readlink -f "$0")")
+
+if [ -f ${tdh_path}/tdh-gcp-config.sh ]; then
+    . ${tdh_path}/tdh-gcp-config.sh
+fi
+
+# -----------------------------------
+
 DISTPATH="${HOME}/tmp/dist"
 
-APATH=$( realpath $1 )
-ANAME="$2"
-GCPHOST="$3"
+if [ -n "$GCP_DIST_PATH" ]; then
+    DISTPATH="$GCP_DIST_PATH"
+fi
 
+apath=
+aname=
+gcphost=
+rt=0
+
+# -----------------------------------
 
 usage()
 {
     echo ""
     echo "$PNAME [path] <archive_name> <gcphost>"
     echo ""
-    echo "  Where 'path' is the directory to be archived."
+    echo "  path         : is the directory to be archived (required)."
+    echo "  archive_name : an altername name to call the tarball. The value"
+    echo "                 of 'somepkg' will result in 'somepkg.tar.gz'"
+    echo "                 By default, the the final directory name is used."
+    echo "  gcphost      : Name of gcp host. To override GCP_PUSH_HOST"
     echo ""
     echo "   The script assumes that the archive will contain the final"
-    echo " directory, so a path of a '/a/b/c' will create the archive from 'b'"
-    echo " with the tarfile containing './c/' as the root directory"
+    echo " directory, so a path of a '/a/b/target' will create the archive from 'b'"
+    echo " with the tarfile containing './target/' as the root directory"
     echo ""
-    echo "   Archive name is an altername name to call the tarball. The"
-    echo " value 'somepkg' will result in an archive of somepkg.tar.gz"
-    echo " By default, the archive will be named after the final directory."
-    echo ""
-    echo "  The environment variable 'GCH_PUSH_HOST' is honored as the "
+    echo "  The environment variable 'GCP_PUSH_HOST' is honored as the "
     echo " the default 'gcphost' to use. If not set, all three parameters"
     echo " are required."
     echo ""
 }
 
+version()
+{
+    echo "$PNAME: v$TDH_GCP_VERSION"
+}
 
-if [ -n "$GCP_DIST_PATH" ]; then
-    DISTPATH="$GCP_DIST_PATH"
+
+# MAIN
+#
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -h|--help)
+            usage
+            exit $rt
+            ;;
+        -V|--version)
+            version
+            exit $rt
+            ;;
+        *)
+            apath="$1"
+            aname="$2"
+            gcphost="$3"
+            shift $#
+            ;;
+    esac
+    shift
+done
+
+if [ -z "$gcphost" ]; then
+    gcphost="$GCP_PUSH_HOST"
 fi
 
-if [ -z "$GCPHOST" ]; then
-    GCPHOST="$GCP_PUSH_HOST"
-fi
-
-if [ -z "$GCPHOST" ]; then
+if [ -z "$gcphost" ]; then
     echo "Error! GCP_PUSH_HOST not defined or provided."
     usage
     exit 1
 fi
 
-if [ -z "$APATH" ]; then
-    echo "Invalid Path."
+if [ -z "$apath" ]; then
+    echo "Invalid path given."
     usage
     exit 1
 fi
 
-target=$(dirname "$(readlink -f "$APATH")")
-name=${APATH##*\/}
+apath=$(readlink -f "$apath")
+target=$(dirname "$apath")
+name=${apath##*\/}
 
-if [ -z "$ANAME" ]; then
-    ANAME="$name"
+if [ -z "$aname" ]; then
+    aname="$name"
 fi
 
 cd $target
+echo " ( tar -cvf ${DISTPATH}/${aname}.tar ./${name} )"
+( tar -cvf ${DISTPATH}/${aname}.tar ./${name} )
 
-( tar -cvf ${DISTPATH}/${ANAME}.tar ./${name} )
-( gzip ${DISTPATH}/${ANAME}.tar )
-( gcloud compute ssh ${GCPHOST} --command "mkdir -p /tmp/dist" )
-( gcloud compute scp ${DISTPATH}/${ANAME}.tar.gz ${GCPHOST}:/tmp/dist/ )
+rt=$?
+if [ $rt -gt 0 ]; then
+    echo "Error creating archive"
+    exit 1
+fi
+
+( gzip ${DISTPATH}/${aname}.tar )
+( gcloud compute ssh ${gcphost} --command "mkdir -p /tmp/dist" )
+( gcloud compute scp ${DISTPATH}/${aname}.tar.gz ${gcphost}:/tmp/dist/ )
 
 rt=$?
 if [ $rt -gt 0 ]; then
     echo "Error in gcp"
 fi
 
-( rm ${DISTPATH}/${ANAME}.tar.gz )
+( rm ${DISTPATH}/${aname}.tar.gz )
 
 echo "$PNAME Finished."
+
 exit $rt
