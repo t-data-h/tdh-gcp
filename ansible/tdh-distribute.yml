@@ -10,3 +10,5 @@
       dest: '{{ tdh_drop_path }}'
   - name: Show resulting drop
     shell: 'ls -l {{ tdh_drop_path }}'
+    register: dropls
+  - debug: var=dropls
