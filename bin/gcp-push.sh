@@ -99,7 +99,7 @@ if [ -z "$aname" ]; then
 fi
 
 cd $target
-echo " ( tar -cvf ${DISTPATH}/${aname}.tar --exclude-vcs ./${name} )"
+echo " ( tar -cf ${DISTPATH}/${aname}.tar --exclude-vcs ./${name} )"
 ( tar -cvf ${DISTPATH}/${aname}.tar --exclude-vcs ./${name} )
 
 rt=$?
