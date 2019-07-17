@@ -1,0 +1,11 @@
+---
+- hosts: all
+  tasks:
+  - name: mkdir /hive/warehouse
+    shell: 'hdfs dfs -mkdir -p /hive/warehouse/default'
+  - name: mkdir /user/hive
+    shell: 'hdfs dfs -mkdir -p /user/hive'
+  - name: mkdir /hbase
+    shell: 'hdfs dfs -mkdir -p /hbase'
+  - name: mkdir /tmp/spark2
+    shell: 'hdfs dfs -mkdir -p /tmp/spark2'
