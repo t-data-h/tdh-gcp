@@ -36,7 +36,7 @@
     file:
       path: '{{ tdh_install_path }}'
       state: absent
-  - name: Extract TDH package
+  - name: Extract TDH Package
     become: true
     unarchive:
       src: '{{ tdh_dropfile }}'
@@ -46,7 +46,7 @@
     file:
       path: '{{ tdh_dropfile }}'
       state: absent
-  - name: Create a hadoop link
+  - name: Create the opt TDH/hadoop link
     become: true
     file:
       src: '{{ tdh_install_path }}'
