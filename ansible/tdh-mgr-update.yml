@@ -12,7 +12,7 @@
     unarchive:
       src: '{{ tdh_mgr_dropfile }}'
       dest: '{{ tdh_tmp_path }}'
-      create: '{{ tdh_mgr_path }}'
+      creates: '{{ tdh_mgr_path }}'
     when: tdhmgrstat.stat.exists
   - name: Run Install
     shell: 'cd {{ tdh_mgr_install_path }} && make install'

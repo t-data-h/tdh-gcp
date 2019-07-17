@@ -109,8 +109,8 @@ if [ $rt -gt 0 ]; then
 fi
 
 ( gzip ${DISTPATH}/${aname}.tar )
-( gcloud compute ssh ${gcphost} --command "mkdir -p /tmp/dist" )
-( gcloud compute scp ${DISTPATH}/${aname}.tar.gz ${gcphost}:/tmp/dist/ )
+( gcloud compute ssh ${gcphost} --command "mkdir -p ${DISTPATH}" )
+( gcloud compute scp ${DISTPATH}/${aname}.tar.gz ${gcphost}:${DISTPATH} )
 
 rt=$?
 if [ $rt -gt 0 ]; then
