@@ -13,6 +13,20 @@
     name: "java-1.8.0-openjdk-devel"
     state: present
 
+- name: Copy Java Bash Profile
+  become: true
+  template:
+    src: '{{ jdk_sh_template }}'
+    dest: '/etc/profile.d/jdk.sh'
+    mode: 0644
+
+- name: Copy Java Csh Profile
+  become: true
+  template:
+    src: '{{ jdk_csh_template }}'
+    dest: '/etc/profile.d/jdk.csh'
+    mode: 0644
+
 - name: Install Packages
   become: true
   yum:
