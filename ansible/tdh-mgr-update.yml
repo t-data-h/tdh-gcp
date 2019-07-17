@@ -19,12 +19,12 @@
     shell: 'cd {{ tdh_mgr_path }} && make install'
     when: tdhmgrstat.stat.exists
   - name: Cleanup install path
-    stat:
+    file:
       path: '{{ tdh_mgr_path }}'
       state: absent
     when: tdhmgrstat.stat.exists
   - name: Cleanup tarball
-    stat:
+    file:
       path: '{{ tdh_mgr_dropfile }}'
       state: absent
     when: tdhmgrstat.stat.exists
