@@ -100,7 +100,7 @@ fi
 
 cd $target
 echo " ( tar -cvf ${DISTPATH}/${aname}.tar --exclude-vcs ./${name} )"
-( tar -cvf ${DISTPATH}/${aname}.tar ./${name} )
+( tar -cvf ${DISTPATH}/${aname}.tar --exclude-vcs ./${name} )
 
 rt=$?
 if [ $rt -gt 0 ]; then
