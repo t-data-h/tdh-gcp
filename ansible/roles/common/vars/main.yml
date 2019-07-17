@@ -2,6 +2,7 @@
 tdh_install_path: '/opt/TDH'
 tdh_tmp_path: '/tmp/TDH/'
 tdh_dist_path: '~/tmp/dist/'
+tdh_droppath: '{{ tdh_tmp_path }}'
 
 tdh_tarball_file: 'TDH.tar.gz'
 tdh_dropfile: '{{ tdh_tmp_path }}/{{ tdh_tarball_file }}'

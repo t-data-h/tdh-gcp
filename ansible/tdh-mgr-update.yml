@@ -15,5 +15,5 @@
       creates: '{{ tdh_mgr_path }}'
     when: tdhmgrstat.stat.exists
   - name: Run Install
-    shell: 'cd {{ tdh_mgr_install_path }} && make install'
+    shell: 'cd {{ tdh_mgr_path }} && make install'
     when: tdhmgrstat.stat.exists

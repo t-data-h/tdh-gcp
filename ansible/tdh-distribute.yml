@@ -6,6 +6,6 @@
   - name: Copy TDH dropzone
     copy:
       src: '{{ tdh_dist_path }}'
-      dest: '{{ tdh_tmp_path }}'
+      dest: '{{ tdh_drop_path }}'
   - name: Show resulting drop
     shell: 'ls -l {{ tdh_drop_path }}'
