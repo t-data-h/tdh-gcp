@@ -1,6 +1,7 @@
 ---
 tdh_install_path: '/opt/TDH'
 tdh_tmp_path: '/tmp/TDH/'
+tdh_dist_path: '~/tmp/dist/'
 
 tdh_tarball_file: 'TDH.tar.gz'
 tdh_dropfile: '{{ tdh_tmp_path }}/{{ tdh_tarball_file }}'
@@ -8,6 +9,10 @@ tdh_dropfile: '{{ tdh_tmp_path }}/{{ tdh_tarball_file }}'
 tdh_config_tarball_file: 'tdh-conf.tar.gz'
 tdh_config_dropfile: '{{ tdh_tmp_path }}/{{ tdh_config_tarball_file }}'
 tdh_config_path: '{{ tdh_tmp_path }}/tdh-conf'
+
+tdh_mgr_tarball_file: 'tdh-hadoop.tar.gz'
+tdh_mgr_dropfile: '{{ tdh_tmp_path }}/{{ tdh_mgr_tarball_file }}'
+tdh_mgr_path: '{{ tdh_tmp_path }}/tdh-hadoop'
 
 tdh_python3_tarball_file: 'tdh-anaconda3.tar.gz'
 tdh_python3_dropfile: '{{ tdh_tmp_path }}/{{ tdh_python3_tarball_file }}'

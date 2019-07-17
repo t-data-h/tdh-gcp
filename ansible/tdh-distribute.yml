@@ -1,12 +1,11 @@
 ---
 - hosts: all
-  vars:
-    tdh_dist_path: '~/tmp/dist/'
-    tdh_drop_path: '/tmp/TDH/'
+  vars_files:
+    - roles/common/vars/main.yml
   tasks:
   - name: Copy TDH dropzone
     copy:
       src: '{{ tdh_dist_path }}'
-      dest: '{{ tdh_drop_path }}'
+      dest: '{{ tdh_tmp_path }}'
   - name: Show resulting drop
     shell: 'ls -l {{ tdh_drop_path }}'

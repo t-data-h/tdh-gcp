@@ -1,0 +1,19 @@
+---
+# Overlay tdh-hadoop mgr onto TDH
+- hosts: all
+  vars_files:
+    - roles/common/vars/main.yml
+  tasks:
+  - name:  Check for update package
+    stat:
+      path: '{{ tdh_mgr_dropfile }}'
+    register: tdhmgrstat
+  - name: Extract TDH Package
+    unarchive:
+      src: '{{ tdh_mgr_dropfile }}'
+      dest: '{{ tdh_tmp_path }}'
+      create: '{{ tdh_mgr_path }}'
+    when: tdhmgrstat.stat.exists
+  - name: Run Install
+    shell: 'cd {{ tdh_mgr_install_path }} && make install'
+    when: tdhmgrstat.stat.exists
