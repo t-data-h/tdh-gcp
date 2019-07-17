@@ -4,6 +4,9 @@ rc_local_template: rc.local
 security_limits_conf: limits.conf
 se_linux_conf: selinux.conf
 
+jdk_sh_template: jdk.sh
+jdk_csh_template: jdk.csh
+
 yum_install_packages:
  - nmap-ncat
  - bind-utils
