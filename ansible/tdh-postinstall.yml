@@ -1,5 +1,6 @@
 ---
 - hosts: all
+  gather_facts: False
   tasks:
   - name: mkdir /hive/warehouse
     shell: 'hdfs dfs -mkdir -p /hive/warehouse/default'

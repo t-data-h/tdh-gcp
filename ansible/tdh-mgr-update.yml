@@ -1,6 +1,7 @@
 ---
 # Overlay tdh-hadoop mgr onto TDH
 - hosts: all
+  gather_facts: False
   vars_files:
     - roles/common/vars/main.yml
   tasks:
@@ -16,4 +17,14 @@
     when: tdhmgrstat.stat.exists
   - name: Run Install
     shell: 'cd {{ tdh_mgr_path }} && make install'
+    when: tdhmgrstat.stat.exists
+  - name: Cleanup install path
+    stat:
+      path: '{{ tdh_mgr_path }}'
+      state: absent
+    when: tdhmgrstat.stat.exists
+  - name: Cleanup tarball
+    stat:
+      path: '{{ tdh_mgr_dropfile }}'
+      state: absent
     when: tdhmgrstat.stat.exists
