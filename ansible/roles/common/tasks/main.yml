@@ -7,18 +7,27 @@
   stat:
     path: '{{ tdh_dropfile }}'
   register: tdhdropstat
+
 - name: Check for TDH Config Drop
   stat:
     path: '{{ tdh_config_dropfile }}'
   register: tdhconfigstat
-- name: Check for existing Install
+
+- name: Check for TDH-MGR Drop
+  stat:
+    path: '{{ tdh_mgr_dropfile }}'
+  register: tdhmgrstat
+
+- name: Check for existing TDH Install
   stat:
     path: '{{ tdh_install_path }}'
   register: tdhstat
+
 - name: Check for Anaconda Drop
   stat:
     path: '{{ tdh_python3_dropfile }}'
   register: tdhpystat
+
 - name: Create tmp directory
   become: true
   file:
@@ -72,6 +81,25 @@
       path: '{{ tdh_config_dropfile }}'
       state: absent
   when: tdhconfigstat.stat.exists
+
+# TDH MGR Deploy
+- block:
+  - name: Extract TDH Mgr Package
+    unarchive:
+      src: '{{ tdh_mgr_dropfile }}'
+      dest: '{{ tdh_tmp_path }}'
+      creates: '{{ tdh_mgr_path }}'
+  - name: Install TDH Mgr
+    shell: 'cd {{ tdh_mgr_path }} && make install'
+  - name: Cleanup TDH Mgr Installation
+    file:
+      path: '{{ tdh_mgr_path }}'
+      state: absent
+  - name: Cleanup TDH Mgr Package
+    file:
+      path: '{{ tdh_mgr_dropfile }}'
+      state: absent
+  when: tdhmgrstat.stat.exists
 
  # Anaconda Deploy
 - block:
