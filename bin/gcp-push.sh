@@ -100,7 +100,7 @@ fi
 
 cd $target
 echo " ( tar -cf ${DISTPATH}/${aname}.tar --exclude-vcs ./${name} )"
-( tar -cvf ${DISTPATH}/${aname}.tar --exclude-vcs ./${name} )
+( tar -cf ${DISTPATH}/${aname}.tar --exclude-vcs ./${name} )
 
 rt=$?
 if [ $rt -gt 0 ]; then
@@ -110,6 +110,8 @@ fi
 
 ( gzip ${DISTPATH}/${aname}.tar )
 ( gcloud compute ssh ${gcphost} --command "mkdir -p ${DISTPATH}" )
+
+echo "scp ${DISTPATH}/${aname}.tar.gz ${gcphost}:${DISTPATH}"
 ( gcloud compute scp ${DISTPATH}/${aname}.tar.gz ${gcphost}:${DISTPATH} )
 
 rt=$?
