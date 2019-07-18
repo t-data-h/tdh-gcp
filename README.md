@@ -25,13 +25,13 @@ Support scripts used by the init scripts.
   Install host prerequisites
 
 
-## GCP Machine-Types:
+##  GCP Machine-Types:
 
 ### Small
 - Master/Util   :  n1-standard-2  :  2 vCPU and 7.5 Gb
-   or              n1-standard-4  :  4 vCPU and 15 Gb
+   or              n1-standard-4  :  4 vCPU and 15 Gb  : DEFAULT
 - Worker/Data   :  n1-highmem-4   :  4 vCPU and 26 Gb
-   or              n1-highmem-8   :  8 vCPU and 52 Gb
+   or              n1-highmem-8   :  8 vCPU and 52 Gb  : DEFAULT
 
 ### Medium
 - Master/Util   :  n1-highmem-8   :  8 vCPU and 52 Gb
