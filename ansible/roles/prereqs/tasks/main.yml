@@ -59,7 +59,7 @@
   become: true
   template:
     src: '{{ se_linux_conf }}'
-    dest: "/etc/selinux/"
+    dest: "/etc/selinux/config"
     mode: 0644
   notify: selinux_setenforce
 
