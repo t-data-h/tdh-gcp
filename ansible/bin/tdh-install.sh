@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 
 # distribute
 echo "Run Playbook: tdh-distribute"
