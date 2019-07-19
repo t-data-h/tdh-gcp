@@ -4,7 +4,7 @@
 PNAME=${0##*\/}
 tdh_path=$(dirname "$(readlink -f "$0")")
 
-TDH_ANSIBLE_HOME=$(dirname $tdh_path/..)
+TDH_ANSIBLE_HOME=$(dirname $tdh_path)
 ACTION="$1"
 rt=0
 
