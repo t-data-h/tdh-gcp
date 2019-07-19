@@ -36,7 +36,7 @@ fi
 # install
 echo "( ansible-playbook -i inventory/tdh-west1/hosts --tags tdh-mgr tdh-install.yml )"
 if [[ $ACTION == "run" ]]; then
-    ( ansible-playbook -i inventory/tdh-west1/hosts --tags tdh-config tdh-install.yml )
+    ( ansible-playbook -i inventory/tdh-west1/hosts --tags tdh-mgr tdh-install.yml )
     rt=$?
 fi
 

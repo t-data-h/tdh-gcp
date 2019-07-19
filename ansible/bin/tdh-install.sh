@@ -1,4 +1,5 @@
 #!/bin/bash
+#
 #  Install wrapper script to distribute packages and run the installation
 #
 PNAME=${0##*\/}
