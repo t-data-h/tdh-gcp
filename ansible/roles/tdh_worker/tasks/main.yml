@@ -7,10 +7,19 @@
 - name: TDH Provisioning Step 2
   shell: '{{ tdh_install_path }}/bin/05-spark-provision.sh'
 
-- name: Create HDFS Datanode path
+- name: Create HDFS DataNode path
   become: true
   file:
     path: '{{ tdh_datanode_dir }}'
+    owner: '{{ tdh_user }}'
+    group: '{{ tdh_user }}'
+    mode: 0750
+    state: directory
+
+- name: Create YARN NodeManager path
+  become: true
+  file:
+    path: '{{ tdh_nodemanager_dir }}'
     owner: '{{ tdh_user }}'
     group: '{{ tdh_user }}'
     mode: 0750
