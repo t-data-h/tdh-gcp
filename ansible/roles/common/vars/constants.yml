@@ -4,4 +4,3 @@ mode:
   new: 'new'
   upgrade: 'upgrade'
   backup: 'backup'
-  new_node: 'new_node'
