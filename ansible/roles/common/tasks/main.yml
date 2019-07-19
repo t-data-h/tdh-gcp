@@ -76,7 +76,7 @@
     file:
       path: '{{ tdh_config_path }}'
       state: absent
-  - name:  Cleanup TDH Config Package
+  - name: Cleanup TDH Config Package
     file:
       path: '{{ tdh_config_dropfile }}'
       state: absent

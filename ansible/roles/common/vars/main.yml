@@ -23,6 +23,7 @@ tdh_python3_path: '{{ tdh_python3_install_path }}/anaconda3'
 tdh_data_dir: '/data'
 tdh_namenode_dir: '/data/hdfs/nn'
 tdh_datanode_dir: '/data/hdfs/dn'
+tdh_nodemanager_dir: '/data/hdfs/nm'
 tdh_log_dir: '/var/log/hadoop'
 
 mysql_tdh_roles:
