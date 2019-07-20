@@ -11,11 +11,13 @@
 - name: Check for TDH Config Drop
   stat:
     path: '{{ tdh_config_dropfile }}'
+  tags: [ tdh-config ]
   register: tdhconfigstat
 
 - name: Check for TDH-MGR Drop
   stat:
     path: '{{ tdh_mgr_dropfile }}'
+  tags: [ tdh-mgr ]
   register: tdhmgrstat
 
 - name: Check for existing TDH Install
@@ -26,6 +28,7 @@
 - name: Check for Anaconda Drop
   stat:
     path: '{{ tdh_python3_dropfile }}'
+  tags: [ tdh-python ]
   register: tdhpystat
 
 - name: Create tmp directory
@@ -34,6 +37,7 @@
     path: '{{ tdh_tmp_path }}'
     state: directory
     mode: '0777'
+  tags: [ tdh-config, tdh-mgr, tdh-python]
 
 # Deploy TDH
 - block:
@@ -80,6 +84,7 @@
     file:
       path: '{{ tdh_config_dropfile }}'
       state: absent
+  tags: [ tdh-config ]
   when: tdhconfigstat.stat.exists
 
 # TDH MGR Deploy
@@ -99,6 +104,7 @@
     file:
       path: '{{ tdh_mgr_dropfile }}'
       state: absent
+  tags: [ tdh-mgr ]
   when: tdhmgrstat.stat.exists
 
  # Anaconda Deploy
@@ -121,5 +127,6 @@
     file:
       path: '{{ tdh_python3_dropfile }}'
       state: absent
+  tags: [ tdh-python ]
   when: tdhpystat.stat.exists
   become: true
