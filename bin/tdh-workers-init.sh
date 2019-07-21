@@ -225,11 +225,10 @@ for name in $names; do
 
     #
     # ssh
-    echo "( gcloud compute ssh ${host} --command 'mkdir -p .ssh; chmod 700 .ssh; cat tdh-ansible-rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys')"
+    echo "( gcloud compute scp .ssh ${host}:" 
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute scp ${tdh_path}/../etc/tdh-ansible-rsa.pub ${host}: )
-        ( gcloud compute ssh ${host} --command 'mkdir -p .ssh; chmod 700 .ssh' )
-        ( gcloud compute ssh ${host} --command 'cat tdh-ansible-rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys' )
+        ( gcloud compute scp --recurse ${tdh_path}/../ansible/.ansible/ssh-$prefix ${host}:.ssh )
+        ( gcloud compute ssh ${host} --command 'chmod 700 .ssh; chmod 600 .ssh/authorized_keys' )
     fi
 
     echo "Initialization complete for $host"

@@ -99,6 +99,27 @@ read_password()
     return 0
 }
 
+create_host_keypair()
+{ 
+    local name="$1"
+    local prefix="$2"
+    local host="${prefix}-${name}"
+    local keypath=$"${tdh_path}/../ansible/.ansible/ssh-${prefix}"
+    local keyfile="${prefix}-${name}-id_rsa"
+    local rt=0
+
+    ( mkdir -p $keypath >/dev/null 2>&1 )
+    rt=$?
+
+    if [ $rt -eq 0 ]; then 
+        ( ssh-keygen -t rsa -b 2048 -N '' -f "${keypath}/${keyfile}" )
+         rt=$?
+        ( cat ${keypath}/${keyfile}.pub >> ${keypath}/authorized_keys )
+    fi
+
+    return $rt
+}
+
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -215,6 +236,14 @@ for name in $names; do
         echo "Error in GCP initialization of $host"
         break
     fi
+
+    # Create Host Key locallly
+    create_host_keypary $prefix $name
+    rt=$?
+    if [ $rt -gt 0 ]; then
+        echo "Error in ssh-keygen for $host"
+        break
+    fi
 done
 
 if [ $rt -gt 0 ]; then
@@ -263,8 +292,6 @@ for name in $names; do
         ( gcloud compute ssh ${host} --command 'chmod +x tdh-prereqs.sh' )
         ( gcloud compute ssh ${host} --command ./tdh-prereqs.sh )
         ( gcloud compute ssh ${host} --command 'yum install -y ansible ansible-lint' )
-        ( gcloud compute scp ${tdh_path}/../ansible/tdh-ansible-hosts.yml ${host}: )
-        ( gcloud compute ssh ${host} --command 'cp tdh-ansible-hosts.yml /etc/ansible/hosts' )
     fi
 
     rt=$?
@@ -278,9 +305,8 @@ for name in $names; do
     # ssh
     echo "( gcloud compute ssh ${host} --command 'mkdir -p .ssh; chmod 700 .ssh; cat tdh-ansible-rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys')"
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute scp ${tdh_path}/../etc/tdh-ansible-rsa.pub ${host}: )
-        ( gcloud compute ssh ${host} --command 'mkdir -p .ssh; chmod 700 .ssh' )
-        ( gcloud compute ssh ${host} --command 'cat tdh-ansible-rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys' )
+        ( gcloud compute scp --recurse ${tdh_path}/../ansible/.ansible/ssh-$prefix ${host}:.ssh )
+        ( gcloud compute ssh ${host} --command 'chmod 700 .ssh; chmod 600 .ssh/authorized_keys' )
     fi
 
 
@@ -301,6 +327,10 @@ for name in $names; do
         echo "Error in tdh-mysql-install for $host"
         break
     fi
+
+    #
+    # push self for ansible playbooks
+    ( ${tdh_path}/gcp-push.sh $host ${tdh_path}/.. )
 
     echo "Initialization complete for $host"
     echo ""
