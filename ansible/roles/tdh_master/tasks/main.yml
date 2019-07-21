@@ -29,4 +29,4 @@
     path: '{{ tdh_install_path }}/hive/conf/hive-site.xml'
     regexp: 'chhive'
     replace: '{{ mysql_hive_password }}'
-  tags: [ tdh_config ]
+  tags: [ tdh-config ]

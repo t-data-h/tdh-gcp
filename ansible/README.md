@@ -1,21 +1,18 @@
 TDH GCP Ansible Framework
 =========================
 
-Ansible playbooks for distributing and configuring a TDH environment in GCP. The
-environment is defined by the inventory files located in *inventory/env/* where
-*env* is a specific TDH deployment.
+Ansible playbooks for distributing and configuring a TDH environment in GCP. 
+The environment is defined by the inventory files located in 
+*inventory/env/* where *env* is a specific TDH deployment.
 
-The install is initiated by the *tdh-install.yml* playbook.
-```
-ansible-playbook -i inventory/tdh-west1/hosts tdh-install.yml
-```
-Additionally, three packages are utilized to perform the install.
-*TDH.tar.gz*: The primary tarball consisting of the full TDH Distribution.
-*tdh-conf.tar.gz*: The configuration package to be overlayed on the distribution.
-*anaconda3.tar.gz*: The python anaconda distribution for supporting python3.
+The install is initiated by the *tdh-install.yml* playbook, but requires 
+assets to be distributed first via *tdh-distribute.yml*. Wrapper scripts 
+are provided to run the various stages:
 
-These packages should be placed in */tmp/TDH* on the Ansible Server to be
-picked up by the playbook.
+- tdh-install.sh:  Primary full-run, distribute + the install playbook.
+- tdh-config-update.sh:  Runs distribute and only the cluster config update steps.
+- tdh-mgr-update.sh: Runs distribute and only the tdh-mgr update steps
+- tdh-python-update.sh: Runs distribute and pushes the Ananconda distribution.
 
 
 ### Setting environment passwords
