@@ -18,6 +18,8 @@ zone="$GCP_DEFAULT_ZONE"
 mtype="$GCP_DEFAULT_MACHINETYPE"
 bootsize="$GCP_DEFAULT_BOOTSIZE"
 disksize="$GCP_DEFAULT_DISKSIZE"
+master_id="master-id_rsa.pub"
+master_id_file="${tdh_path}/../ansible/.ansible/${master_id}"
 
 myid=1
 dryrun=1
@@ -97,27 +99,6 @@ read_password()
     echo $pass > $pwfile
 
     return 0
-}
-
-create_host_keypair()
-{ 
-    local name="$1"
-    local prefix="$2"
-    local host="${prefix}-${name}"
-    local keypath=$"${tdh_path}/../ansible/.ansible/ssh-${prefix}"
-    local keyfile="${prefix}-${name}-id_rsa"
-    local rt=0
-
-    ( mkdir -p $keypath >/dev/null 2>&1 )
-    rt=$?
-
-    if [ $rt -eq 0 ]; then 
-        ( ssh-keygen -t rsa -b 2048 -N '' -f "${keypath}/${keyfile}" )
-         rt=$?
-        ( cat ${keypath}/${keyfile}.pub >> ${keypath}/authorized_keys )
-    fi
-
-    return $rt
 }
 
 
@@ -236,14 +217,6 @@ for name in $names; do
         echo "Error in GCP initialization of $host"
         break
     fi
-
-    # Create Host Key locallly
-    create_host_keypary $prefix $name
-    rt=$?
-    if [ $rt -gt 0 ]; then
-        echo "Error in ssh-keygen for $host"
-        break
-    fi
 done
 
 if [ $rt -gt 0 ]; then
@@ -291,7 +264,7 @@ for name in $names; do
         ( gcloud compute scp ${tdh_path}/tdh-prereqs.sh ${host}: )
         ( gcloud compute ssh ${host} --command 'chmod +x tdh-prereqs.sh' )
         ( gcloud compute ssh ${host} --command ./tdh-prereqs.sh )
-        ( gcloud compute ssh ${host} --command 'yum install -y ansible ansible-lint' )
+        ( gcloud compute ssh ${host} --command 'sudo yum install -y ansible ansible-lint' )
     fi
 
     rt=$?
@@ -303,20 +276,27 @@ for name in $names; do
 
     #
     # ssh
-    echo "( gcloud compute ssh ${host} --command 'mkdir -p .ssh; chmod 700 .ssh; cat tdh-ansible-rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys')"
+    echo "( gcloud compute ssh ${host} --command 'mkdir -p .ssh; chmod 700 .ssh; chmod 600 .ssh/authorized_keys')"
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute scp --recurse ${tdh_path}/../ansible/.ansible/ssh-$prefix ${host}:.ssh )
-        ( gcloud compute ssh ${host} --command 'chmod 700 .ssh; chmod 600 .ssh/authorized_keys' )
+        ( gcloud compute ssh ${host} --command "ssh-keygen -t rsa -b 2048 -N ''; cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys" )
+        if [ -e $master_id_file ]; then
+            ( gcloud compute scp ${master_id_file} ${host}:.ssh/ )
+            ( gcloud compute ssh ${host} --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys ")
+        else
+            ( gcloud compute scp ${host}:.ssh/id_rsa.pub ${master_id_file} )
+        fi
     fi
 
 
     #
     # mysqld
-    if [ $myid -gt 1 ]; then
+    if [ $myid -eq 1 ]; then
+        role="master"
+    else
         role="slave"
     fi
 
-    echo "( $tdh_path/tdh-mysql-install.sh -s $myid -P $pwfile $host $role  )"
+    echo "( $tdh_path/tdh-mysql-install.sh -s $myid -P $pwfile $host $role )"
     if [ $dryrun -eq 0 ]; then
         ( ${tdh_path}/tdh-mysql-install.sh -s ${myid} -P ${pwfile} ${host} ${role} )
     fi
@@ -328,9 +308,13 @@ for name in $names; do
         break
     fi
 
+
     #
     # push self for ansible playbooks
-    ( ${tdh_path}/gcp-push.sh $host ${tdh_path}/.. )
+    echo "( ${tdh_path}/gcp-push.sh ${tdh_path}/.. tdh-gcp $host )"
+    if [ $dryrun -eq 0 ]; then
+        ( ${tdh_path}/gcp-push.sh ${tdh_path}/.. tdh-gcp $host )
+    fi
 
     echo "Initialization complete for $host"
     echo ""

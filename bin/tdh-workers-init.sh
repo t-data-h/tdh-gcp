@@ -18,6 +18,8 @@ zone="$GCP_DEFAULT_ZONE"
 mtype="n1-highmem-8"
 bootsize="$GCP_DEFAULT_BOOTSIZE"
 disksize="$GCP_DEFAULT_DISKSIZE"
+master_id="master-id_rsa.pub"
+master_id_file="${tdh_path}/../ansible/.ansible/${master_id}"
 
 myid=1
 attach=0
@@ -227,8 +229,8 @@ for name in $names; do
     # ssh
     echo "( gcloud compute scp .ssh ${host}:" 
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute scp --recurse ${tdh_path}/../ansible/.ansible/ssh-$prefix ${host}:.ssh )
-        ( gcloud compute ssh ${host} --command 'chmod 700 .ssh; chmod 600 .ssh/authorized_keys' )
+        ( gcloud compute scp ${master_id_file} ${host}:.ssh/ )
+        ( gcloud compute ssh ${host} --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys " )
     fi
 
     echo "Initialization complete for $host"
