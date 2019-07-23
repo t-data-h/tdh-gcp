@@ -39,10 +39,6 @@
     mode: '0777'
   tags: [ tdh-config, tdh-mgr, tdh-python]
 
-- name: Stop TDH
-  shell: '{{ tdh_install_path }}/bin/tdh-init.sh stop'
-  when: inventory_hostname in groups['master01'] and tdhstat.stat.exists
-
 - name: Deploy TDH
   block:
   - name:  Remove previous TDH installation
