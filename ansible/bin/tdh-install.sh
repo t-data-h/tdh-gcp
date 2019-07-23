@@ -12,8 +12,8 @@ rt=0
 
 # -------
 
-if [ -e $TDH_ANSIBLE_HOME/../bin/tdh-gcp-config.sh ]; then
-    . $TDH_ANSIBLE_HOME/../bin/tdh-gcp-config.sh
+if [ -e $TDH_ANSIBLE_HOME/../etc/tdh-gcp-config.sh ]; then
+    . $TDH_ANSIBLE_HOME/../etc/tdh-gcp-config.sh
 fi
 
 # -------
