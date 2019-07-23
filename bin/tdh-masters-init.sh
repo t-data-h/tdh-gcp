@@ -20,6 +20,7 @@ bootsize="$GCP_DEFAULT_BOOTSIZE"
 disksize="$GCP_DEFAULT_DISKSIZE"
 master_id="master-id_rsa.pub"
 master_id_file="${tdh_path}/../ansible/.ansible/${master_id}"
+network="tdh-net"
 
 myid=1
 dryrun=1
@@ -51,6 +52,8 @@ usage() {
     echo "  -b|--bootsize <xxGB>  : Size of boot disk, Default is $bootsize"
     echo "  -d|--disksize <xxGB>  : Size of attached disk, Default is $disksize"
     echo "  -h|--help             : Display usage and exit"
+    echo "  -N|--network <name>   : GCP Network name. Default is $network"
+    echo "                          Default is ${network}"
     echo "  -p|--prefix <name>    : Prefix name to use for instances"
     echo "                          Default prefix is '$prefix'"
     echo "  -P|--pwfile <file>    : File containing mysql root password"
@@ -127,6 +130,10 @@ while [ $# -gt 0 ]; do
             pwfile="$2"
             shift
             ;;
+        -N|--network)
+            network="$2"
+            shift
+            ;;
         -n|--dryrun)
             dryrun=1
             ;;
@@ -196,8 +203,11 @@ for name in $names; do
     #
     # Create instance
     host="${prefix}-${name}"
-    cmd="${tdh_path}/tdh-gcp-compute.sh --prefix ${prefix} --type ${mtype} --bootsize $bootsize"
+    cmd="${tdh_path}/tdh-gcp-compute.sh --prefix ${prefix} --network ${network} --type ${mtype} --bootsize $bootsize"
 
+    if [ $dryrun -gt 0 ]; then
+        cmd="${cmd} --dryrun"
+    fi
     if [ $attach -gt 0 ]; then
         cmd="${cmd} --attach --disksize ${disksize}"
     fi
@@ -206,11 +216,9 @@ for name in $names; do
     fi
 
     cmd="${cmd} create ${name}"
-
     echo "( $cmd )"
-    if [ $dryrun -eq 0 ]; then
-        ( $cmd )
-    fi
+
+    ( $cmd )
 
     rt=$?
     if [ $rt -gt 0 ]; then

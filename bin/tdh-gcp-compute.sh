@@ -18,6 +18,7 @@ disksize="$GCP_DEFAULT_DISKSIZE"
 name=
 action=
 diskname=
+network=
 attach=0
 ssd=0
 dryrun=0
@@ -47,8 +48,9 @@ usage()
     echo "  -d|--disksize <xxGB>  : Size of attached disk"
     echo "  -h|--help             : Display usage and exit"
     echo "  -l|--list             : List available machine-types for the zone"
-    echo "  -p|--prefix <name>    : Prefix name to use for instances"
+    echo "  -N|--network <name>   : GCP Network other than default"
     echo "  -n|--dryrun           : Enable dryrun, no actions are run"
+    echo "  -p|--prefix <name>    : Prefix name to use for instances"
     echo "  -S|--ssd              : Use SSD as attached disk type"
     echo "  -t|--type             : Machine type to use for instance(s)"
     echo "  -z|--zone <name>      : Set GCP zone (use -l to list)"
@@ -60,8 +62,8 @@ usage()
     echo "     stop               :  Stop a running instance"
     echo "     delete             :  Delete an instance"
     echo ""
-    echo "  Default GCP Zone is $zone"
-    echo "  Default Machine Type is $mtype"
+    echo "  Default GCP Zone is '$zone'"
+    echo "  Default Machine Type is '$mtype'"
     echo ""
 }
 
@@ -189,6 +191,10 @@ while [ $# -gt 0 ]; do
             prefix="$2"
             shift
             ;;
+        -N|--network)
+            network="$2"
+            shift
+            ;;
         -n|--dryrun)
             dryrun=1
             ;;
@@ -245,6 +251,10 @@ create)
     if [ $ssd -eq 1 ]; then
         cmd="$cmd --boot-disk-type=pd-ssd"
     fi
+    if [ -n "$network" ]; then
+        cmd="$cmd --network $network"
+    fi
+
     cmd="$cmd --zone ${zone} --tags ${prefix} ${name}"
 
     echo ""
