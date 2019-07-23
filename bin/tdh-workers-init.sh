@@ -5,8 +5,8 @@
 PNAME=${0##*\/}
 tdh_path=$(dirname "$(readlink -f "$0")")
 
-if [ -f ${tdh_path}/tdh-gcp-config.sh ]; then
-    . ${tdh_path}/tdh-gcp-config.sh
+if [ -f ${tdh_path}/../etc/tdh-gcp-config.sh ]; then
+    . ${tdh_path}/../etc/tdh-gcp-config.sh
 fi
 
 # -----------------------------------
@@ -165,8 +165,7 @@ for name in $names; do
     #
     # Create instance
     host="${prefix}-${name}"
-    cmd="${tdh_path}/tdh-gcp-compute.sh --prefix ${prefix} --network ${network} --subnet ${subnet} \
-    --type ${mtype} --bootsize ${bootsize}"
+    cmd="${tdh_path}/tdh-gcp-compute.sh --prefix ${prefix} --network ${network} --subnet ${subnet} --type ${mtype} --bootsize ${bootsize}"
 
     if [ $dryrun -gt 0 ]; then
         cmd="${cmd} --dryrun"

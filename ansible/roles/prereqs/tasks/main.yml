@@ -31,6 +31,7 @@
   become: true
   yum:
     name: '{{ yum_install_packages }}'
+    lock_timeout: 180
     state: present
 
 - name: Copy sysctl config
