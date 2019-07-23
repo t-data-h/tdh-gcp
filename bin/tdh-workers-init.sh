@@ -165,8 +165,7 @@ for name in $names; do
     #
     # Create instance
     host="${prefix}-${name}"
-    cmd="${tdh_path}/tdh-gcp-compute.sh --prefix ${prefix} --network ${network} --subnet ${subnet} \
-    --type ${mtype} --bootsize ${bootsize}"
+    cmd="${tdh_path}/tdh-gcp-compute.sh --prefix ${prefix} --network ${network} --subnet ${subnet} --type ${mtype} --bootsize ${bootsize}"
 
     if [ $dryrun -gt 0 ]; then
         cmd="${cmd} --dryrun"

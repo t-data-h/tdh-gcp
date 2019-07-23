@@ -292,7 +292,7 @@ for name in $names; do
         ( gcloud compute ssh ${host} --command "ssh-keygen -t rsa -b 2048 -N '' -F '~/.ssh/id_rsa'; cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys" )
         if [ -e $master_id_file ]; then
             ( gcloud compute scp ${master_id_file} ${host}:.ssh/ )
-            ( gcloud compute ssh ${host} --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys ")
+            ( gcloud compute ssh ${host} --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys" )
         else
             ( gcloud compute scp ${host}:.ssh/id_rsa.pub ${master_id_file} )
         fi
