@@ -37,7 +37,7 @@ while [ $# -gt 0 ]; do
 done
 
 
-if [ -z "$ACTION" ]; then
+if [ -z "$action" ]; then
     echo ""
     echo "Usage: $PNAME <action> "
     echo "  any action other than 'run' is a 'dryrun'"
