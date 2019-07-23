@@ -4,7 +4,8 @@
     path: '{{ tdh_namenode_dir }}'
   register: nndir
 
-- block:
+- name: TDH Master Provisioning 
+  block:
   - name: TDH Provisioning Step 1
     shell: '{{ tdh_install_path }}/bin/01-tdh-mysql-provision.sh'
   - name: TDH Provisioning Step 2
