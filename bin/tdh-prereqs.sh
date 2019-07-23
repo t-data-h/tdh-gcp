@@ -12,9 +12,9 @@ if [ -f ${tdh_path}/tdh-gcp-config.sh ]; then
 fi
 
 # -------------
+# Currently prereqs are handled during the ansible install playbook, but
+# keeping this around as a hook for installing prior to ansible bootstrap
 
-# ( ansible-playbook -i inventory/$tdhenv/hosts tdh-install.yml )
-# rt=$?
 
 if [ $rt -gt 0 ]; then
     echo "Error in install."

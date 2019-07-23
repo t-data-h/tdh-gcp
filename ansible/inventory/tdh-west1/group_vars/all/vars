@@ -15,6 +15,10 @@ mysql_hue_user: 'hue'
 tdh_user: 'tca'
 tdh_group: 'tca'
 
+tdh_mysql_master_hosts:
+  - '{{ mysql_master_hostname }}'
+  - '{{ mysql_slave_hostname }}'
+
 tdh_mysql_client_hosts:
   - 'tdh-m01.c.t3-dataintellence.internal'
   - 'tdh-m01.c.t3-dataintellence.internal'

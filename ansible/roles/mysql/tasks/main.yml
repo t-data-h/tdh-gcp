@@ -1,6 +1,18 @@
 ---
-#  Setup Mysql Replication
-- block:
+#  Setup Mysql
+- name: Mysql Root accounts
+  mysql_user:
+    login_user: 'root'
+    login_password: '{{ mysql_root_password }}'
+    name: 'root'
+    password: '{{ mysql_root_password }}'
+    host: '{{ item }}'
+    priv: '*.*:ALL,GRANT'
+    state: present
+  with_items: '{{ tdh_mysql_master_hosts }}'
+
+- name: Mysql DB Setup
+  block:
   - name: Create Mysql Replication User
     mysql_user:
       login_user: 'root'
@@ -17,15 +29,6 @@
       name: ""
       host_all: yes
       state: absent
-  - name: Add root mysql access from slave host
-    mysql_user:
-      login_user: 'root'
-      login_password: '{{ mysql_root_password }}'
-      name: 'root'
-      password: '{{ mysql_root_password }}'
-      host: '{{ mysql_slave_hostname }}'
-      priv: '*.*:ALL,GRANT'
-      state: present
   - name: Create Hive Database
     mysql_db:
       login_user: 'root'
@@ -42,7 +45,8 @@
     with_items: '{{ tdh_mysql_client_hosts }}'
   when: inventory_hostname in groups['master01']
 
-- block:
+- name: Mysql Replication
+  block:
   - name: Get Master Info
     mysql_replication:
       login_user: 'root'

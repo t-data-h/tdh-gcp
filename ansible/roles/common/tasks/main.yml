@@ -39,11 +39,12 @@
     mode: '0777'
   tags: [ tdh-config, tdh-mgr, tdh-python]
 
-# Deploy TDH
-- block:
-  - name: Stop TDH
-    shell: '{{ tdh_install_path }}/bin/tdh-init.sh stop'
-    when: inventory_hostname in groups['master01']
+- name: Stop TDH
+  shell: '{{ tdh_install_path }}/bin/tdh-init.sh stop'
+  when: inventory_hostname in groups['master01'] and tdhstat.stat.exists
+
+- name: Deploy TDH
+  block:
   - name:  Remove previous TDH installation
     become: true
     file:
@@ -67,8 +68,8 @@
       state: link
   when: tdhdropstat.stat.exists
 
-# TDH Config Deploy
-- block:
+- name: TDH Config Deploy
+  block:
   - name: Extract TDH Config package
     unarchive:
       src: '{{ tdh_config_dropfile }}'
@@ -87,8 +88,8 @@
   tags: [ tdh-config ]
   when: tdhconfigstat.stat.exists
 
-# TDH MGR Deploy
-- block:
+- name: TDH Mgr Deploy
+  block:
   - name: Extract TDH Mgr Package
     unarchive:
       src: '{{ tdh_mgr_dropfile }}'
@@ -107,8 +108,8 @@
   tags: [ tdh-mgr ]
   when: tdhmgrstat.stat.exists
 
- # Anaconda Deploy
-- block:
+- name: Python Anaconda Deploy
+  block:
   - name: Remove previous Anaconda
     file:
       path: '{{ tdh_python3_path }}'
