@@ -18,6 +18,8 @@ disksize="$GCP_DEFAULT_DISKSIZE"
 name=
 action=
 diskname=
+network=
+subnet=
 attach=0
 ssd=0
 dryrun=0
@@ -47,8 +49,10 @@ usage()
     echo "  -d|--disksize <xxGB>  : Size of attached disk"
     echo "  -h|--help             : Display usage and exit"
     echo "  -l|--list             : List available machine-types for the zone"
-    echo "  -p|--prefix <name>    : Prefix name to use for instances"
     echo "  -n|--dryrun           : Enable dryrun, no actions are run"
+    echo "  -N|--network <name>   : GCP Network name"
+    echo "  -s|--subnet <name>    : GCP Network subnet name"
+    echo "  -p|--prefix <name>    : Prefix name to use for instances"
     echo "  -S|--ssd              : Use SSD as attached disk type"
     echo "  -t|--type             : Machine type to use for instance(s)"
     echo "  -z|--zone <name>      : Set GCP zone (use -l to list)"
@@ -60,8 +64,8 @@ usage()
     echo "     stop               :  Stop a running instance"
     echo "     delete             :  Delete an instance"
     echo ""
-    echo "  Default GCP Zone is $zone"
-    echo "  Default Machine Type is $mtype"
+    echo "  Default GCP Zone is '$zone'"
+    echo "  Default Machine Type is '$mtype'"
     echo ""
 }
 
@@ -192,6 +196,14 @@ while [ $# -gt 0 ]; do
         -n|--dryrun)
             dryrun=1
             ;;
+        -N|--network)
+            network="$2"
+            shift
+            ;;
+        -s|--subnet)
+            subnet="$2"
+            shift
+            ;;
         -S|--ssd)
             ssd=1
             ;;
@@ -228,6 +240,11 @@ if [ -z "$zone" ] || [ -z "$mtype" ]; then
     exit 1
 fi
 
+if [ -n "$network" ] && [ -z "$subnet" ]; then
+    echo "Error, subnet not defined and required with --network"
+    exit 1
+fi
+
 if [ -n "$prefix" ]; then
     name="${prefix}-${name}"
 fi
@@ -235,7 +252,6 @@ fi
 if [ -z "$diskname" ]; then
     diskname="${name}-disk1"
 fi
-
 
 case "$action" in
 create)
@@ -245,6 +261,10 @@ create)
     if [ $ssd -eq 1 ]; then
         cmd="$cmd --boot-disk-type=pd-ssd"
     fi
+    if [ -n "$network" ]; then
+        cmd="$cmd --network ${network} --subnet ${subnet}"
+    fi
+
     cmd="$cmd --zone ${zone} --tags ${prefix} ${name}"
 
     echo ""

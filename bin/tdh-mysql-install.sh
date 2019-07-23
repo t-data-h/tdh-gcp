@@ -12,7 +12,7 @@ fi
 # -----------------------------------
 
 host=
-role=
+role="master"
 pw=
 rt=
 id=1
@@ -35,7 +35,7 @@ usage()
 
 version()
 {
-    echo "$PNAME: v$VERSION"
+    echo "$PNAME: v$TDH_VERSION"
 }
 
 
@@ -63,6 +63,7 @@ while [ $# -gt 0 ]; do
         -V|--version)
             version
             exit 0
+            ;;
         *)
             host="$1"
             role="$2"
@@ -73,7 +74,7 @@ while [ $# -gt 0 ]; do
 done
 
 
-if [ -z "$host" ] || [ -z "$role" ]; then
+if [ -z "$host" ]; then
     version
     usage
     exit 1
