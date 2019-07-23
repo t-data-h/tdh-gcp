@@ -21,6 +21,7 @@ disksize="$GCP_DEFAULT_DISKSIZE"
 master_id="master-id_rsa.pub"
 master_id_file="${tdh_path}/../ansible/.ansible/${master_id}"
 network="tdh-net"
+subnet="tdh-net-west1"
 
 myid=1
 attach=0
@@ -30,15 +31,22 @@ action=
 rt=
 
 # ----------------------------------
+# Default overrides
 
-# default zone
 if [ -n "$GCP_ZONE" ]; then
     zone="$GCP_ZONE"
 fi
 
-# default machinetype
 if [ -n "$GCP_MACHINE_TYPE" ]; then
     mtype="$GCP_MACHINE_TYPE"
+fi
+
+if [ -n "$GCP_NETWORK" ]; then
+    network="$GCP_NETWORK"
+fi
+
+if [ -n "$GCP_SUBNET" ]; then 
+    subnet="$GCP_SUBNET" 
 fi
 
 # -----------------------------------
@@ -51,6 +59,7 @@ usage() {
     echo "  -d|--disksize <xxGB>  : Size of attached disk, Default is $disksize"
     echo "  -h|--help             : Display usage and exit"
     echo "  -N|--network <name>   : GCP Network name. Default is $network"
+    echo "  -s|--subnet <name>    : GCP Network subnet name. Default is $subnet"
     echo "  -p|--prefix <name>    : Prefix name to use for instances"
     echo "                          Default prefix is '$prefix'"
     echo "  -S|--ssd              : Use SSD as attached disk type"
@@ -94,12 +103,16 @@ while [ $# -gt 0 ]; do
             prefix="$2"
             shift
             ;;
+        -n|--dryrun)
+            dryrun=1
+            ;;
         -N|--network)
             network="$2"
             shift
             ;;
-        -n|--dryrun)
-            dryrun=1
+        -s|--subnet)
+            subnet="$2"
+            shift
             ;;
         -S|-ssd)
             ssd=1
@@ -152,7 +165,8 @@ for name in $names; do
     #
     # Create instance
     host="${prefix}-${name}"
-    cmd="${tdh_path}/tdh-gcp-compute.sh --prefix ${prefix} --network $network --type ${mtype} --bootsize ${bootsize}"
+    cmd="${tdh_path}/tdh-gcp-compute.sh --prefix ${prefix} --network ${network} --subnet ${subnet} \
+    --type ${mtype} --bootsize ${bootsize}"
 
     if [ $dryrun -gt 0 ]; then
         cmd="${cmd} --dryrun"

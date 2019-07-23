@@ -21,6 +21,7 @@ disksize="$GCP_DEFAULT_DISKSIZE"
 master_id="master-id_rsa.pub"
 master_id_file="${tdh_path}/../ansible/.ansible/${master_id}"
 network="tdh-net"
+subnet="tdh-net-west1"
 
 myid=1
 dryrun=1
@@ -32,15 +33,22 @@ action=
 rt=
 
 # -----------------------------------
+# default overrides
 
-# override default zone
 if [ -n "$GCP_ZONE" ]; then
     zone="$GCP_ZONE"
 fi
 
-# default machinetype
 if [ -n "$GCP_MACHINE_TYPE" ]; then
     mtype="$GCP_MACHINE_TYPE"
+fi
+
+if [ -n "$GCP_NETWORK" ]; then
+    network="$GCP_NETWORK"
+fi
+
+if [ -n "$GCP_SUBNET" ]; then 
+    subnet="$GCP_SUBNET" 
 fi
 
 # -----------------------------------
@@ -52,8 +60,6 @@ usage() {
     echo "  -b|--bootsize <xxGB>  : Size of boot disk, Default is $bootsize"
     echo "  -d|--disksize <xxGB>  : Size of attached disk, Default is $disksize"
     echo "  -h|--help             : Display usage and exit"
-    echo "  -N|--network <name>   : GCP Network name. Default is $network"
-    echo "                          Default is ${network}"
     echo "  -p|--prefix <name>    : Prefix name to use for instances"
     echo "                          Default prefix is '$prefix'"
     echo "  -P|--pwfile <file>    : File containing mysql root password"
@@ -130,10 +136,6 @@ while [ $# -gt 0 ]; do
             pwfile="$2"
             shift
             ;;
-        -N|--network)
-            network="$2"
-            shift
-            ;;
         -n|--dryrun)
             dryrun=1
             ;;
@@ -203,7 +205,8 @@ for name in $names; do
     #
     # Create instance
     host="${prefix}-${name}"
-    cmd="${tdh_path}/tdh-gcp-compute.sh --prefix ${prefix} --network ${network} --type ${mtype} --bootsize $bootsize"
+    cmd="${tdh_path}/tdh-gcp-compute.sh --prefix ${prefix} --network ${network} --subnet ${subnet} \
+    --type ${mtype} --bootsize ${bootsize}"
 
     if [ $dryrun -gt 0 ]; then
         cmd="${cmd} --dryrun"
@@ -286,7 +289,7 @@ for name in $names; do
     # ssh
     echo "( gcloud compute ssh ${host} --command 'mkdir -p .ssh; chmod 700 .ssh; chmod 600 .ssh/authorized_keys')"
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute ssh ${host} --command "ssh-keygen -t rsa -b 2048 -N ''; cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys" )
+        ( gcloud compute ssh ${host} --command "ssh-keygen -t rsa -b 2048 -N '' -F '~/.ssh/id_rsa'; cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys" )
         if [ -e $master_id_file ]; then
             ( gcloud compute scp ${master_id_file} ${host}:.ssh/ )
             ( gcloud compute ssh ${host} --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys ")
