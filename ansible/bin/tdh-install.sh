@@ -52,6 +52,7 @@ fi
 
 cd $TDH_ANSIBLE_HOME
 
+echo ""
 echo "TDH_ANSIBLE_HOME = '$TDH_ANSIBLE_HOME'"
 echo "Running Ansible Playbooks : tdh-distribute, tdh_install"
 if [ -n "$tags" ]; then
