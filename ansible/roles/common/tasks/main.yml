@@ -51,6 +51,7 @@
     unarchive:
       src: '{{ tdh_dropfile }}'
       dest: '/opt'
+      remote_src: 'yes'
       creates: '{{ tdh_install_path }}'
   - name: Cleanup TDH install package
     file:
@@ -90,6 +91,7 @@
     unarchive:
       src: '{{ tdh_mgr_dropfile }}'
       dest: '{{ tdh_tmp_path }}'
+      remote_src: 'yes'
       creates: '{{ tdh_mgr_path }}'
   - name: Install TDH Mgr
     shell: 'cd {{ tdh_mgr_path }} && make install'
@@ -119,6 +121,7 @@
     unarchive:
       src: '{{ tdh_python3_dropfile }}'
       dest: '{{ tdh_python3_install_path }}'
+      remote_src: 'yes'
       creates: '{{ tdh_python3_path }}'
   - name: Cleanup Anaconda package
     file:

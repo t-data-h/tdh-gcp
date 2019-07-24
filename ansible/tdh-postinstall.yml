@@ -1,5 +1,5 @@
 ---
-- hosts: all
+- hosts: master01
   gather_facts: False
   tasks:
   - name: mkdir /hive/warehouse
