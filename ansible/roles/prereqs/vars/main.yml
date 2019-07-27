@@ -11,6 +11,8 @@ yum_install_packages:
  - nmap-ncat
  - bind-utils
  - MySQL-python
+ - bzip2
+ - unzip
 
 yum_remove_packages:
  - mariadb-libs

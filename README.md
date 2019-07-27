@@ -42,44 +42,18 @@ is considered as the primary management node where Ansible is run from.
   
   Installs host prerequisites that may be needed prior to ansible bootstrapping.
 
+### Examples:
 
-## Ansible:
+Create two master nodes, first with a test run:
+```
+./bin/tdh-masters-init.sh -t 'n1-standard-2' test m01 m02
+./bin/tdh-masters-init.sh -t 'n1-standard-2' run m01 m02
+```
 
-Deploying TDH comes down to three steps. 
-1) Distribute Assets 
-2) Deploy Assets and Configuration 
-3) Run any post-install steps.
-
-### Distribute:
-
-  The first step is to distribute the various assets via the playbook *tdh-distribute.yml*. This play looks in a distribution input path for a set of 
-assets; this path defaults to *~/tmp/dist*.
-
-There are 4 packages that are used by the deploy playbook:
-
-- **TDH.tar.gz**  
-  The main binary distribution of the complete TDH Ecosystem.
-- **tdh-hadoop.tar.gz**  
-  The TDH Manager package consisting of the framework of scripts used to support 
-  cluster operations.
-- **tdh-conf.tar.gz**  
-  The configuration package that is used to overlay and update 
-  the cluster configuration.
-- **tdh-anaconda3.tar.gz**  
-  The Anaconda Python distribution for utilizing Python3 on the cluster.
-
-If any of these packages exist in the landing path, they are distributed to all
-nodes of the cluster to a temporary drop path for use by the install.
-
-### Install:
-
- The second step is to run the install playbook *tdh-install.yml*. This will run through all prerequisites and install/update the TDH Enviornment depending on 
- what 'dropfiles' exist in the 'droppath'.
-
-### Post-Install
-
-The last step is to be run after the successful completion of step 2 and the cluster is up and operational. It mostly performs some HDFS directory seeding 
-needed for the cluster to be fully operational. (hive warehouse and permissions, log directories for aggregateion, etc.)
+Create three worker nodes, with 256G boot drive as SSD.
+```
+./bin/tdh-workers-init.sh -b 256GB -S run
+```
 
 ## GCP Machine-Types:
 
