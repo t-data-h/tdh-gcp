@@ -6,7 +6,7 @@ reponame="$1"
 giturl="$2"
 
 default_git="https://github.com/tcarland"
-default_repo="tdh-gcp"i
+default_repo="tdh-gcp"
 
 
 if [ -z "$reponame" ]; then
