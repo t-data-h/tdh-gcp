@@ -75,8 +75,8 @@ usage() {
     echo ""
     echo " Where <action> is 'run' or other, where any other action enables a "
     echo " dryrun, followed by a list of names that become '\$prefix-\$name'."
-    echo " eg. '$PNAME test m01 m02 m03' will dryrun 3 master nodes with"
-    echo " the names: $prefix-m01, $prefix-m02, and $prefix-m03"
+    echo " eg. '$PNAME test m01 m02 m03' will dryrun 3 master nodes"
+    echo " with the names: $prefix-m01, $prefix-m02, and $prefix-m03"
     echo ""
 }
 
@@ -93,7 +93,7 @@ read_password()
     local pass=
     local pval=
 
-    echo "Creating tmpfile for holding mysqld password..."
+    echo "Please provide the root mysqld password..."
     read -s -p "$prompt" pass
     echo ""
     read -s -p "Repeat $prompt" pval
@@ -289,7 +289,7 @@ for name in $names; do
     # ssh
     echo "( gcloud compute ssh ${host} --command 'mkdir -p .ssh; chmod 700 .ssh; chmod 600 .ssh/authorized_keys')"
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute ssh ${host} --command "ssh-keygen -t rsa -b 2048 -N '' -F '~/.ssh/id_rsa'; cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys" )
+        ( gcloud compute ssh ${host} --command "ssh-keygen -t rsa -b 2048 -N '' -f '~/.ssh/id_rsa'; cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys" )
         if [ -e $master_id_file ]; then
             ( gcloud compute scp ${master_id_file} ${host}:.ssh/ )
             ( gcloud compute ssh ${host} --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys" )
@@ -331,7 +331,7 @@ for name in $names; do
     echo ""
 done
 
-if [ -e "$pwfile" ]; then
+if [ -e $pwfile ]; then
     unlink $pwfile
 fi
 
