@@ -1,19 +1,19 @@
 ---
+tdh_env: 'tdh-west1'
+
+tdh_user: 'tca'
+tdh_group: 'tca'
+
 mysql_master_hostname: 'tdh-m01.c.t3-dataintellence.internal'
 mysql_slave_hostname: 'tdh-m02.c.t3-dataintellence.internal'
 mysql_hostname: '{{ mysql_master_hostname }}'
 mysql_port: 3306
 
 mysql_repl_user: 'tdhrepl'
-
+mysql_hue_user: 'hue'
 mysql_hive_user: 'hive'
 mysql_hive_db: 'metastore'
 mysql_hive_schemafile: '/opt/TDH/hive/scripts/metastore/upgrade/mysql/hive-schema-1.2.0.mysql.sql'
-
-mysql_hue_user: 'hue'
-
-tdh_user: 'tca'
-tdh_group: 'tca'
 
 tdh_mysql_master_hosts:
   - '{{ mysql_master_hostname }}'
