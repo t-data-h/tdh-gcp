@@ -14,6 +14,8 @@ zone="$GCP_DEFAULT_ZONE"
 mtype="$GCP_DEFAULT_MACHINETYPE"
 bootsize="$GCP_DEFAULT_BOOTSIZE"
 disksize="$GCP_DEFAULT_DISKSIZE"
+image="$GCP_DEFAULT_IMAGE"
+image_project="$GCP_DEFAULT_IMAGEPROJECT"
 
 name=
 action=
@@ -64,8 +66,9 @@ usage()
     echo "     stop               :  Stop a running instance"
     echo "     delete             :  Delete an instance"
     echo ""
-    echo "  Default GCP Zone is '$zone'"
+    echo "  Default GCP Zone is     '$zone'"
     echo "  Default Machine Type is '$mtype'"
+    echo "  Default Image is        '$image'"
     echo ""
 }
 
@@ -246,7 +249,10 @@ if [ -n "$network" ] && [ -z "$subnet" ]; then
 fi
 
 if [ -n "$prefix" ]; then
-    name="${prefix}-${name}"
+    ( echo $name | grep "^$prefix" >/dev/null 2>&1 )
+    if [ $? -ne 0 ]; then
+        name="${prefix}-${name}"
+    fi
 fi
 
 if [ -z "$diskname" ]; then
@@ -255,7 +261,7 @@ fi
 
 case "$action" in
 create)
-    cmd="gcloud compute instances create --image-family=centos-7 --image-project=centos-cloud"
+    cmd="gcloud compute instances create --image-family=${image} --image-project=${image_project}"
     cmd="$cmd --machine-type=${mtype} --boot-disk-size=${bootsize}"
 
     if [ $ssd -eq 1 ]; then
