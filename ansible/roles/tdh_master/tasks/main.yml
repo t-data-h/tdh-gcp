@@ -4,14 +4,21 @@
     path: '{{ tdh_namenode_dir }}'
   register: nndir
 
+- name: Master specific packages
+  become: true
+  yum:
+    name: '{{ yum_master_packages }}'
+    lock_timeout: 180
+    state: present
+
 - name: TDH Master Provisioning 
   block:
   - name: TDH Provisioning Step 1
-    shell: '{{ tdh_install_path }}/bin/01-tdh-mysql-provision.sh'
+    shell: '{{ tdh_install_path }}/sbin/01-tdh-mysql-provision.sh'
   - name: TDH Provisioning Step 2
-    shell: '{{ tdh_install_path }}/bin/03-tdh-provision.sh'
+    shell: '{{ tdh_install_path }}/sbin/03-tdh-provision.sh'
   - name: TDH Provisioning Step 3
-    shell: '{{ tdh_install_path }}/bin/05-spark-provision.sh'
+    shell: '{{ tdh_install_path }}/sbin/05-spark-provision.sh'
   - name: Create HDFS Namenode path
     become: true
     file:
