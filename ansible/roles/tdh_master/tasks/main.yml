@@ -10,6 +10,7 @@
     name: '{{ yum_master_packages }}'
     lock_timeout: 180
     state: present
+  
 
 - name: TDH Master Provisioning 
   block:
@@ -19,6 +20,11 @@
     shell: '{{ tdh_install_path }}/sbin/03-tdh-provision.sh'
   - name: TDH Provisioning Step 3
     shell: '{{ tdh_install_path }}/sbin/05-spark-provision.sh'
+
+  - name: Increase Host Entropy
+    become: true
+    shell: 'rngd -r /dev/urandom'
+
   - name: Create HDFS Namenode path
     become: true
     file:
@@ -27,6 +33,7 @@
       group: '{{ tdh_group }}'
       mode: 0750
       state: directory
+
   - name:  Format namenode
     shell: 'hadoop namenode -format'
     when: inventory_hostname in groups['master01']
