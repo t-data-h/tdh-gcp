@@ -27,15 +27,18 @@ ssd=0
 dryrun=0
 
 # -----------------------------------
+# default overrides
 
-# default zone
 if [ -n "$GCP_ZONE" ]; then
     zone="$GCP_ZONE"
 fi
 
-# default machinetype
 if [ -n "$GCP_MACHINE_TYPE" ]; then
     mtype="$GCP_MACHINE_TYPE"
+fi
+
+if [ -n "$GCP_MACHINE_IMAGE" ]; then
+    image="$GCP_MACHNIE_IMAGE"
 fi
 
 # -----------------------------------
@@ -51,7 +54,7 @@ usage()
     echo "  -d|--disksize <xxGB>  : Size of attached disk"
     echo "  -h|--help             : Display usage and exit"
     echo "  -l|--list             : List available machine-types for the zone"
-    echo "  -n|--dryrun           : Enable dryrun, no actions are run"
+    echo "  -n|--subnet <name>    : Used with --network to define the subnet"
     echo "  -N|--network <name>   : GCP Network name"
     echo "  -s|--subnet <name>    : GCP Network subnet name"
     echo "  -p|--prefix <name>    : Prefix name to use for instances"
@@ -188,6 +191,9 @@ while [ $# -gt 0 ]; do
             disksize="$2"
             shift
             ;;
+        --dryrun)
+            dryrun=1
+            ;;
         -D|--diskname)
             diskname="$2"
             shift
@@ -196,8 +202,9 @@ while [ $# -gt 0 ]; do
             prefix="$2"
             shift
             ;;
-        -n|--dryrun)
-            dryrun=1
+        -n|--subnet)
+            subnet="$2"
+            shift
             ;;
         -N|--network)
             network="$2"
@@ -244,7 +251,7 @@ if [ -z "$zone" ] || [ -z "$mtype" ]; then
 fi
 
 if [ -n "$network" ] && [ -z "$subnet" ]; then
-    echo "Error, subnet not defined and required with --network"
+    echo "Error, subnet not defined; it is required with --network"
     exit 1
 fi
 
