@@ -14,6 +14,7 @@ yum_install_packages:
  - bzip2
  - unzip
  - wget
+ - rng-tools
 
 yum_master_packages:
  - tmux
