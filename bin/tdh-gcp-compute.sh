@@ -38,7 +38,7 @@ if [ -n "$GCP_MACHINE_TYPE" ]; then
 fi
 
 if [ -n "$GCP_MACHINE_IMAGE" ]; then
-    image="$GCP_MACHNIE_IMAGE"
+    image="$GCP_MACHINE_IMAGE"
 fi
 
 # -----------------------------------
@@ -54,9 +54,8 @@ usage()
     echo "  -d|--disksize <xxGB>  : Size of attached disk"
     echo "  -h|--help             : Display usage and exit"
     echo "  -l|--list             : List available machine-types for the zone"
-    echo "  -n|--subnet <name>    : Used with --network to define the subnet"
     echo "  -N|--network <name>   : GCP Network name"
-    echo "  -s|--subnet <name>    : GCP Network subnet name"
+    echo "  -n|--subnet <name>    : Used with --network to define the subnet"
     echo "  -p|--prefix <name>    : Prefix name to use for instances"
     echo "  -S|--ssd              : Use SSD as attached disk type"
     echo "  -t|--type             : Machine type to use for instance(s)"
@@ -191,9 +190,6 @@ while [ $# -gt 0 ]; do
             disksize="$2"
             shift
             ;;
-        --dryrun)
-            dryrun=1
-            ;;
         -D|--diskname)
             diskname="$2"
             shift
@@ -202,16 +198,15 @@ while [ $# -gt 0 ]; do
             prefix="$2"
             shift
             ;;
+        --dryrun)
+            dryrun=1
+            ;;
         -n|--subnet)
             subnet="$2"
             shift
             ;;
         -N|--network)
             network="$2"
-            shift
-            ;;
-        -s|--subnet)
-            subnet="$2"
             shift
             ;;
         -S|--ssd)
