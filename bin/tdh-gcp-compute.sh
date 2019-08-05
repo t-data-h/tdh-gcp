@@ -261,6 +261,7 @@ if [ -z "$diskname" ]; then
     diskname="${name}-disk1"
 fi
 
+
 case "$action" in
 create)
     cmd="gcloud compute instances create --image-family=${image} --image-project=${image_project}"
@@ -304,6 +305,13 @@ create)
             echo "Error in attach_disk() rt=$rt"
             exit $rt
         fi
+    fi
+    ;;
+
+start)
+    echo "( gcloud compute instances start ${name} )"
+    if [ $dryrun -eq 0 ]; then
+        ( gcloud compute instances start ${name} )
     fi
     ;;
 
