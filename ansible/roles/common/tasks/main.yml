@@ -71,6 +71,7 @@
     unarchive:
       src: '{{ tdh_config_dropfile }}'
       dest: '{{ tdh_tmp_path }}'
+      remote_src: 'yes'
       creates: '{{ tdh_config_path }}'
   - name: Synchronize TDH Config
     shell: 'rsync -aK {{ tdh_config_path }}/ {{ tdh_install_path }}/'
