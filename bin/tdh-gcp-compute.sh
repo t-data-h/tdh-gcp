@@ -14,6 +14,8 @@ zone="$GCP_DEFAULT_ZONE"
 mtype="$GCP_DEFAULT_MACHINETYPE"
 bootsize="$GCP_DEFAULT_BOOTSIZE"
 disksize="$GCP_DEFAULT_DISKSIZE"
+image="$GCP_DEFAULT_IMAGE"
+image_project="$GCP_DEFAULT_IMAGEPROJECT"
 
 name=
 action=
@@ -25,15 +27,18 @@ ssd=0
 dryrun=0
 
 # -----------------------------------
+# default overrides
 
-# default zone
 if [ -n "$GCP_ZONE" ]; then
     zone="$GCP_ZONE"
 fi
 
-# default machinetype
 if [ -n "$GCP_MACHINE_TYPE" ]; then
     mtype="$GCP_MACHINE_TYPE"
+fi
+
+if [ -n "$GCP_MACHINE_IMAGE" ]; then
+    image="$GCP_MACHINE_IMAGE"
 fi
 
 # -----------------------------------
@@ -49,9 +54,8 @@ usage()
     echo "  -d|--disksize <xxGB>  : Size of attached disk"
     echo "  -h|--help             : Display usage and exit"
     echo "  -l|--list             : List available machine-types for the zone"
-    echo "  -n|--dryrun           : Enable dryrun, no actions are run"
     echo "  -N|--network <name>   : GCP Network name"
-    echo "  -s|--subnet <name>    : GCP Network subnet name"
+    echo "  -n|--subnet <name>    : Used with --network to define the subnet"
     echo "  -p|--prefix <name>    : Prefix name to use for instances"
     echo "  -S|--ssd              : Use SSD as attached disk type"
     echo "  -t|--type             : Machine type to use for instance(s)"
@@ -64,8 +68,9 @@ usage()
     echo "     stop               :  Stop a running instance"
     echo "     delete             :  Delete an instance"
     echo ""
-    echo "  Default GCP Zone is '$zone'"
+    echo "  Default GCP Zone is     '$zone'"
     echo "  Default Machine Type is '$mtype'"
+    echo "  Default Image is        '$image'"
     echo ""
 }
 
@@ -193,15 +198,15 @@ while [ $# -gt 0 ]; do
             prefix="$2"
             shift
             ;;
-        -n|--dryrun)
+        --dryrun)
             dryrun=1
+            ;;
+        -n|--subnet)
+            subnet="$2"
+            shift
             ;;
         -N|--network)
             network="$2"
-            shift
-            ;;
-        -s|--subnet)
-            subnet="$2"
             shift
             ;;
         -S|--ssd)
@@ -241,21 +246,25 @@ if [ -z "$zone" ] || [ -z "$mtype" ]; then
 fi
 
 if [ -n "$network" ] && [ -z "$subnet" ]; then
-    echo "Error, subnet not defined and required with --network"
+    echo "Error, subnet not defined; it is required with --network"
     exit 1
 fi
 
 if [ -n "$prefix" ]; then
-    name="${prefix}-${name}"
+    ( echo $name | grep "^$prefix" >/dev/null 2>&1 )
+    if [ $? -ne 0 ]; then
+        name="${prefix}-${name}"
+    fi
 fi
 
 if [ -z "$diskname" ]; then
     diskname="${name}-disk1"
 fi
 
+
 case "$action" in
 create)
-    cmd="gcloud compute instances create --image-family=centos-7 --image-project=centos-cloud"
+    cmd="gcloud compute instances create --image-family=${image} --image-project=${image_project}"
     cmd="$cmd --machine-type=${mtype} --boot-disk-size=${bootsize}"
 
     if [ $ssd -eq 1 ]; then
@@ -296,6 +305,13 @@ create)
             echo "Error in attach_disk() rt=$rt"
             exit $rt
         fi
+    fi
+    ;;
+
+start)
+    echo "( gcloud compute instances start ${name} )"
+    if [ $dryrun -eq 0 ]; then
+        ( gcloud compute instances start ${name} )
     fi
     ;;
 

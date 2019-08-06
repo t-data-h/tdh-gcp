@@ -20,8 +20,8 @@ bootsize="$GCP_DEFAULT_BOOTSIZE"
 disksize="$GCP_DEFAULT_DISKSIZE"
 master_id="master-id_rsa.pub"
 master_id_file="${tdh_path}/../ansible/.ansible/${master_id}"
-network="tdh-net"
-subnet="tdh-net-west1"
+network=
+subnet=
 
 myid=1
 attach=0
@@ -59,7 +59,7 @@ usage() {
     echo "  -d|--disksize <xxGB>  : Size of attached disk, Default is $disksize"
     echo "  -h|--help             : Display usage and exit"
     echo "  -N|--network <name>   : GCP Network name. Default is $network"
-    echo "  -s|--subnet <name>    : GCP Network subnet name. Default is $subnet"
+    echo "  -n|--subnet <name>    : GCP Network subnet name. Default is $subnet"
     echo "  -p|--prefix <name>    : Prefix name to use for instances"
     echo "                          Default prefix is '$prefix'"
     echo "  -S|--ssd              : Use SSD as attached disk type"
@@ -103,14 +103,14 @@ while [ $# -gt 0 ]; do
             prefix="$2"
             shift
             ;;
-        -n|--dryrun)
+        --dryrun)
             dryrun=1
             ;;
         -N|--network)
             network="$2"
             shift
             ;;
-        -s|--subnet)
+        -n|--subnet)
             subnet="$2"
             shift
             ;;
@@ -151,6 +151,11 @@ else
     echo "  <DRYRUN> enabled"
 fi
 
+if [ -n "$network" ] && [ -z "$subnet" ]; then
+    echo "Error! Subnet must be provided with --network"
+    exit 1
+fi
+
 if [ -n "$namelist" ]; then
     names="$namelist"
 else
@@ -165,7 +170,11 @@ for name in $names; do
     #
     # Create instance
     host="${prefix}-${name}"
-    cmd="${tdh_path}/tdh-gcp-compute.sh --prefix ${prefix} --network ${network} --subnet ${subnet} --type ${mtype} --bootsize ${bootsize}"
+    cmd="${tdh_path}/tdh-gcp-compute.sh --prefix ${prefix} --type ${mtype} --bootsize ${bootsize}"
+    
+    if [ -n "$network" ]; then
+        cmd="$cmd --network ${network} --subnet ${subnet}"
+    fi
 
     if [ $dryrun -gt 0 ]; then
         cmd="${cmd} --dryrun"
