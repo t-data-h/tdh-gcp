@@ -13,6 +13,12 @@ yum_install_packages:
  - MySQL-python
  - bzip2
  - unzip
+ - wget
+ - rng-tools
+
+yum_master_packages:
+ - tmux
+ - clustershell
 
 yum_remove_packages:
  - mariadb-libs

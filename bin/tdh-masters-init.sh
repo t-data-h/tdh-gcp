@@ -20,8 +20,8 @@ bootsize="$GCP_DEFAULT_BOOTSIZE"
 disksize="$GCP_DEFAULT_DISKSIZE"
 master_id="master-id_rsa.pub"
 master_id_file="${tdh_path}/../ansible/.ansible/${master_id}"
-network="tdh-net"
-subnet="tdh-net-west1"
+network=
+subnet=
 
 myid=1
 dryrun=1
@@ -60,6 +60,8 @@ usage() {
     echo "  -b|--bootsize <xxGB>  : Size of boot disk, Default is $bootsize"
     echo "  -d|--disksize <xxGB>  : Size of attached disk, Default is $disksize"
     echo "  -h|--help             : Display usage and exit"
+    echo "  -N|--network <name>   : Define a GCP Network to use for the instance."
+    echo "  -n|--subnet <name>    : Used with --network to define the subnet"
     echo "  -p|--prefix <name>    : Prefix name to use for instances"
     echo "                          Default prefix is '$prefix'"
     echo "  -P|--pwfile <file>    : File containing mysql root password"
@@ -136,8 +138,16 @@ while [ $# -gt 0 ]; do
             pwfile="$2"
             shift
             ;;
-        -n|--dryrun)
+        --dryrun)
             dryrun=1
+            ;;
+        -n|--subnet)
+            subnet="$2"
+            shift
+            ;;
+        -N|--network)
+            network="$2"
+            shift
             ;;
         -S|-ssd)
             ssd=1
@@ -183,6 +193,11 @@ else
     echo "  <DRYRUN> enabled"
 fi
 
+if [ -n "$network" ] && [ -z "$subnet" ]; then
+    echo "Error! Subnet must be provided with --network"
+    exit 1
+fi
+
 if [ -n "$namelist" ]; then
     names="$namelist"
 else
@@ -205,8 +220,11 @@ for name in $names; do
     #
     # Create instance
     host="${prefix}-${name}"
-    cmd="${tdh_path}/tdh-gcp-compute.sh --prefix ${prefix} --network ${network} --subnet ${subnet} \
-    --type ${mtype} --bootsize ${bootsize}"
+    cmd="${tdh_path}/tdh-gcp-compute.sh --prefix ${prefix} --type ${mtype} --bootsize ${bootsize}"
+    
+    if [ -n "${network}" ]; then 
+        cmd="$cmd --network ${network} --subnet ${subnet}"
+    fi
 
     if [ $dryrun -gt 0 ]; then
         cmd="${cmd} --dryrun"

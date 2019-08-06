@@ -7,6 +7,7 @@ tdh_path=$(dirname "$(readlink -f "$0")")
 
 TDH_ANSIBLE_HOME=$(dirname $tdh_path)
 action=
+env=
 dryrun=1
 rt=0
 
@@ -30,17 +31,19 @@ while [ $# -gt 0 ]; do
             ;;
         *)
             action="$1"
-            shift
+            env="$2"
+            shift $#
             ;;
     esac
     shift
 done
 
 
-if [ -z "$action" ]; then
+if [ -z "$action" ] || [ -z "$env" ]; then
     echo ""
-    echo "Usage: $PNAME <action> "
-    echo "  any action other than 'run' is a 'dryrun'"
+    echo "Usage: $PNAME <action> <env>"
+    echo "  <action> any action other than 'run' is a 'dryrun'"
+    echo "  <env>    is the inventory name/environment"
     echo ""
 fi
 
@@ -62,9 +65,9 @@ echo ""
 
 # ------- Distribute
 
-echo "( ansible-playbook -i inventory/tdh-west1/hosts tdh-distribute.yml )"
+echo "( ansible-playbook -i inventory/$env/hosts tdh-distribute.yml )"
 if [ $dryrun -eq 0 ]; then
-    ( ansible-playbook -i inventory/tdh-west1/hosts tdh-distribute.yml )
+    ( ansible-playbook -i inventory/$env/hosts tdh-distribute.yml )
     rt=$?
 fi
 
@@ -75,7 +78,7 @@ fi
 
 # ------- Install
 
-cmd="ansible-playbook -i inventory/tdh-west1/hosts"
+cmd="ansible-playbook -i inventory/$env/hosts"
 
 if [ -n "$tags" ]; then
     cmd="$cmd --tags $tags"
