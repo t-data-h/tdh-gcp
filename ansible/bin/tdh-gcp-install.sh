@@ -38,13 +38,20 @@ while [ $# -gt 0 ]; do
     shift
 done
 
+if [ -z "$env" ] && [ -n "$TDH_GCP_ENV" ]; then
+    env="$TDH_GCP_ENV"
+fi
 
 if [ -z "$action" ] || [ -z "$env" ]; then
     echo ""
     echo "Usage: $PNAME <action> <env>"
     echo "  <action> any action other than 'run' is a 'dryrun'"
-    echo "  <env>    is the inventory name/environment"
+    echo "  <env>    is the inventory name for the gcp environment."
     echo ""
+    echo " The environment variable TDH_GCP_ENV is honored if env"
+    echo "is not provided."
+    echo ""
+    exit 1
 fi
 
 
