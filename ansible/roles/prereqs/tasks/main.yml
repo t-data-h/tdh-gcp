@@ -56,6 +56,13 @@
     dest: "/etc/security/limits.conf"
     mode: 0644
 
+- name: Copy security 20-nproc.conf
+  become: true
+  template:
+    src: '{{ security_nproc_conf }}'
+    dest: "/etc/security/limits.d/20-nproc.conf"
+    mode: 0644
+
 - name: Copy selinux.conf
   become: true
   template:
