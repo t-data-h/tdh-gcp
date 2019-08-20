@@ -14,11 +14,11 @@
 
 - name: TDH Master Provisioning 
   block:
-  - name: TDH Provisioning Step 1
+  - name: TDH Provisioning Step 1 - Mysql
     shell: '{{ tdh_install_path }}/sbin/01-tdh-mysql-provision.sh'
-  - name: TDH Provisioning Step 2
+  - name: TDH Provisioning Step 2 - TDH
     shell: '{{ tdh_install_path }}/sbin/03-tdh-provision.sh'
-  - name: TDH Provisioning Step 3
+  - name: TDH Provisioning Step 3 - Spark
     shell: '{{ tdh_install_path }}/sbin/05-spark-provision.sh'
 
   - name: Increase Host Entropy
@@ -34,10 +34,14 @@
       mode: 0750
       state: directory
 
-  - name:  Format namenode
+  - name: Format namenode
     shell: 'hadoop namenode -format'
     when: inventory_hostname in groups['master01']
   when: nndir.stat.exists == false
+
+- name: Provision Kafka Broker Id
+  shell: '{{ tdh_install_path }}/sbin/07-kafka-provision.sh'
+  tags: [ tdh-config ]
 
 - name: Configure Metastore password
   replace:

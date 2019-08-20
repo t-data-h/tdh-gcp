@@ -1,0 +1,10 @@
+{
+  "constraint": "constraints/compute.vmExternalIpAccess",
+  "listPolicy": {
+    "deniedValues": [
+      "projects/t3-dataintellence/zones/us-west1-b/instances/tdh-d01",
+      "projects/t3-dataintellence/zones/us-west1-b/instances/tdh-d02",
+      "projects/t3-dataintellence/zones/us-west1-b/instances/tdh-d03"
+    ]
+  }
+}
