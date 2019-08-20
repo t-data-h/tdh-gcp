@@ -168,6 +168,7 @@ create_disk()
 # MAIN
 #
 rt=0
+names=
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -226,7 +227,8 @@ while [ $# -gt 0 ]; do
             ;;
         *)
             action="$1"
-            name="$2"
+            shift
+            names="$@"
             shift $#
             ;;
     esac
@@ -234,7 +236,7 @@ while [ $# -gt 0 ]; do
 done
 
 
-if [ -z "$name" ]; then
+if [ -z "$names" ]; then
     version
     usage
     exit 1
@@ -250,93 +252,97 @@ if [ -n "$network" ] && [ -z "$subnet" ]; then
     exit 1
 fi
 
-if [ -n "$prefix" ]; then
-    ( echo $name | grep "^$prefix" >/dev/null 2>&1 )
-    if [ $? -ne 0 ]; then
-        name="${prefix}-${name}"
-    fi
-fi
+for name in $names; do 
 
-if [ -z "$diskname" ]; then
-    diskname="${name}-disk1"
-fi
-
-
-case "$action" in
-create)
-    cmd="gcloud compute instances create --image-family=${image} --image-project=${image_project}"
-    cmd="$cmd --machine-type=${mtype} --boot-disk-size=${bootsize}"
-
-    if [ $ssd -eq 1 ]; then
-        cmd="$cmd --boot-disk-type=pd-ssd"
-    fi
-    if [ -n "$network" ]; then
-        cmd="$cmd --network ${network} --subnet ${subnet}"
+    if [ -n "$prefix" ]; then
+        ( echo $name | grep "^${prefix}-" >/dev/null 2>&1 )
+        if [ $? -ne 0 ]; then
+            name="${prefix}-${name}"
+        fi
     fi
 
-    cmd="$cmd --zone ${zone} --tags ${prefix} ${name}"
-
-    echo ""
-    echo "( $cmd )"
-
-    if [ $dryrun -eq 0 ]; then
-        ( $cmd )
-        rt=$?
+    if [ -z "$diskname" ]; then
+        diskname="${name}-disk1"
     fi
 
-    if [ $rt -ne 0 ]; then
-        echo "Error in create_instance()"
-        exit $rt
-    fi
+    case "$action" in
+    create)
+        cmd="gcloud compute instances create --image-family=${image} --image-project=${image_project}"
+        cmd="$cmd --machine-type=${mtype} --boot-disk-size=${bootsize}"
 
-    if [ $attach -gt 0 ]; then
-        create_disk "$diskname" "$disksize" $ssd $dryrun
-        rt=$?
+        if [ $ssd -eq 1 ]; then
+            cmd="$cmd --boot-disk-type=pd-ssd"
+        fi
+        if [ -n "$network" ]; then
+            cmd="$cmd --network ${network} --subnet ${subnet}"
+        fi
+
+        cmd="$cmd --zone ${zone} --tags ${prefix} ${name}"
+
+        echo ""
+        echo "( $cmd )"
+
+        if [ $dryrun -eq 0 ]; then
+            ( $cmd )
+            rt=$?
+        fi
 
         if [ $rt -ne 0 ]; then
-            echo "Error in create_disk()"
+            echo "Error in create_instance()"
             exit $rt
         fi
 
-        attach_disk "$diskname" "$name" $dryrun
-        rt=$?
+        if [ $attach -gt 0 ]; then
+            create_disk "$diskname" "$disksize" $ssd $dryrun
+            rt=$?
 
-        if [ $rt -ne 0 ]; then
-            echo "Error in attach_disk() rt=$rt"
-            exit $rt
+            if [ $rt -ne 0 ]; then
+                echo "Error in create_disk()"
+                exit $rt
+            fi
+
+            attach_disk "$diskname" "$name" $dryrun
+            rt=$?
+
+            if [ $rt -ne 0 ]; then
+                echo "Error in attach_disk() rt=$rt"
+                exit $rt
+            fi
         fi
-    fi
-    ;;
+        ;;
 
-start)
-    echo "( gcloud compute instances start ${name} )"
-    if [ $dryrun -eq 0 ]; then
-        ( gcloud compute instances start ${name} )
-    fi
-    ;;
+    start)
+        echo "( gcloud compute instances start ${name} )"
+        if [ $dryrun -eq 0 ]; then
+            ( gcloud compute instances start ${name} )
+        fi
+        ;;
 
-stop)
-    echo "( gcloud compute instances stop ${name} )"
-    if [ $dryrun -eq 0 ]; then
-        ( gcloud compute instances stop ${name} )
-    fi
-    ;;
+    stop)
+        echo "( gcloud compute instances stop ${name} )"
+        if [ $dryrun -eq 0 ]; then
+            ( gcloud compute instances stop ${name} )
+        fi
+        ;;
 
-delete)
-    echo "( gcloud compute instances delete ${name} )"
-    if [ $dryrun -eq 0 ]; then
-        ( gcloud compute instances delete ${name} )
-    fi
-    ;;
+    delete)
+        echo "( gcloud compute instances delete ${name} )"
+        if [ $dryrun -eq 0 ]; then
+            ( gcloud compute instances delete ${name} )
+        fi
+        ;;
 
-status)
-    ( gcloud compute instances describe ${name} )
-    ;;
-*)
-    echo "Action Not Recognized!"
-    rt=1
-    ;;
-esac
+    status)
+        ( gcloud compute instances describe ${name} )
+        ;;
+    *)
+        echo "Action Not Recognized!"
+        rt=1
+        break
+        ;;
+    esac
+
+done
 
 echo ""
 echo "$PNAME Finished."
