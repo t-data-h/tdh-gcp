@@ -66,3 +66,11 @@ Create three worker nodes, with 256G boot drive as SSD.
 ### Medium
 - Master/Util   :  n1-highmem-8   :  8 vCPU and 52 Gb
 - Worker/Data   :  n1-highmem-16  :  16 vCPU and 104 Gb
+
+Changing Machine Type:
+```
+$ gcloud compute instances set-machine-type tdh-d01 --machine-type n1-highmem-16
+$ gcloud compute instances set-machine-type tdh-d02 --machine-type n1-highmem-16
+$ gcloud compute instances set-machine-type tdh-d03 --machine-type n1-highmem-16
+```
+
