@@ -36,12 +36,16 @@ usage()
     echo "  gcphost      : Name of gcp host. To override GCP_PUSH_HOST"
     echo ""
     echo "   The script assumes that the archive will contain the final"
-    echo " directory, so a path of a '/a/b/target' will create the archive from 'b'"
-    echo " with the tarfile containing './target/' as the root directory"
+    echo " directory, so a path of a '/a/b/target' will create the archive from "
+    echo " 'b' with the tarfile containing './target/' as the root directory"
     echo ""
     echo "  The environment variable 'GCP_PUSH_HOST' is honored as the "
     echo " the default 'gcphost' to use. If not set, all three parameters"
     echo " are required."
+    echo "  The script uses a common tmp path for both creating the archive "
+    echo " locally, and for the target host path.  This uses the value of "
+    echo " 'GCP_DIST_PATH' if set,or the default'~/tmp/dist' if not set."
+    echo " Essentially, the path should exist locally as well as remotely."
     echo ""
 }
 

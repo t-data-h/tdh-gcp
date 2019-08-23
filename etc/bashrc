@@ -6,9 +6,7 @@ if [ -f /etc/bashrc ]; then
 fi
 
 export PS1="$(whoami){$(hostname -s)}$ "
-
 export JAVA_HOME="/usr/lib/jvm/java"
-
 export HADOOP_CONF_DIR="/etc/hadoop/conf"
 export HADOOP_ECOSYSTEM_INITS="hadoop-init.sh mysqld-tdh-init.sh hbase-init.sh hive-init.sh kafka-init.sh spark-history-init.sh"
 
@@ -36,3 +34,5 @@ alias hadu="hdfs dfs -du -h"
 alias spark="spark-shell --master yarn"
 alias yarnls="yarn application -list"
 alias hblksz="hdfs dfs -stat 'name=%n blocksize=%o'"
+
+alias kflist="kafka-topics.sh --bootstrap-server ${KAFKA_BROKERS} --list"
