@@ -202,10 +202,21 @@ if [ $rt -gt 0 ]; then
     exit $rt
 fi
 echo ""
+echo " -> Waiting for host to respond"
+
 if [ $dryrun -eq 0 ]; then
-    echo "Brief sleep... "
-    sleep 5
+    sleep 10
+    for x in {1..3}; do 
+        yf=$( gcloud compute ssh ${host} --command 'uname -n' )
+        if [[ $yf == $host ]]; then
+            echo " It's ALIVE!!!"
+            break
+        fi 
+        echo -n "."
+        sleep 5
+    done
 fi
+echo ""
 
 for name in $names; do
     #
