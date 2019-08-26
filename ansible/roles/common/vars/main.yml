@@ -26,6 +26,12 @@ tdh_datanode_dir: '/data/hdfs/dn'
 tdh_nodemanager_dir: '/data/hdfs/nm'
 tdh_log_dir: '/var/log/hadoop'
 
+tdh_log_dirs:
+  - '{{ tdh_log_dir }}'
+  - '{{ tdh_log_dir }}/hbase'
+  - '{{ tdh_log_dir }}/hive'
+  - '{{ tdh_log_dir }}/kafka'
+
 mysql_tdh_roles:
   - db_name: 'metastore'
     db_user: '{{ mysql_hive_user }}'
