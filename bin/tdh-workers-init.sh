@@ -20,8 +20,8 @@ bootsize="$GCP_DEFAULT_BOOTSIZE"
 disksize="$GCP_DEFAULT_DISKSIZE"
 master_id="master-id_rsa.pub"
 master_id_file="${tdh_path}/../ansible/.ansible/${master_id}"
-network=
-subnet=
+network="tdh-net"
+subnet="tdh-net-west1"
 
 myid=1
 attach=0
@@ -202,10 +202,21 @@ if [ $rt -gt 0 ]; then
     exit $rt
 fi
 echo ""
+echo " -> Waiting for host to respond"
+
 if [ $dryrun -eq 0 ]; then
-    echo "Brief sleep... "
-    sleep 5
+    sleep 10
+    for x in {1..3}; do 
+        yf=$( gcloud compute ssh ${host} --command 'uname -n' )
+        if [[ $yf == $host ]]; then
+            echo " It's ALIVE!!!"
+            break
+        fi 
+        echo -n "."
+        sleep 5
+    done
 fi
+echo ""
 
 for name in $names; do
     #

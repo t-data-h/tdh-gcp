@@ -71,10 +71,11 @@
     mode: 0644
   notify: selinux_setenforce
 
-- name: Create Log Directory
+- name: Create Log Directories
   become: true
   file:
-    path: '{{ tdh_log_dir }}'
+    path: '{{ item }}'
     group: '{{ tdh_group }}'
     state: directory
     mode: 0775
+  with_items: '{{ tdh_log_dirs }}'
