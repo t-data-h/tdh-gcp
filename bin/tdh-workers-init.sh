@@ -162,7 +162,7 @@ else
     echo "Using default 3 workers"
 fi
 
-echo "Creating worker instances for '$names'"
+echo "Creating a worker instance '$mtype'  for { $names }"
 echo ""
 
 

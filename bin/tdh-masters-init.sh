@@ -212,7 +212,7 @@ if [ -z "$pwfile" ]; then
     read_password
 fi
 
-echo "Creating masters for '$names'"
+echo "Creating a master instance '$mtype' for { $names }"
 echo ""
 
 
@@ -252,9 +252,21 @@ if [ $rt -gt 0 ]; then
     exit $rt
 fi
 echo ""
+echo " -> Waiting for host to respond"
+
 if [ $dryrun -eq 0 ]; then
-    sleep 5
+    sleep 10
+    for x in {1..3}; do 
+        yf=$( gcloud compute ssh ${host} --command 'uname -n' )
+        if [[ $yf == $host ]]; then
+            echo " It's ALIIIIVE!!!"
+            break
+        fi 
+        echo -n ". "
+        sleep 5
+    done
 fi
+echo ""
 
 for name in $names; do
     host="${prefix}-${name}"

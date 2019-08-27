@@ -65,15 +65,15 @@ is considered as the primary management node where Ansible is run from.
 
 ### Examples:
 
-Create two master nodes, first with a test run:
+Create three master nodes, first with a test run:
 ```
-./bin/tdh-masters-init.sh -t 'n1-standard-2' test m01 m02
-./bin/tdh-masters-init.sh -t 'n1-standard-2' run m01 m02
+./bin/tdh-masters-init.sh -t 'n1-standard-4' test m01 m02 m03
+./bin/tdh-masters-init.sh -t 'n1-standard-4' run m01 m02 m03
 ```
 
-Create three worker nodes, with 256G boot drive as SSD.
+Create four worker nodes, with 256G boot drive as SSD.
 ```
-./bin/tdh-workers-init.sh -b 256GB -S run
+./bin/tdh-workers-init.sh -b 256GB -S run d01 d02 d03 d04
 ```
 
 ## GCP Machine-Types:
