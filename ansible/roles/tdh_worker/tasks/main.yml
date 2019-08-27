@@ -2,10 +2,14 @@
 # TDH Worker
 
 - name: TDH Provisioning Step 1
-  shell: '{{ tdh_install_path }}/bin/03-tdh-provision.sh'
+  shell: '{{ tdh_install_path }}/sbin/03-tdh-provision.sh'
 
 - name: TDH Provisioning Step 2
-  shell: '{{ tdh_install_path }}/bin/05-spark-provision.sh'
+  shell: '{{ tdh_install_path }}/sbin/05-spark-provision.sh'
+
+- name: Provision Kafka Broker Id
+  shell: '{{ tdh_install_path }}/sbin/07-kafka-provision.sh'
+  tags: [ tdh-config ]
 
 - name: Create HDFS DataNode path
   become: true
