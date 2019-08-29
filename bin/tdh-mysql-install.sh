@@ -92,7 +92,17 @@ fi
 # Install Client
 ( gcloud compute ssh $host --command 'sudo cp mysql-community.repo /etc/yum.repos.d' )
 ( gcloud compute ssh $host --command 'sudo cp RPM-GPG-KEY-mysql /etc/pki/rpm-gpg/')
-( gcloud compute ssh $host --command 'sudo yum install -y mysql-community-libs mysql-community-client mysql-connector-java' )
+( gcloud compute ssh $host --command 'sudo yum install -y mysql-community-libs mysql-community-client' )
+
+# Install specific 5.1.46 JDBC Driver
+( gcloud compute ssh $host --command 'wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.46.tar.gz' )
+( gcloud compute ssh $host --command 'tar zxf mysql-connector-java-5.1.46.tar.gz; \
+sudo mkdir -p /usr/share/java; \
+sudo cp mysql-connector-java-5.1.46/mysql-connector-java-5.1.46-bin.jar /usr/share/java/; \
+sudo chmod 644 /usr/share/java/mysql-connector-java-5.1.46-bin.jar; \
+sudo ln -s /usr/share/java/mysql-connector-java-5.1.46-bin.jar /usr/share/java/mysql-connector-java.jar; \
+rm -rf mysql-connector-java-5.1.46 mysql-connector-java-5.1.46.tar.gz')
+
 
 if [ "$role" == "client" ]; then 
     echo "$PNAME client finished."

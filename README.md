@@ -79,11 +79,11 @@ Create four worker nodes, with 256G boot drive as SSD.
 ## GCP Machine-Types:
 
 ### Very Small
-- Master/Util   :  n1-standard-4  :  4 vCPU and 15 Gb 
+- Master/Util   :  n1-standard-4  :  4 vCPU and 26 Gb 
 - Worker/Data   :  n1-highmem-8   :  8 vCPU and 52 Gb  
 
 ### Smallish
-- Master/Util   :  n1-standard-4  :  4 vCPU and 15 Gb
+- Master/Util   :  n1-highmem-8  :  8 vCPU and 52 Gb
 - Worker/Data   :  n1-highmem-16  :  16 vCPU and 104 Gb
 
  
