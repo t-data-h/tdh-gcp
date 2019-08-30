@@ -212,7 +212,7 @@ if [ -z "$pwfile" ]; then
     read_password
 fi
 
-echo "Creating masters for '$names'"
+echo "Creating a master instance '$mtype' for { $names }"
 echo ""
 
 
@@ -252,9 +252,21 @@ if [ $rt -gt 0 ]; then
     exit $rt
 fi
 echo ""
+echo " -> Waiting for host to respond"
+
 if [ $dryrun -eq 0 ]; then
-    sleep 5
+    sleep 10
+    for x in {1..3}; do 
+        yf=$( gcloud compute ssh ${host} --command 'uname -n' )
+        if [[ $yf == $host ]]; then
+            echo " It's ALIIIIVE!!!"
+            break
+        fi 
+        echo -n ". "
+        sleep 5
+    done
 fi
+echo ""
 
 for name in $names; do
     host="${prefix}-${name}"
@@ -307,7 +319,7 @@ for name in $names; do
     # ssh
     echo "( gcloud compute ssh ${host} --command 'mkdir -p .ssh; chmod 700 .ssh; chmod 600 .ssh/authorized_keys')"
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute ssh ${host} --command "ssh-keygen -t rsa -b 2048 -N '' -f '~/.ssh/id_rsa'; cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys" )
+        ( gcloud compute ssh ${host} --command "ssh-keygen -t rsa -b 2048 -N ''; cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys" )
         if [ -e $master_id_file ]; then
             ( gcloud compute scp ${master_id_file} ${host}:.ssh/ )
             ( gcloud compute ssh ${host} --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys" )
@@ -350,7 +362,7 @@ for name in $names; do
 done
 
 if [ -e $pwfile ]; then
-    unlink $pwfile
+    (rm $pwfile)
 fi
 
 echo "$PNAME finished"

@@ -15,7 +15,7 @@ names="d01 d02 d03"
 prefix="$TDH_GCP_PREFIX"
 
 zone="$GCP_DEFAULT_ZONE"
-mtype="n1-highmem-8"
+mtype="n1-highmem-16"
 bootsize="$GCP_DEFAULT_BOOTSIZE"
 disksize="$GCP_DEFAULT_DISKSIZE"
 master_id="master-id_rsa.pub"
@@ -145,15 +145,19 @@ if [ -z "$action" ]; then
     exit 1
 fi
 
+if [ -n "$network" ] && [ -z "$subnet" ]; then
+    echo "Error! Subnet must be provided with --network"
+    exit 1
+fi
+
+echo "" 
+version
+echo ""
+
 if [ "$action" == "run" ]; then
     dryrun=0
 else
     echo "  <DRYRUN> enabled"
-fi
-
-if [ -n "$network" ] && [ -z "$subnet" ]; then
-    echo "Error! Subnet must be provided with --network"
-    exit 1
 fi
 
 if [ -n "$namelist" ]; then
@@ -162,7 +166,7 @@ else
     echo "Using default 3 workers"
 fi
 
-echo "Creating worker instances for '$names'"
+echo "Creating a worker instance '$mtype'  for { $names }"
 echo ""
 
 
@@ -270,6 +274,20 @@ for name in $names; do
     if [ $dryrun -eq 0 ]; then
         ( gcloud compute scp ${master_id_file} ${host}:.ssh/ )
         ( gcloud compute ssh ${host} --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys " )
+    fi
+
+    # mysql client
+    role="client"
+
+    echo "( $tdh_path/tdh-mysql-install.sh $host $role )"
+    if [ $dryrun -eq 0 ]; then
+        ( ${tdh_path}/tdh-mysql-install.sh ${host} ${role} )
+    fi
+    
+    rt=$?
+    if [ $rt -gt 0 ]; then
+        echo "Error in tdh-mysql-install for $host"
+        break
     fi
 
     echo "Initialization complete for $host"

@@ -28,7 +28,6 @@ usage()
     echo "  -P|--pwfile <file>    : File containing root mysql password"
     echo "  -s|--server-id <n>    : Server ID to use for mysql instance"
     echo "  -V|--version          : Show version info and exit"
-    echo "  -V|--version          : Show version info"
     echo " Where ROLE is 'master', 'slave', or 'client'"
     echo ""
 }
@@ -80,7 +79,7 @@ if [ -z "$host" ]; then
     exit 1
 fi
 
-if [ -z "$pw" ]; then
+if [ -z "$pw" ] && [ "$role" != "client" ]; then
     echo "Error, password was not provided."
     usage
     exit 1
@@ -89,8 +88,29 @@ fi
 # copy repo, repo key, and server config
 ( gcloud compute scp ${tdh_path}/../etc/mysql-community.repo ${host}: )
 ( gcloud compute scp ${tdh_path}/../etc/RPM-GPG-KEY-mysql ${host}: )
-( gcloud compute scp ${tdh_path}/../etc/tdh-mysql.cnf ${host}:my.cnf )
 
+# Install Client
+( gcloud compute ssh $host --command 'sudo cp mysql-community.repo /etc/yum.repos.d' )
+( gcloud compute ssh $host --command 'sudo cp RPM-GPG-KEY-mysql /etc/pki/rpm-gpg/')
+( gcloud compute ssh $host --command 'sudo yum install -y mysql-community-libs mysql-community-client' )
+
+# Install specific 5.1.46 JDBC Driver
+( gcloud compute ssh $host --command 'wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.46.tar.gz' )
+( gcloud compute ssh $host --command 'tar zxf mysql-connector-java-5.1.46.tar.gz; \
+sudo mkdir -p /usr/share/java; \
+sudo cp mysql-connector-java-5.1.46/mysql-connector-java-5.1.46-bin.jar /usr/share/java/; \
+sudo chmod 644 /usr/share/java/mysql-connector-java-5.1.46-bin.jar; \
+sudo ln -s /usr/share/java/mysql-connector-java-5.1.46-bin.jar /usr/share/java/mysql-connector-java.jar; \
+rm -rf mysql-connector-java-5.1.46 mysql-connector-java-5.1.46.tar.gz')
+
+
+if [ "$role" == "client" ]; then 
+    echo "$PNAME client finished."
+    exit 0
+fi
+
+
+( gcloud compute scp ${tdh_path}/../etc/tdh-mysql.cnf ${host}:my.cnf )
 
 if [ "$role" == "slave" ]; then
     if [ $id -eq 1 ]; then
@@ -104,12 +124,6 @@ if [ "$role" == "slave" ]; then
         echo "Error in sed for slave my.cnf"
     fi
 fi
-
-
-# Install Client
-( gcloud compute ssh $host --command 'sudo cp mysql-community.repo /etc/yum.repos.d' )
-( gcloud compute ssh $host --command 'sudo cp RPM-GPG-KEY-mysql /etc/pki/rpm-gpg/')
-( gcloud compute ssh $host --command 'sudo yum install -y mysql-community-libs mysql-community-client mysql-connector-java' )
 
 
 # Install Server

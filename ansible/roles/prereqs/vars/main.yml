@@ -16,6 +16,9 @@ yum_install_packages:
  - unzip
  - wget
  - rng-tools
+ - openssl-devel
+ - zlib-devel
+ - krb5-devel
 
 yum_master_packages:
  - tmux

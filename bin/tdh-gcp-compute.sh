@@ -252,6 +252,10 @@ if [ -n "$network" ] && [ -z "$subnet" ]; then
     exit 1
 fi
 
+echo ""
+version
+echo ""
+
 for name in $names; do 
 
     if [ -n "$prefix" ]; then
