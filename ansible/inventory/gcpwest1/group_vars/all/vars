@@ -25,3 +25,4 @@ tdh_mysql_client_hosts:
   - 'tdh-d01.c.t3-dataintellence.internal'
   - 'tdh-d02.c.t3-dataintellence.internal'
   - 'tdh-d03.c.t3-dataintellence.internal'
+  - 'tdh-d04.c.t3-dataintellence.internal'

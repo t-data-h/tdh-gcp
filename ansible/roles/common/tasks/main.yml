@@ -31,14 +31,6 @@
   tags: [ tdh-python ]
   register: tdhpystat
 
-- name: Create tmp directory
-  become: true
-  file:
-    path: '{{ tdh_tmp_path }}'
-    state: directory
-    mode: '0777'
-  tags: [ tdh-config, tdh-mgr, tdh-python]
-
 - name: Deploy TDH
   block:
   - name:  Remove previous TDH installation
