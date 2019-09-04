@@ -5,6 +5,12 @@
   vars_files:
     - roles/common/vars/main.yml
   tasks:
+  - name: Create Drop Path if needed
+    become: true
+    file:
+      path: '{{ tdh_drop_path }}'
+      state: directory
+      mode: '0777'
   - name: Copy TDH dropzone
     copy:
       src: '{{ tdh_dist_path }}'
