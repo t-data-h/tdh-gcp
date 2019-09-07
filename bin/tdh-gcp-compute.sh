@@ -71,6 +71,7 @@ usage()
     echo "  Default GCP Zone is     '$zone'"
     echo "  Default Machine Type is '$mtype'"
     echo "  Default Image is        '$image'"
+    echo "  Default Boot Disk size  '$bootsize'"
     echo ""
 }
 
@@ -341,6 +342,7 @@ for name in $names; do
         ;;
     *)
         echo "Action Not Recognized!"
+        usage
         rt=1
         break
         ;;
