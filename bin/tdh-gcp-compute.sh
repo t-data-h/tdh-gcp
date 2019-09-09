@@ -374,7 +374,7 @@ for name in $names; do
         rt=$?
         ;;
     *)
-        echo "Action Not Recognized!"
+        echo "Action Not Recognized! '$action'"
         usage
         rt=1
         break
