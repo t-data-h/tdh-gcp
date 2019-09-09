@@ -10,7 +10,8 @@ fi
 # -----------------------------------
 
 prefix="$TDH_GCP_PREFIX"
-zone="$GCP_DEFAULT_ZONE"
+
+zone=
 mtype="$GCP_DEFAULT_MACHINETYPE"
 bootsize="$GCP_DEFAULT_BOOTSIZE"
 disksize="$GCP_DEFAULT_DISKSIZE"
@@ -53,8 +54,8 @@ usage()
     echo "  -b|--bootsize <xxGB>  : Size of instance boot disk"
     echo "  -d|--disksize <xxGB>  : Size of attached disk"
     echo "  -h|--help             : Display usage and exit"
-    echo "  -l|--list             : List available machine-types for the zone"
-    echo "  -N|--network <name>   : GCP Network name"
+    echo "  -l|--list             : List available machine-types for a zone"
+    echo "  -N|--network <name>   : GCP Network name when not using default"
     echo "  -n|--subnet <name>    : Used with --network to define the subnet"
     echo "  -p|--prefix <name>    : Prefix name to use for instances"
     echo "  -S|--ssd              : Use SSD as attached disk type"
@@ -68,7 +69,6 @@ usage()
     echo "     stop               :  Stop a running instance"
     echo "     delete             :  Delete an instance"
     echo ""
-    echo "  Default GCP Zone is     '$zone'"
     echo "  Default Machine Type is '$mtype'"
     echo "  Default Image is        '$image'"
     echo "  Default Boot Disk size  '$bootsize'"
@@ -98,9 +98,14 @@ is_running()
 {
     local name="$1"
     local rt=1
+    local cmd="gcloud compute instances describe"
 
-    status=$( gcloud compute instances describe ${name} | grep status: | awk -F: '{ print $2 }' )
+    if [ -n "$zone" ]; then
+        cmd="$cmd --zone $zone"
+    fi
 
+    status=$( $cmd $name | grep status: | awk -F: '{ print $2 }' )
+    echo $status
     if [ "$status" == "RUNNING" ]; then
         rt=0
     fi
@@ -112,8 +117,17 @@ is_running()
 stop_instance()
 {
     local name="$1"
+    local cmd="gcloud compute instances stop"
 
-    ( gcloud compute instances stop ${name} )
+    if [ -n "$zone" ]; then
+        cmd="$cmd --zone $zone"
+    fi
+
+    echo ""
+    echo "( $cmd )"
+    cmd="$cmd ${name}"
+
+    ( $cmd )
 
     return $?
 }
@@ -152,7 +166,11 @@ create_disk()
         cmd="$cmd --type=pd-ssd"
     fi
 
-    cmd="$cmd --size=${disksize} --zone ${GCP_ZONE} ${diskname}"
+    if [ -n "$zone" ]; then
+        cmd="$cmd --zone ${zone}"
+    fi
+
+    cmd="$cmd --size=${disksize} ${diskname}"
 
     echo ""
     echo "( $cmd )"
@@ -243,11 +261,6 @@ if [ -z "$names" ]; then
     exit 1
 fi
 
-if [ -z "$zone" ] || [ -z "$mtype" ]; then
-    echo "Error in config, zone or machine type"
-    exit 1
-fi
-
 if [ -n "$network" ] && [ -z "$subnet" ]; then
     echo "Error, subnet not defined; it is required with --network"
     exit 1
@@ -281,8 +294,11 @@ for name in $names; do
         if [ -n "$network" ]; then
             cmd="$cmd --network ${network} --subnet ${subnet}"
         fi
+        if [ -n "$zone" ]; then
+            cmd="$cmd --zone ${zone}"
+        fi
 
-        cmd="$cmd --zone ${zone} --tags ${prefix} ${name}"
+        cmd="$cmd --tags ${prefix} ${name}"
 
         echo ""
         echo "( $cmd )"
@@ -317,28 +333,45 @@ for name in $names; do
         ;;
 
     start)
-        echo "( gcloud compute instances start ${name} )"
+        cmd="gcloud compute instances start" 
+        if [ -n "$zone" ]; then
+            cmd="$cmd --zone $zone"
+        fi
+        echo "( $cmd $name )"
         if [ $dryrun -eq 0 ]; then
-            ( gcloud compute instances start ${name} )
+            ( $cmd $name )
         fi
         ;;
 
     stop)
-        echo "( gcloud compute instances stop ${name} )"
         if [ $dryrun -eq 0 ]; then
-            ( gcloud compute instances stop ${name} )
+            stop_instance $name
         fi
         ;;
 
     delete)
-        echo "( gcloud compute instances delete ${name} )"
+        cmd="gcloud compute instances delete"
+        if [ -n "$zone" ]; then
+            cmd="$cmd --zone $zone"
+        fi
+        cmd="$cmd $name"
+
+        echo "( $cmd )"
         if [ $dryrun -eq 0 ]; then
-            ( gcloud compute instances delete ${name} )
+            ( $cmd )
         fi
         ;;
 
+    describe)
+        cmd="gcloud compute instances describe"
+        if [ -n "$zone" ]; then
+            cmd="$cmd --zone $zone"
+        fi
+        ( $cmd $name )
+        ;;
     status)
-        ( gcloud compute instances describe ${name} )
+        is_running $name
+        rt=$?
         ;;
     *)
         echo "Action Not Recognized!"
