@@ -17,6 +17,7 @@ if [ -n "$GCP_DIST_PATH" ]; then
     DISTPATH="$GCP_DIST_PATH"
 fi
 
+zone=
 apath=
 aname=
 gcphost=
@@ -27,7 +28,7 @@ rt=0
 usage()
 {
     echo ""
-    echo "$PNAME [path] <archive_name> <gcphost>"
+    echo "$PNAME [options] [path] <archive_name> <gcphost>"
     echo ""
     echo "  path         : is the directory to be archived (required)."
     echo "  archive_name : an altername name to call the tarball. The value"
@@ -57,12 +58,18 @@ version()
 
 # MAIN
 #
+gssh="gcloud compute ssh"
+gscp="gcloud compute scp"
 
 while [ $# -gt 0 ]; do
     case "$1" in
         -h|--help)
             usage
             exit $rt
+            ;;
+        -z|--zone)
+            zone="$zone"
+            shift
             ;;
         -V|--version)
             version
@@ -94,6 +101,11 @@ if [ -z "$apath" ]; then
     exit 1
 fi
 
+if [ -n "$zone" ]; then
+    gssh="$gssh --zone $zone"
+    gscp="$gscp --zone $zone"
+fi
+
 apath=$(readlink -f "$apath")
 target=$(dirname "$apath")
 name=${apath##*\/}
@@ -113,10 +125,10 @@ if [ $rt -gt 0 ]; then
 fi
 
 ( gzip ${DISTPATH}/${aname}.tar )
-( gcloud compute ssh ${gcphost} --command "mkdir -p ${DISTPATH}" )
+( $gssh ${gcphost} --command "mkdir -p ${DISTPATH}" )
 
 echo "scp ${DISTPATH}/${aname}.tar.gz ${gcphost}:${DISTPATH}"
-( gcloud compute scp ${DISTPATH}/${aname}.tar.gz ${gcphost}:${DISTPATH} )
+( $gscp ${DISTPATH}/${aname}.tar.gz ${gcphost}:${DISTPATH} )
 
 rt=$?
 if [ $rt -gt 0 ]; then

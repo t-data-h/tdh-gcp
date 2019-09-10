@@ -19,6 +19,7 @@ yum_install_packages:
  - openssl-devel
  - zlib-devel
  - krb5-devel
+ - krb5-workstation
 
 yum_master_packages:
  - tmux
