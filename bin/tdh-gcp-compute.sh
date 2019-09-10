@@ -221,12 +221,12 @@ while [ $# -gt 0 ]; do
         --dryrun)
             dryrun=1
             ;;
-        -n|--subnet)
-            subnet="$2"
-            shift
-            ;;
         -N|--network)
             network="$2"
+            shift
+            ;;
+        -n|--subnet)
+            subnet="$2"
             shift
             ;;
         -S|--ssd)
