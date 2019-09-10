@@ -14,7 +14,7 @@ fi
 names="d01 d02 d03"
 prefix="$TDH_GCP_PREFIX"
 
-zone="$GCP_DEFAULT_ZONE"
+zone=
 mtype="n1-highmem-16"
 bootsize="$GCP_DEFAULT_BOOTSIZE"
 disksize="$GCP_DEFAULT_DISKSIZE"
@@ -65,7 +65,7 @@ usage() {
     echo "  -S|--ssd              : Use SSD as attached disk type"
     echo "  -t|--type             : Machine type to use for instance(s)"
     echo "                          Default is '$mtype'"
-    echo "  -z|--zone <name>      : Set GCP zone to use. Default is '$zone'"
+    echo "  -z|--zone <name>      : Set GCP zone to use, if not gcloud default."
     echo ""
     echo " Where <action> is 'run' or other, where any other action enables a "
     echo " dryrun,followed by a list of names that become '\$prefix-\$name'."
@@ -81,6 +81,8 @@ version()
 }
 
 
+gssh="gcloud compute ssh"
+gscp="gcloud compute scp"
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -150,6 +152,11 @@ if [ -n "$network" ] && [ -z "$subnet" ]; then
     exit 1
 fi
 
+if [ -n "$zone" ]; then
+    gssh="$gssh --zone $zone"
+    gscp="$gscp --zone $zone"
+fi
+
 echo "" 
 version
 echo ""
@@ -166,7 +173,7 @@ else
     echo "Using default 3 workers"
 fi
 
-echo "Creating a worker instance '$mtype'  for { $names }"
+echo "Creating a worker instance '$mtype' for { $names }"
 echo ""
 
 
@@ -179,7 +186,9 @@ for name in $names; do
     if [ -n "$network" ]; then
         cmd="$cmd --network ${network} --subnet ${subnet}"
     fi
-
+    if [ -n "$zone" ]; then
+        cmd="$cmd --zone ${zone}"
+    fi
     if [ $dryrun -gt 0 ]; then
         cmd="${cmd} --dryrun"
     fi
@@ -211,7 +220,7 @@ echo " -> Waiting for host to respond"
 if [ $dryrun -eq 0 ]; then
     sleep 10
     for x in {1..3}; do 
-        yf=$( gcloud compute ssh ${host} --command 'uname -n' )
+        yf=$( $gssh ${host} --command 'uname -n' )
         if [[ $yf == $host ]]; then
             echo " It's ALIVE!!!"
             break
@@ -229,11 +238,11 @@ for name in $names; do
     if [ $attach -gt 0 ]; then
         device="/dev/sdb"
         mountpoint="/data1"
-        echo "( gcloud compute ssh ${host} --command './tdh-gcp-format.sh $device $mountpoint' )"
+        echo "( $gssh ${host} --command './tdh-gcp-format.sh $device $mountpoint' )"
         if [ $dryrun -eq 0 ]; then
-            ( gcloud compute scp ${tdh_path}/tdh-gcp-format.sh ${host}: )
-            ( gcloud compute ssh ${host} --command 'chmod +x tdh-gcp-format.sh' )
-            ( gcloud compute ssh ${host} --command "./tdh-gcp-format.sh $device $mountpoint" )
+            ( $gscp ${tdh_path}/tdh-gcp-format.sh ${host}: )
+            ( $gssh ${host} --command 'chmod +x tdh-gcp-format.sh' )
+            ( $gssh ${host} --command "./tdh-gcp-format.sh $device $mountpoint" )
         fi
 
         rt=$?
@@ -245,20 +254,20 @@ for name in $names; do
 
     #
     # disable  iptables and cups
-    echo "( gcloud compute ssh $host --command 'sudo systemctl stop firewalld; sudo systemctl disable firewalld; sudo service cups stop; sudo chkconfig cups off' )"
+    echo "( $gssh $host --command 'sudo systemctl stop firewalld; sudo systemctl disable firewalld; sudo service cups stop; sudo chkconfig cups off' )"
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute ssh $host --command "sudo systemctl stop firewalld; sudo systemctl disable firewalld; sudo service cups stop; sudo chkconfig cups off" )
+        ( $gssh $host --command "sudo systemctl stop firewalld; sudo systemctl disable firewalld; sudo service cups stop; sudo chkconfig cups off" )
     fi
 
 
     #
     # prereq's
-    echo "( gcloud compute ssh ${host} --command ./tdh-prereqs.sh )"
+    echo "( $gssh ${host} --command ./tdh-prereqs.sh )"
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute scp ${tdh_path}/../etc/bashrc ${host}:.bashrc )
-        ( gcloud compute scp ${tdh_path}/tdh-prereqs.sh ${host}: )
-        ( gcloud compute ssh ${host} --command 'chmod +x tdh-prereqs.sh' )
-        ( gcloud compute ssh ${host} --command ./tdh-prereqs.sh )
+        ( $gscp ${tdh_path}/../etc/bashrc ${host}:.bashrc )
+        ( $gscp ${tdh_path}/tdh-prereqs.sh ${host}: )
+        ( $gssh ${host} --command 'chmod +x tdh-prereqs.sh' )
+        ( $gssh ${host} --command ./tdh-prereqs.sh )
     fi
 
     rt=$?
@@ -270,18 +279,23 @@ for name in $names; do
 
     #
     # ssh
-    echo "( gcloud compute scp ${master_id_file} ${host}:.ssh" 
+    echo "( $gscp ${master_id_file} ${host}:.ssh" 
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute scp ${master_id_file} ${host}:.ssh/ )
-        ( gcloud compute ssh ${host} --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys " )
+        ( $gscp ${master_id_file} ${host}:.ssh/ )
+        ( $gssh ${host} --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys " )
     fi
 
     # mysql client
     role="client"
+    cmd="$tdh_path/tdh-mysql-install.sh"
 
-    echo "( $tdh_path/tdh-mysql-install.sh $host $role )"
+    if [ -n "$zone" ]; then
+        cmd="$cmd --zone $zone"
+    fi
+
+    echo "( $cmd $host $role )"
     if [ $dryrun -eq 0 ]; then
-        ( ${tdh_path}/tdh-mysql-install.sh ${host} ${role} )
+        ( ${cmd} ${host} ${role} )
     fi
     
     rt=$?

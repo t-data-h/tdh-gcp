@@ -14,7 +14,7 @@ fi
 names="m01 m02"
 prefix="$TDH_GCP_PREFIX"
 
-zone="$GCP_DEFAULT_ZONE"
+zone=
 mtype="$GCP_DEFAULT_MACHINETYPE"
 bootsize="$GCP_DEFAULT_BOOTSIZE"
 disksize="$GCP_DEFAULT_DISKSIZE"
@@ -73,7 +73,7 @@ usage() {
     echo "                          Default is '$mtype'"
     echo "  -y|--noprompt         : Will not prompt for password"
     echo "                          --pwfile must be provided for mysqld"
-    echo "  -z|--zone <name>      : Set GCP zone to use. Default is '$zone'"
+    echo "  -z|--zone <name>      : Set GCP zone to use."
     echo ""
     echo " Where <action> is 'run' or other, where any other action enables a "
     echo " dryrun, followed by a list of names that become '\$prefix-\$name'."
@@ -112,6 +112,9 @@ read_password()
     return 0
 }
 
+
+gssh="gcloud compute ssh"
+gscp="gcloud compute scp"
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -198,6 +201,11 @@ if [ -n "$network" ] && [ -z "$subnet" ]; then
     exit 1
 fi
 
+if [ -n "$zone" ]; then
+    gssh="$gssh --zone $zone"
+    gscp="$gscp --zone $zone"
+fi
+
 if [ -n "$namelist" ]; then
     names="$namelist"
 else
@@ -222,10 +230,12 @@ for name in $names; do
     host="${prefix}-${name}"
     cmd="${tdh_path}/tdh-gcp-compute.sh --prefix ${prefix} --type ${mtype} --bootsize ${bootsize}"
     
-    if [ -n "${network}" ]; then 
+    if [ -n "$network" ]; then 
         cmd="$cmd --network ${network} --subnet ${subnet}"
     fi
-
+    if [ -n "$zone" ]; then
+        cmd="$cmd --zone ${zone}"
+    fi
     if [ $dryrun -gt 0 ]; then
         cmd="${cmd} --dryrun"
     fi
@@ -257,7 +267,7 @@ echo " -> Waiting for host to respond"
 if [ $dryrun -eq 0 ]; then
     sleep 10
     for x in {1..3}; do 
-        yf=$( gcloud compute ssh ${host} --command 'uname -n' )
+        yf=$( $gssh ${host} --command 'uname -n' )
         if [[ $yf == $host ]]; then
             echo " It's ALIIIIVE!!!"
             break
@@ -275,11 +285,11 @@ for name in $names; do
     if [ $attach -gt 0 ]; then
         device="/dev/sdb"
         mountpoint="/data"
-        echo "( gcloud compute ssh ${host} --command './tdh-gcp-format.sh $device $mountpoint' )"
+        echo "( $gssh ${host} --command './tdh-gcp-format.sh $device $mountpoint' )"
         if [ $dryrun -eq 0 ]; then
-            ( gcloud compute scp ${tdh_path}/tdh-gcp-format.sh ${host}: )
-            ( gcloud compute ssh ${host} --command 'chmod +x tdh-gcp-format.sh' )
-            ( gcloud compute ssh ${host} --command "./tdh-gcp-format.sh $device $mountpoint" )
+            ( $gscp ${tdh_path}/tdh-gcp-format.sh ${host}: )
+            ( $gssh ${host} --command 'chmod +x tdh-gcp-format.sh' )
+            ( $gssh ${host} --command "./tdh-gcp-format.sh $device $mountpoint" )
         fi
 
         rt=$?
@@ -291,21 +301,21 @@ for name in $names; do
 
     #
     # disable  iptables and cups
-    echo "( gcloud compute ssh $host --command 'sudo systemctl stop firewalld; sudo systemctl disable firewalld' )"
+    echo "( $gssh $host --command 'sudo systemctl stop firewalld; sudo systemctl disable firewalld' )"
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute ssh $host --command "sudo systemctl stop firewalld; sudo systemctl disable firewalld" )
+        ( $gssh $host --command "sudo systemctl stop firewalld; sudo systemctl disable firewalld" )
     fi
 
 
     #
     # prereq's
-    echo "( gcloud compute ssh ${host} --command ./tdh-prereqs.sh )"
+    echo "( $gssh ${host} --command ./tdh-prereqs.sh )"
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute scp ${tdh_path}/../etc/bashrc ${host}:.bashrc )
-        ( gcloud compute scp ${tdh_path}/tdh-prereqs.sh ${host}: )
-        ( gcloud compute ssh ${host} --command 'chmod +x tdh-prereqs.sh' )
-        ( gcloud compute ssh ${host} --command ./tdh-prereqs.sh )
-        ( gcloud compute ssh ${host} --command 'sudo yum install -y ansible ansible-lint' )
+        ( $gscp ${tdh_path}/../etc/bashrc ${host}:.bashrc )
+        ( $gscp ${tdh_path}/tdh-prereqs.sh ${host}: )
+        ( $gssh ${host} --command 'chmod +x tdh-prereqs.sh' )
+        ( $gssh ${host} --command ./tdh-prereqs.sh )
+        ( $gssh ${host} --command 'sudo yum install -y ansible ansible-lint' )
     fi
 
     rt=$?
@@ -317,14 +327,14 @@ for name in $names; do
 
     #
     # ssh
-    echo "( gcloud compute ssh ${host} --command 'mkdir -p .ssh; chmod 700 .ssh; chmod 600 .ssh/authorized_keys')"
+    echo "( $gssh ${host} --command 'mkdir -p .ssh; chmod 700 .ssh; chmod 600 .ssh/authorized_keys')"
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute ssh ${host} --command "ssh-keygen -t rsa -b 2048 -N ''; cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys" )
+        ( $gssh ${host} --command "ssh-keygen -t rsa -b 2048 -N ''; cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys" )
         if [ -e $master_id_file ]; then
-            ( gcloud compute scp ${master_id_file} ${host}:.ssh/ )
-            ( gcloud compute ssh ${host} --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys" )
+            ( $gscp ${master_id_file} ${host}:.ssh/ )
+            ( $gssh ${host} --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys" )
         else
-            ( gcloud compute scp ${host}:.ssh/id_rsa.pub ${master_id_file} )
+            ( $gscp ${host}:.ssh/id_rsa.pub ${master_id_file} )
         fi
     fi
 
@@ -336,10 +346,14 @@ for name in $names; do
     else
         role="slave"
     fi
+    cmd="${tdh_path}/tdh-mysql-install.sh"
+    if [ -n "$zone" ]; then
+        cmd="$cmd --zone $zone"
+    fi
 
-    echo "( $tdh_path/tdh-mysql-install.sh -s $myid -P $pwfile $host $role )"
+    echo "( $cmd -s $myid -P $pwfile $host $role )"
     if [ $dryrun -eq 0 ]; then
-        ( ${tdh_path}/tdh-mysql-install.sh -s ${myid} -P ${pwfile} ${host} ${role} )
+        ( ${cmd} -s ${myid} -P ${pwfile} ${host} ${role} )
     fi
     ((++myid))
 
@@ -349,12 +363,15 @@ for name in $names; do
         break
     fi
 
-
     #
     # push self for ansible playbooks
-    echo "( ${tdh_path}/gcp-push.sh ${tdh_path}/.. tdh-gcp $host )"
+    cmd="${tdh_path}/gcp-push.sh"
+    if [ -n "$zone" ]; then
+        cmd="$cmd --zone $zone"
+    fi
+    echo "( ${cmd} ${tdh_path}/.. tdh-gcp $host )"
     if [ $dryrun -eq 0 ]; then
-        ( ${tdh_path}/gcp-push.sh ${tdh_path}/.. tdh-gcp $host )
+        ( ${cmd} ${tdh_path}/.. tdh-gcp $host )
     fi
 
     echo "Initialization complete for $host"
@@ -362,7 +379,7 @@ for name in $names; do
 done
 
 if [ -e $pwfile ]; then
-    (rm $pwfile)
+    ( rm $pwfile )
 fi
 
 echo "$PNAME finished"
