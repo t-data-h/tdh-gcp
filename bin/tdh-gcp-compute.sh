@@ -26,6 +26,7 @@ subnet=
 attach=0
 ssd=0
 dryrun=0
+keep=0
 
 # -----------------------------------
 # default overrides
@@ -54,6 +55,7 @@ usage()
     echo "  -b|--bootsize <xxGB>  : Size of instance boot disk"
     echo "  -d|--disksize <xxGB>  : Size of attached disk"
     echo "  -h|--help             : Display usage and exit"
+    echo "  -k|--keep             : Sets --keep-disks=data on delete action"
     echo "  -l|--list             : List available machine-types for a zone"
     echo "  -N|--network <name>   : GCP Network name when not using default"
     echo "  -n|--subnet <name>    : Used with --network to define the subnet"
@@ -214,6 +216,9 @@ while [ $# -gt 0 ]; do
             diskname="$2"
             shift
             ;;
+        -k|--keep)
+            keep=1
+            ;;
         -p|--prefix)
             prefix="$2"
             shift
@@ -221,12 +226,12 @@ while [ $# -gt 0 ]; do
         --dryrun)
             dryrun=1
             ;;
-        -n|--subnet)
-            subnet="$2"
-            shift
-            ;;
         -N|--network)
             network="$2"
+            shift
+            ;;
+        -n|--subnet)
+            subnet="$2"
             shift
             ;;
         -S|--ssd)
@@ -266,12 +271,8 @@ if [ -n "$network" ] && [ -z "$subnet" ]; then
     exit 1
 fi
 
-echo ""
-version
-echo ""
 
 for name in $names; do 
-
     if [ -n "$prefix" ]; then
         ( echo $name | grep "^${prefix}-" >/dev/null 2>&1 )
         if [ $? -ne 0 ]; then
@@ -354,8 +355,11 @@ for name in $names; do
         if [ -n "$zone" ]; then
             cmd="$cmd --zone $zone"
         fi
-        cmd="$cmd $name"
-
+        if [ $keep -eq 1 ]; then 
+            cmd="$cmd $name --keep-disks=data"
+        else
+            cmd="$cmd $name --delete-disks=all"
+        fi
         echo "( $cmd )"
         if [ $dryrun -eq 0 ]; then
             ( $cmd )
@@ -380,10 +384,7 @@ for name in $names; do
         break
         ;;
     esac
-
 done
 
-echo ""
 echo "$PNAME Finished."
-
 exit $rt

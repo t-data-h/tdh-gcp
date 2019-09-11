@@ -76,6 +76,43 @@ Create four worker nodes, with 256G boot drive as SSD.
 ./bin/tdh-workers-init.sh -b 256GB -S run d01 d02 d03 d04
 ```
 
+### Resource considerations
+
+  Minimum recommended memory values for a production cluste:
+
+  NN/SN = 4Gb ea.
+  DN/NM (worker) = 1Gb (x2).
+  Hive Meta|S2  = 12Gb ea
+  Hbase Master = 4Gb
+  Zookeeper  = 1 Gb
+  HBase RegionServers = 12 to 20Gb
+
+
+Streamlined dev layout:
+------------------------------------
+M01:
+* NameNode (primary)    2 Gb      1
+* ResourceManager       2 Gb      1
+* HBase Master          2 Gb      1
+* Zookeeper             1 Gb      1
+------------------------------------
+                        8-12      4
+M02:
+* NameNode (secondary)  2 Gb      1
+* Hive Metastore        2 Gb      1
+* Hive Server2          2 Gb      1
+* Zookeeper             1 Gb      1
+-------------------------------------
+                        8-12      4
+M03:
+* Spark2 HistoryServer  1 Gb      1
+* Zookeeper             1 Gb      1
+* Hue                   2 Gb      1
+* Zeppelin              2 Gb      1
+----------------------------------
+                        6-8       4
+
+
 ## GCP Machine-Types:
 
 ### Very Small
