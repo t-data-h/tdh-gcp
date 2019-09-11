@@ -11,7 +11,7 @@ fi
 
 # -----------------------------------
 
-names="d01 d02 d03"
+names="d01 d02 d03 d04"
 prefix="$TDH_GCP_PREFIX"
 
 zone=
@@ -152,28 +152,28 @@ if [ -n "$network" ] && [ -z "$subnet" ]; then
     exit 1
 fi
 
+echo ""
+version
+
+if [ "$action" == "run" ] && [ $dryrun -eq 0 ]; then
+    dryrun=0
+else
+    dryrun=1  # action -ne run
+    echo "  <DRYRUN> enabled"
+fi
+
 if [ -n "$zone" ]; then
     gssh="$gssh --zone $zone"
     gscp="$gscp --zone $zone"
 fi
 
-echo "" 
-version
-echo ""
-
-if [ "$action" == "run" ]; then
-    dryrun=0
-else
-    echo "  <DRYRUN> enabled"
-fi
-
 if [ -n "$namelist" ]; then
     names="$namelist"
 else
-    echo "Using default 3 workers"
+    echo "Using default of 4 worker instances"
 fi
 
-echo "Creating a worker instance '$mtype' for { $names }"
+echo "Creating worker instance '$mtype' for { $names }"
 echo ""
 
 
@@ -211,9 +211,12 @@ for name in $names; do
     fi
 done
 
+
 if [ $rt -gt 0 ]; then
     exit $rt
 fi
+
+
 echo ""
 echo " -> Waiting for host to respond"
 
@@ -233,10 +236,10 @@ echo ""
 
 
 for name in $names; do
-    #
-    # Device format and mount
     host="${prefix}-${name}"
 
+    #
+    # Device format and mount
     if [ $attach -gt 0 ]; then
         device="/dev/sdb"
         mountpoint="/data1"

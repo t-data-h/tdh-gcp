@@ -11,7 +11,7 @@ fi
 
 # -----------------------------------
 
-names="m01 m02"
+names="m01 m02 m03"
 prefix="$TDH_GCP_PREFIX"
 
 zone=
@@ -102,7 +102,6 @@ read_password()
     echo ""
 
     if [[ "$pass" != "$pval" ]]; then
-        echo "ERROR! Passwords do not match!"
         return 1
     fi
 
@@ -195,12 +194,13 @@ if [ -n "$network" ] && [ -z "$subnet" ]; then
     exit 1
 fi
 
+echo ""
 version
 
 if [ "$action" == "run" ] && [ $dryrun -eq 0 ]; then
     dryrun=0
 else
-    dryrun=1
+    dryrun=1  # action -ne run
     echo "  <DRYRUN> enabled"
 fi
 
@@ -212,18 +212,26 @@ fi
 if [ -n "$namelist" ]; then
     names="$namelist"
 else
-    echo "Using default 3 masters"
+    echo "Using default of 3 master instances"
 fi
 
+#
+# Set mysqld password
 if [ -z "$pwfile" ]; then
     if [ $noprompt -gt 0 ]; then
         echo "Error! Password File required with --noprompt"
         exit 1
     fi
+
     read_password
+
+    if [ $? -gt 0 ]; then
+        echo "ERROR! Passwords do not match!"
+        #exit 1
+    fi
 fi
 
-echo "Creating a master instance '$mtype' for { $names }"
+echo "Creating master instances '$mtype' for { $names }"
 echo ""
 
 
@@ -237,16 +245,16 @@ for name in $names; do
         cmd="$cmd --network $network --subnet $subnet"
     fi
     if [ -n "$zone" ]; then
-        cmd="$cmd --zone ${zone}"
+        cmd="$cmd --zone $zone"
     fi
     if [ $dryrun -gt 0 ]; then
-        cmd="${cmd} --dryrun"
+        cmd="$cmd --dryrun"
     fi
     if [ $attach -gt 0 ]; then
-        cmd="${cmd} --attach --disksize $disksize"
+        cmd="$cmd --attach --disksize $disksize"
     fi
     if [ $ssd -gt 0 ]; then
-        cmd="${cmd} --ssd"
+        cmd="$cmd --ssd"
     fi
 
     cmd="$cmd create $name"
@@ -261,9 +269,11 @@ for name in $names; do
     fi
 done
 
+
 if [ $rt -gt 0 ]; then
     exit $rt
 fi
+
 
 echo ""
 echo -n " -> Waiting for host to respond. . "
@@ -284,8 +294,10 @@ else
 fi
 echo ""
 
+
 for name in $names; do
     host="${prefix}-${name}"
+
     #
     # Device format and mount
     if [ $attach -gt 0 ]; then
@@ -304,6 +316,7 @@ for name in $names; do
             break
         fi
     fi
+
 
     #
     # disable  iptables and cups
@@ -334,12 +347,14 @@ for name in $names; do
 
     #
     # ssh
-    echo "( $gssh $host --command 'mkdir -p .ssh; chmod 700 .ssh; chmod 600 .ssh/authorized_keys')"
+    echo "( $gssh $host --command ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa; \
+      cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys')"
 
     if [ $dryrun -eq 0 ]; then
-        ( $gssh $host --command "yes y |ssh-keygen -t rsa -b 2048 -N ''; cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys" )
+        ( $gssh $host --command "ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa; \
+          cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys" )
 
-        if [ -e $master_id_file ]; then
+        if [ -e "$master_id_file" ]; then
             ( $gscp ${master_id_file} ${host}:.ssh/ )
             ( $gssh $host --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys" )
         else
@@ -375,13 +390,17 @@ for name in $names; do
         break
     fi
 
+
     #
     # push self for ansible playbooks
     cmd="${tdh_path}/gcp-push.sh"
+
     if [ -n "$zone" ]; then
         cmd="$cmd --zone $zone"
     fi
+
     echo "( ${cmd} ${tdh_path}/.. tdh-gcp $host )"
+
     if [ $dryrun -eq 0 ]; then
         ( $cmd ${tdh_path}/.. tdh-gcp $host )
     fi
@@ -390,7 +409,7 @@ for name in $names; do
     echo ""
 done
 
-if [ -e $pwfile ]; then
+if [ -e "$pwfile" ]; then
     ( rm $pwfile )
 fi
 
