@@ -231,10 +231,10 @@ for name in $names; do
     #
     # Create instance
     host="${prefix}-${name}"
-    cmd="${tdh_path}/tdh-gcp-compute.sh --prefix ${prefix} --type ${mtype} --bootsize ${bootsize}"
+    cmd="${tdh_path}/tdh-gcp-compute.sh --prefix $prefix --type $mtype --bootsize $bootsize"
     
     if [ -n "$network" ]; then 
-        cmd="$cmd --network ${network} --subnet ${subnet}"
+        cmd="$cmd --network $network --subnet $subnet"
     fi
     if [ -n "$zone" ]; then
         cmd="$cmd --zone ${zone}"
@@ -243,13 +243,13 @@ for name in $names; do
         cmd="${cmd} --dryrun"
     fi
     if [ $attach -gt 0 ]; then
-        cmd="${cmd} --attach --disksize ${disksize}"
+        cmd="${cmd} --attach --disksize $disksize"
     fi
     if [ $ssd -gt 0 ]; then
         cmd="${cmd} --ssd"
     fi
 
-    cmd="${cmd} create ${name}"
+    cmd="$cmd create $name"
     echo "( $cmd )"
 
     ( $cmd )
@@ -264,13 +264,14 @@ done
 if [ $rt -gt 0 ]; then
     exit $rt
 fi
+
 echo ""
 echo -n " -> Waiting for host to respond. . "
 
 if [ $dryrun -eq 0 ]; then
     sleep 5
     for x in {1..3}; do 
-        yf=$( $gssh ${host} --command 'uname -n' )
+        yf=$( $gssh $host --command 'uname -n' )
         if [[ $yf == $host ]]; then
             echo " It's ALIIIIVE!!!"
             break
@@ -290,11 +291,11 @@ for name in $names; do
     if [ $attach -gt 0 ]; then
         device="/dev/sdb"
         mountpoint="/data"
-        echo "( $gssh ${host} --command './tdh-gcp-format.sh $device $mountpoint' )"
+        echo "( $gssh $host --command './tdh-gcp-format.sh $device $mountpoint' )"
         if [ $dryrun -eq 0 ]; then
             ( $gscp ${tdh_path}/tdh-gcp-format.sh ${host}: )
-            ( $gssh ${host} --command 'chmod +x tdh-gcp-format.sh' )
-            ( $gssh ${host} --command "./tdh-gcp-format.sh $device $mountpoint" )
+            ( $gssh $host --command 'chmod +x tdh-gcp-format.sh' )
+            ( $gssh $host --command "./tdh-gcp-format.sh $device $mountpoint" )
         fi
 
         rt=$?
@@ -314,13 +315,14 @@ for name in $names; do
 
     #
     # prereq's
-    echo "( $gssh ${host} --command ./tdh-prereqs.sh )"
+    echo "( $gssh $host --command ./tdh-prereqs.sh )"
+
     if [ $dryrun -eq 0 ]; then
         ( $gscp ${tdh_path}/../etc/bashrc ${host}:.bashrc )
         ( $gscp ${tdh_path}/tdh-prereqs.sh ${host}: )
-        ( $gssh ${host} --command 'chmod +x tdh-prereqs.sh' )
-        ( $gssh ${host} --command ./tdh-prereqs.sh )
-        ( $gssh ${host} --command 'sudo yum install -y ansible ansible-lint' )
+        ( $gssh $host --command 'chmod +x tdh-prereqs.sh' )
+        ( $gssh $host --command ./tdh-prereqs.sh )
+        ( $gssh $host --command 'sudo yum install -y ansible ansible-lint' )
     fi
 
     rt=$?
@@ -332,12 +334,14 @@ for name in $names; do
 
     #
     # ssh
-    echo "( $gssh ${host} --command 'mkdir -p .ssh; chmod 700 .ssh; chmod 600 .ssh/authorized_keys')"
+    echo "( $gssh $host --command 'mkdir -p .ssh; chmod 700 .ssh; chmod 600 .ssh/authorized_keys')"
+
     if [ $dryrun -eq 0 ]; then
-        ( $gssh ${host} --command "yes y |ssh-keygen -t rsa -b 2048 -N ''; cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys" )
+        ( $gssh $host --command "yes y |ssh-keygen -t rsa -b 2048 -N ''; cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys" )
+
         if [ -e $master_id_file ]; then
             ( $gscp ${master_id_file} ${host}:.ssh/ )
-            ( $gssh ${host} --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys" )
+            ( $gssh $host --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys" )
         else
             ( $gscp ${host}:.ssh/id_rsa.pub ${master_id_file} )
         fi
@@ -351,14 +355,17 @@ for name in $names; do
     else
         role="slave"
     fi
+
     cmd="${tdh_path}/tdh-mysql-install.sh"
+
     if [ -n "$zone" ]; then
         cmd="$cmd --zone $zone"
     fi
 
     echo "( $cmd -s $myid -P $pwfile $host $role )"
+
     if [ $dryrun -eq 0 ]; then
-        ( ${cmd} -s ${myid} -P ${pwfile} ${host} ${role} )
+        ( $cmd -s $myid -P $pwfile $host $role )
     fi
     ((++myid))
 
@@ -376,7 +383,7 @@ for name in $names; do
     fi
     echo "( ${cmd} ${tdh_path}/.. tdh-gcp $host )"
     if [ $dryrun -eq 0 ]; then
-        ( ${cmd} ${tdh_path}/.. tdh-gcp $host )
+        ( $cmd ${tdh_path}/.. tdh-gcp $host )
     fi
 
     echo "Initialization complete for $host"

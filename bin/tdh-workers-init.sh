@@ -181,10 +181,10 @@ for name in $names; do
     #
     # Create instance
     host="${prefix}-${name}"
-    cmd="${tdh_path}/tdh-gcp-compute.sh --prefix ${prefix} --type ${mtype} --bootsize ${bootsize}"
+    cmd="${tdh_path}/tdh-gcp-compute.sh --prefix $prefix --type $mtype --bootsize $bootsize"
     
     if [ -n "$network" ]; then
-        cmd="$cmd --network ${network} --subnet ${subnet}"
+        cmd="$cmd --network $network --subnet $subnet"
     fi
     if [ -n "$zone" ]; then
         cmd="$cmd --zone ${zone}"
@@ -193,7 +193,7 @@ for name in $names; do
         cmd="${cmd} --dryrun"
     fi
     if [ $attach -gt 0 ]; then
-        cmd="${cmd} --attach --disksize ${disksize}"
+        cmd="${cmd} --attach --disksize $disksize"
     fi
     if [ $ssd -gt 0 ]; then
         cmd="${cmd} --ssd"
@@ -220,7 +220,7 @@ echo " -> Waiting for host to respond"
 if [ $dryrun -eq 0 ]; then
     sleep 10
     for x in {1..3}; do 
-        yf=$( $gssh ${host} --command 'uname -n' )
+        yf=$( $gssh $host --command 'uname -n' )
         if [[ $yf == $host ]]; then
             echo " It's ALIVE!!!"
             break
@@ -231,18 +231,22 @@ if [ $dryrun -eq 0 ]; then
 fi
 echo ""
 
+
 for name in $names; do
     #
     # Device format and mount
     host="${prefix}-${name}"
+
     if [ $attach -gt 0 ]; then
         device="/dev/sdb"
         mountpoint="/data1"
+
         echo "( $gssh ${host} --command './tdh-gcp-format.sh $device $mountpoint' )"
+
         if [ $dryrun -eq 0 ]; then
             ( $gscp ${tdh_path}/tdh-gcp-format.sh ${host}: )
-            ( $gssh ${host} --command 'chmod +x tdh-gcp-format.sh' )
-            ( $gssh ${host} --command "./tdh-gcp-format.sh $device $mountpoint" )
+            ( $gssh $host --command 'chmod +x tdh-gcp-format.sh' )
+            ( $gssh $host --command "./tdh-gcp-format.sh $device $mountpoint" )
         fi
 
         rt=$?
@@ -255,6 +259,7 @@ for name in $names; do
     #
     # disable  iptables and cups
     echo "( $gssh $host --command 'sudo systemctl stop firewalld; sudo systemctl disable firewalld; sudo service cups stop; sudo chkconfig cups off' )"
+
     if [ $dryrun -eq 0 ]; then
         ( $gssh $host --command "sudo systemctl stop firewalld; sudo systemctl disable firewalld; sudo service cups stop; sudo chkconfig cups off" )
     fi
@@ -262,12 +267,13 @@ for name in $names; do
 
     #
     # prereq's
-    echo "( $gssh ${host} --command ./tdh-prereqs.sh )"
+    echo "( $gssh $host --command ./tdh-prereqs.sh )"
+
     if [ $dryrun -eq 0 ]; then
         ( $gscp ${tdh_path}/../etc/bashrc ${host}:.bashrc )
         ( $gscp ${tdh_path}/tdh-prereqs.sh ${host}: )
-        ( $gssh ${host} --command 'chmod +x tdh-prereqs.sh' )
-        ( $gssh ${host} --command ./tdh-prereqs.sh )
+        ( $gssh $host --command 'chmod +x tdh-prereqs.sh' )
+        ( $gssh $host --command ./tdh-prereqs.sh )
     fi
 
     rt=$?
@@ -280,14 +286,15 @@ for name in $names; do
     #
     # ssh
     echo "( $gscp ${master_id_file} ${host}:.ssh" 
+
     if [ $dryrun -eq 0 ]; then
         ( $gscp ${master_id_file} ${host}:.ssh/ )
-        ( $gssh ${host} --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys " )
+        ( $gssh $host --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys " )
     fi
 
     # mysql client
     role="client"
-    cmd="$tdh_path/tdh-mysql-install.sh"
+    cmd="${tdh_path}/tdh-mysql-install.sh"
 
     if [ -n "$zone" ]; then
         cmd="$cmd --zone $zone"
@@ -295,7 +302,7 @@ for name in $names; do
 
     echo "( $cmd $host $role )"
     if [ $dryrun -eq 0 ]; then
-        ( ${cmd} ${host} ${role} )
+        ( $cmd $host $role )
     fi
     
     rt=$?
