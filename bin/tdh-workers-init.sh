@@ -25,7 +25,7 @@ subnet="tdh-net-west1"
 
 myid=1
 attach=0
-dryrun=1
+dryrun=0
 ssd=0
 action=
 rt=
