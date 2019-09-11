@@ -55,7 +55,7 @@ usage()
     echo "  -b|--bootsize <xxGB>  : Size of instance boot disk"
     echo "  -d|--disksize <xxGB>  : Size of attached disk"
     echo "  -h|--help             : Display usage and exit"
-    echo "  -k|--keep             : Sets --keep-disks on delete action"
+    echo "  -k|--keep             : Sets --keep-disks=data on delete action"
     echo "  -l|--list             : List available machine-types for a zone"
     echo "  -N|--network <name>   : GCP Network name when not using default"
     echo "  -n|--subnet <name>    : Used with --network to define the subnet"
@@ -357,9 +357,9 @@ for name in $names; do
             cmd="$cmd --zone $zone"
         fi
         if [ $keep -eq 1 ]; then 
-            cmd="$cmd $name --keep-disks"
+            cmd="$cmd $name --keep-disks=data"
         else
-            cmd="$cmd $name --delete-disks"
+            cmd="$cmd $name --delete-disks=all"
         fi
         echo "( $cmd )"
         if [ $dryrun -eq 0 ]; then
