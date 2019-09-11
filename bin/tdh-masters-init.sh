@@ -24,7 +24,7 @@ network="tdh-net"
 subnet="tdh-net-west1"
 
 myid=1
-dryrun=1
+dryrun=0
 noprompt=0
 attach=0
 ssd=0
@@ -190,15 +190,18 @@ if [ -z "$action" ]; then
     exit 1
 fi
 
-if [ "$action" == "run" ]; then
-    dryrun=0
-else
-    echo "  <DRYRUN> enabled"
-fi
-
 if [ -n "$network" ] && [ -z "$subnet" ]; then
     echo "Error! Subnet must be provided with --network"
     exit 1
+fi
+
+version
+
+if [ "$action" == "run" ] && [ $dryrun -eq 0 ]; then
+    dryrun=0
+else
+    dryrun=1
+    echo "  <DRYRUN> enabled"
 fi
 
 if [ -n "$zone" ]; then
@@ -262,10 +265,10 @@ if [ $rt -gt 0 ]; then
     exit $rt
 fi
 echo ""
-echo " -> Waiting for host to respond"
+echo -n " -> Waiting for host to respond. . "
 
 if [ $dryrun -eq 0 ]; then
-    sleep 10
+    sleep 5
     for x in {1..3}; do 
         yf=$( $gssh ${host} --command 'uname -n' )
         if [[ $yf == $host ]]; then
@@ -273,8 +276,10 @@ if [ $dryrun -eq 0 ]; then
             break
         fi 
         echo -n ". "
-        sleep 5
+        sleep 3
     done
+else
+    echo "  <DRYRUN skipped>"
 fi
 echo ""
 
@@ -329,7 +334,7 @@ for name in $names; do
     # ssh
     echo "( $gssh ${host} --command 'mkdir -p .ssh; chmod 700 .ssh; chmod 600 .ssh/authorized_keys')"
     if [ $dryrun -eq 0 ]; then
-        ( $gssh ${host} --command "ssh-keygen -t rsa -b 2048 -N ''; cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys" )
+        ( $gssh ${host} --command "yes y |ssh-keygen -t rsa -b 2048 -N ''; cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys" )
         if [ -e $master_id_file ]; then
             ( $gscp ${master_id_file} ${host}:.ssh/ )
             ( $gssh ${host} --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys" )
