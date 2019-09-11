@@ -273,7 +273,6 @@ fi
 
 
 for name in $names; do 
-
     if [ -n "$prefix" ]; then
         ( echo $name | grep "^${prefix}-" >/dev/null 2>&1 )
         if [ $? -ne 0 ]; then
@@ -385,7 +384,6 @@ for name in $names; do
         break
         ;;
     esac
-
 done
 
 echo "$PNAME Finished."
