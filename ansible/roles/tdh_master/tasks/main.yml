@@ -4,6 +4,11 @@
     path: '{{ tdh_namenode_dir }}'
   register: nndir
 
+- name: Check for existing TDH
+  stat:
+    path: '{{ tdh_install_path }}'
+  register: tdhstat
+
 - name: Master specific packages
   become: true
   yum:
@@ -11,8 +16,7 @@
     lock_timeout: 180
     state: present
   
-
-- name: TDH Master Provisioning 
+- name: TDH Provisioning ... 
   block:
   - name: TDH Provisioning Step 1 - Mysql
     shell: '{{ tdh_install_path }}/sbin/01-tdh-mysql-provision.sh'
@@ -20,32 +24,28 @@
     shell: '{{ tdh_install_path }}/sbin/03-tdh-provision.sh'
   - name: TDH Provisioning Step 3 - Spark
     shell: '{{ tdh_install_path }}/sbin/05-spark-provision.sh'
-
   - name: Increase Host Entropy
-    become: true
     shell: 'rngd -r /dev/urandom'
-
-  - name: Create HDFS Namenode path
-    become: true
-    file:
-      path: '{{ tdh_namenode_dir }}'
-      owner: '{{ tdh_user }}'
-      group: '{{ tdh_group }}'
-      mode: 0750
-      state: directory
-
-  - name: Format namenode
-    shell: 'hadoop namenode -format'
-    when: inventory_hostname in groups['master01']
-  when: nndir.stat.exists == false
-
-- name: Provision Kafka Broker Id
-  shell: '{{ tdh_install_path }}/sbin/07-kafka-provision.sh'
+  - name: Configure HDFS Namenode...
+    block:
+    - name: Create NameNode path
+      file:
+        path: '{{ tdh_namenode_dir }}'
+        owner: '{{ tdh_user }}'
+        group: '{{ tdh_group }}'
+        mode: 0750
+        state: directory
+    - name: Format namenode
+      shell: 'hadoop namenode -format'
+      when: inventory_hostname in groups['master01']
+    when: nndir.stat.exists == false
+  - name: Provision Kafka Broker Id
+    shell: '{{ tdh_install_path }}/sbin/07-kafka-provision.sh'
+  - name: Configure Metastore password
+    replace:
+      path: '{{ tdh_install_path }}/hive/conf/hive-site.xml'
+      regexp: 'chhive'
+      replace: '{{ mysql_hive_password }}'
+  become: true
   tags: [ tdh-config ]
-
-- name: Configure Metastore password
-  replace:
-    path: '{{ tdh_install_path }}/hive/conf/hive-site.xml'
-    regexp: 'chhive'
-    replace: '{{ mysql_hive_password }}'
-  tags: [ tdh-config ]
+  when: tdhstat.stat.exists
