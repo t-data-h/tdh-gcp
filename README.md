@@ -9,20 +9,20 @@ the TDH cluster.
 
 ### Instance initialization scripts:
 
-- tdh-gcp-compute.sh:
+* tdh-gcp-compute.sh:
   
   This is the base script for creating a new GCP Compute Instance. It Will 
 create an instance and optionally attach data disks to the instance. It is 
 used by the master and worker init script for creating the custom instances.
 
-- tdh-masters-init.sh:
+* tdh-masters-init.sh:
   
   Wraps *tdh-gcp-copmpute.sh* with defaults for initializing master hosts.
 This will bootstrap master hosts with mysqld and ansible as we use ansible
 from the master host(s) to manage and deploy the cluster. The first master 
 is considered as the primary management node where Ansible is run from.
 
-- tdh-workers-init.sh:  
+* tdh-workers-init.sh:  
   
   Builds TDH worker nodes in GCP similarly to the masters init, but generally 
  of a different machine type.
@@ -30,26 +30,29 @@ is considered as the primary management node where Ansible is run from.
 
 ### Support scripts:
 
-- tdh-gcp-format.sh: 
+* tdh-gcp-format.sh: 
   
   Script for formatting and mounting a new data drive for a given instance.
 
-- tdh-mysql-install.sh: 
+* tdh-mysql-install.sh: 
   
-  Bootstraps a Mysql 5.7 Server for an instance.
+  Bootstraps a Mysql 5.7 Server instance.
 
-- tdh-prereqs.sh:
+* tdh-prereqs.sh:
   
-  Installs host prerequisites that may be needed prior to ansible bootstrapping.
+  Installs host prerequisites that may be needed prior to ansible.
 
-- gcp-push.sh
+* gcp-push.sh
 
    For pushing a directory of assets to a GCP host. The script will automatically 
    archive a directory, ensuring the directory to be archived remains as the root
-   directory, that links are honored properly to create a tarball to be transferred
-   to a given GCP host. The environment variable GCP_PUSH_HOST is honored as the 
-   default host target. In the context of TDH, this script is used to push updates, 
-   such as this repository, TDH Manager (tdh-mgr), and cluster configs from 'tdh-config'.
+   directory and links are honored. It creates a tarball to be transferred to a 
+   GCP host. The environment variable GCP_PUSH_HOST is used as the default target 
+   host when not provided directly. In the context of TDH, this script is used to 
+   push updates, such as this repository, TDH Manager (tdh-mgr), and cluster 
+   configs from 'tdh-config'. The script also uses a common distribution path for 
+   moving the binaries. By default, this is set to *~/tmp/dist*, but can be provided 
+   by setting GCP_DIST_PATH in the environment.
    ```
    $ export GCP_PUSH_HOST="tdh-m01"
    $ ./bin/gcp-push.sh .
@@ -58,9 +61,9 @@ is considered as the primary management node where Ansible is run from.
      => result: gcloud compute scp tdh-mgr.tar.gz tdh-m01:tmp/dist/
    $ ./bin/gcp-push.sh ../tdh-config/gcpwest1 tdh-conf
      => result: gcloud compute scp tdh-conf.tar.gz tdh-m01:tmp/dist/
+   $ ./bin/gcp-push.sh /opt/python/anaconda3 tdh-anaconda3
+     => result: gcloud compute scp tdh-anaconda3.tar.gz tdh-m01:tmp/dist/
    ```
-  The script also uses a common distribution path for moving about binaries. By default 
-  this is *~/tmp/dist*, but can be provided by setting GCP_DIST_PATH.
 
 
 ### Examples:
@@ -76,31 +79,35 @@ Create four worker nodes, with 256G boot drive as SSD.
 ./bin/tdh-workers-init.sh -b 256GB -S run d01 d02 d03 d04
 ```
 
-### Resource considerations
+### Resource considerations:
 
-  Minimum recommended memory values for a production cluste:
+All of this varies, of course, on data sizes and workloads and 
+is intended as a starting point.
 
-  NN/SN = 4Gb ea.
-  DN/NM (worker) = 1Gb (x2).
-  Hive Meta|S2  = 12Gb ea
-  Hbase Master = 4Gb
+Minimum memory values for a production-like cluster:
+```
+  NN/SN = 4 Gb ea.
+  DN/NM (worker) = 1 Gb ea 
+  Hive Meta|S2  = 12 Gb ea
+  Hbase Master = 4 Gb
   Zookeeper  = 1 Gb
-  HBase RegionServers = 12 to 20Gb
-
+  HBase RegionServers = 8 to 20 Gb
+```
 
 Streamlined dev layout:
+```
 ------------------------------------
 M01:
-* NameNode (primary)    2 Gb      1
-* ResourceManager       2 Gb      1
-* HBase Master          2 Gb      1
-* Zookeeper             1 Gb      1
+* NameNode (primary)  | 2 Gb      1
+* ResourceManager     | 2 Gb      1
+* HBase Master        | 2 Gb      1
+* Zookeeper           | 1 Gb      1
 ------------------------------------
                         8-12      4
 M02:
 * NameNode (secondary)  2 Gb      1
-* Hive Metastore        2 Gb      1
-* Hive Server2          2 Gb      1
+* Hive Metastore        4 Gb      1
+* Hive Server2          4 Gb      1
 * Zookeeper             1 Gb      1
 -------------------------------------
                         8-12      4
@@ -112,6 +119,7 @@ M03:
 ----------------------------------
                         6-8       4
 
+```
 
 ## GCP Machine-Types:
 

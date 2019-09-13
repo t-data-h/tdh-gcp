@@ -31,7 +31,7 @@
   tags: [ tdh-python ]
   register: tdhpystat
 
-- name: Deploy TDH
+- name: TDH Deploy...
   block:
   - name:  Remove previous TDH installation
     become: true
@@ -57,7 +57,7 @@
       state: link
   when: tdhdropstat.stat.exists
 
-- name: TDH Config Deploy
+- name: TDH Config Deploy... 
   block:
   - name: Extract TDH Config package
     unarchive:
@@ -78,7 +78,7 @@
   tags: [ tdh-config ]
   when: tdhconfigstat.stat.exists
 
-- name: TDH Mgr Deploy
+- name: TDH Mgr Deploy...
   block:
   - name: Extract TDH Mgr Package
     unarchive:
@@ -99,7 +99,7 @@
   tags: [ tdh-mgr ]
   when: tdhmgrstat.stat.exists
 
-- name: Python Anaconda Deploy
+- name: Python3 Deploy...
   block:
   - name: Remove previous Anaconda
     file:
