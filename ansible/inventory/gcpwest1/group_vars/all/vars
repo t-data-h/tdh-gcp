@@ -10,7 +10,6 @@ mysql_hostname: '{{ mysql_master_hostname }}'
 mysql_port: 3306
 
 mysql_repl_user: 'tdhrepl'
-mysql_hue_user: 'hue'
 mysql_hive_user: 'hive'
 mysql_hive_db: 'metastore'
 mysql_hive_schemafile: '/opt/TDH/hive/scripts/metastore/upgrade/mysql/hive-schema-1.2.0.mysql.sql'
