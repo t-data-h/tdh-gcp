@@ -18,10 +18,11 @@ zone=
 mtype="$GCP_DEFAULT_MACHINETYPE"
 bootsize="$GCP_DEFAULT_BOOTSIZE"
 disksize="$GCP_DEFAULT_DISKSIZE"
-master_id="master-id_rsa.pub"
-master_id_file="${tdh_path}/../ansible/.ansible/${master_id}"
 network="tdh-net"
 subnet="tdh-net-west1"
+
+master_id="master-id_rsa.pub"
+master_id_file="${tdh_path}/../ansible/.ansible/${master_id}"
 
 myid=1
 dryrun=0
@@ -77,8 +78,8 @@ usage() {
     echo ""
     echo " Where <action> is 'run' or other, where any other action enables a "
     echo " dryrun, followed by a list of names that become '\$prefix-\$name'."
-    echo " eg. '$PNAME test m01 m02 m03' will dryrun 3 master nodes"
-    echo " with the names: $prefix-m01, $prefix-m02, and $prefix-m03"
+    echo " eg.  '$PNAME test m01 m02 m03'"
+    echo " will dryrun 3 master nodes: $prefix-m01, $prefix-m02, and $prefix-m03"
     echo ""
 }
 
@@ -95,7 +96,6 @@ read_password()
     local pass=
     local pval=
 
-    echo "Please provide the root mysqld password..."
     read -s -p "$prompt" pass
     echo ""
     read -s -p "Repeat $prompt" pval
@@ -223,11 +223,13 @@ if [ -z "$pwfile" ]; then
         exit 1
     fi
 
-    read_password
-
-    if [ $? -gt 0 ]; then
-        echo "ERROR! Passwords do not match!"
-        #exit 1
+    echo "Please provide the root mysqld password..."
+    if [ $dryrun -eq 0 ]; then
+        read_password
+        if [ $? -gt 0 ]; then
+            echo "ERROR! Passwords do not match!"
+            exit 1
+        fi
     fi
 fi
 
@@ -347,8 +349,8 @@ for name in $names; do
 
     #
     # ssh
-    echo "( $gssh $host --command ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa; \
-      cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys')"
+    echo "( $gssh $host --command \"ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa; \
+      cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys\" )"
 
     if [ $dryrun -eq 0 ]; then
         ( $gssh $host --command "ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa; \

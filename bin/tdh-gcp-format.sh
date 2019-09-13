@@ -45,7 +45,7 @@ echo " $device  UUID='$uuid'"
 fstab=$(mktemp /tmp/tdh-fstab.XXXXXXXX)
 
 ( cp /etc/fstab $fstab )
-( echo "UUID=$uuid  $mount                  ext4     defaults         1 2" >> /tmp/fstab.new )
+( echo "UUID=$uuid  $mount                  ext4     defaults         1 2" >> $fstab )
 ( sudo cp $fstab /etc/fstab; sudo chmod 644 /etc/fstab )
 ( sudo mount $mount )
 

@@ -10,8 +10,8 @@ fi
 # -----------------------------------
 
 prefix="$TDH_GCP_PREFIX"
+zone="$GCP_ZONE"
 
-zone=
 mtype="$GCP_DEFAULT_MACHINETYPE"
 bootsize="$GCP_DEFAULT_BOOTSIZE"
 disksize="$GCP_DEFAULT_DISKSIZE"
@@ -30,10 +30,6 @@ keep=0
 
 # -----------------------------------
 # default overrides
-
-if [ -n "$GCP_ZONE" ]; then
-    zone="$GCP_ZONE"
-fi
 
 if [ -n "$GCP_MACHINE_TYPE" ]; then
     mtype="$GCP_MACHINE_TYPE"
@@ -100,13 +96,10 @@ is_running()
 {
     local name="$1"
     local rt=1
-    local cmd="gcloud compute instances describe"
-
-    if [ -n "$zone" ]; then
-        cmd="$cmd --zone $zone"
-    fi
+    local cmd="gcloud compute instances describe --zone $zone"
 
     status=$( $cmd $name | grep status: | awk -F: '{ print $2 }' )
+
     echo $status
     if [ "$status" == "RUNNING" ]; then
         rt=0
@@ -119,15 +112,11 @@ is_running()
 stop_instance()
 {
     local name="$1"
-    local cmd="gcloud compute instances stop"
+    local cmd="gcloud compute instances stop --zone $zone"
 
-    if [ -n "$zone" ]; then
-        cmd="$cmd --zone $zone"
-    fi
-
+    cmd="$cmd $name"
     echo ""
     echo "( $cmd )"
-    cmd="$cmd ${name}"
 
     ( $cmd )
 
@@ -162,14 +151,10 @@ create_disk()
     local dryrun=$4
     local rt=0
 
-    cmd="gcloud compute disks create"
+    cmd="gcloud compute disks create --zone $zone"
 
     if [ $ssd -eq 1 ]; then
         cmd="$cmd --type=pd-ssd"
-    fi
-
-    if [ -n "$zone" ]; then
-        cmd="$cmd --zone ${zone}"
     fi
 
     cmd="$cmd --size=${disksize} ${diskname}"
@@ -259,9 +244,9 @@ while [ $# -gt 0 ]; do
     shift
 done
 
+version
 
 if [ -z "$names" ]; then
-    version
     usage
     exit 1
 fi
@@ -271,6 +256,10 @@ if [ -n "$network" ] && [ -z "$subnet" ]; then
     exit 1
 fi
 
+if [ -z "$zone" ]; then
+    zone=$( gcloud config list | grep zone | awk -F= '{ print $2 }' )
+fi
+echo "  GCP Zone = '$zone'"
 
 for name in $names; do 
     if [ -n "$prefix" ]; then
@@ -287,16 +276,13 @@ for name in $names; do
     case "$action" in
     create)
         cmd="gcloud compute instances create --image-family=${image} --image-project=${image_project}"
-        cmd="$cmd --machine-type=${mtype} --boot-disk-size=${bootsize}"
+        cmd="$cmd --zone ${zone} --machine-type=${mtype} --boot-disk-size=${bootsize}"
 
         if [ $ssd -eq 1 ]; then
             cmd="$cmd --boot-disk-type=pd-ssd"
         fi
         if [ -n "$network" ]; then
             cmd="$cmd --network ${network} --subnet ${subnet}"
-        fi
-        if [ -n "$zone" ]; then
-            cmd="$cmd --zone ${zone}"
         fi
 
         cmd="$cmd --tags ${prefix} ${name}"
@@ -334,10 +320,8 @@ for name in $names; do
         ;;
 
     start)
-        cmd="gcloud compute instances start" 
-        if [ -n "$zone" ]; then
-            cmd="$cmd --zone $zone"
-        fi
+        cmd="gcloud compute instances start --zone $zone" 
+
         echo "( $cmd $name )"
         if [ $dryrun -eq 0 ]; then
             ( $cmd $name )
@@ -351,10 +335,7 @@ for name in $names; do
         ;;
 
     delete)
-        cmd="gcloud compute instances delete"
-        if [ -n "$zone" ]; then
-            cmd="$cmd --zone $zone"
-        fi
+        cmd="gcloud compute instances delete --zone $zone"
         if [ $keep -eq 1 ]; then 
             cmd="$cmd $name --keep-disks=data"
         else
@@ -367,10 +348,7 @@ for name in $names; do
         ;;
 
     describe)
-        cmd="gcloud compute instances describe"
-        if [ -n "$zone" ]; then
-            cmd="$cmd --zone $zone"
-        fi
+        cmd="gcloud compute instances describe --zone $zone"
         ( $cmd $name )
         ;;
     status)
