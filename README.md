@@ -36,20 +36,23 @@ is considered as the primary management node where Ansible is run from.
 
 * tdh-mysql-install.sh: 
   
-  Bootstraps a Mysql 5.7 Server for an instance.
+  Bootstraps a Mysql 5.7 Server instance.
 
 * tdh-prereqs.sh:
   
-  Installs host prerequisites that may be needed prior to ansible bootstrapping.
+  Installs host prerequisites that may be needed prior to ansible.
 
 * gcp-push.sh
 
    For pushing a directory of assets to a GCP host. The script will automatically 
    archive a directory, ensuring the directory to be archived remains as the root
-   directory, that links are honored properly to create a tarball to be transferred
-   to a given GCP host. The environment variable GCP_PUSH_HOST is honored as the 
-   default host target. In the context of TDH, this script is used to push updates, 
-   such as this repository, TDH Manager (tdh-mgr), and cluster configs from 'tdh-config'.
+   directory and links are honored. It creates a tarball to be transferred to a 
+   GCP host. The environment variable GCP_PUSH_HOST is used as the default target 
+   host when not provided directly. In the context of TDH, this script is used to 
+   push updates, such as this repository, TDH Manager (tdh-mgr), and cluster 
+   configs from 'tdh-config'. The script also uses a common distribution path for 
+   moving the binaries. By default, this is set to *~/tmp/dist*, but can be provided 
+   by setting GCP_DIST_PATH in the environment.
    ```
    $ export GCP_PUSH_HOST="tdh-m01"
    $ ./bin/gcp-push.sh .
@@ -61,8 +64,6 @@ is considered as the primary management node where Ansible is run from.
    $ ./bin/gcp-push.sh /opt/python/anaconda3 tdh-anaconda3
      => result: gcloud compute scp tdh-anaconda3.tar.gz tdh-m01:tmp/dist/
    ```
-  The script also uses a common distribution path for moving about binaries. By default 
-  this is *~/tmp/dist*, but can be provided by setting GCP_DIST_PATH.
 
 
 ### Examples:
