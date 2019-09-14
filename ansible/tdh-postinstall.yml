@@ -4,6 +4,8 @@
   tasks:
   - name: mkdir /hive/warehouse
     shell: 'hdfs dfs -mkdir -p /hive/warehouse/default'
+  - name: mkdir /user/hdfs
+    shell: 'hdfs dfs -mkdir -p /user/hdfs'
   - name: mkdir /user/hive
     shell: 'hdfs dfs -mkdir -p /user/hive'
   - name: mkdir /hbase

@@ -85,16 +85,14 @@ All of this varies, of course, on data sizes and workloads and
 is intended as a starting point.
 
 Minimum memory values for a production-like cluster:
-```
-  NN/SN = 4 Gb ea.
-  DN/NM (worker) = 1 Gb ea 
-  Hive Meta|S2  = 12 Gb ea
-  Hbase Master = 4 Gb
-  Zookeeper  = 1 Gb
-  HBase RegionServers = 8 to 20 Gb
-```
+*  NN/SN = 4 Gb ea.
+*  DN/NM (worker) = 1 Gb ea 
+*  Hive Meta|S2  = 12 Gb ea
+*  Hbase Master = 4 Gb
+*  Zookeeper  = 1 Gb
+*  HBase RegionServers = 8 to 20 Gb
 
-Streamlined dev layout:
+Possible dev layout:
 ```
 ------------------------------------
 M01:
@@ -118,21 +116,20 @@ M03:
 * Zeppelin              2 Gb      1
 ----------------------------------
                         6-8       4
-
 ```
 
 ## GCP Machine-Types:
 
-### Very Small
-- Master/Util   :  n1-standard-4  :  4 vCPU and 26 Gb 
-- Worker/Data   :  n1-highmem-8   :  8 vCPU and 52 Gb  
-
-### Smallish
-- Master/Util   :  n1-highmem-8  :  8 vCPU and 52 Gb
-- Worker/Data   :  n1-highmem-16  :  16 vCPU and 104 Gb
+|    Role       |  Machine Type   |  vCPU and Memory   |
+| ------------- | --------------- | ------------------ |
+| Master/Util   |  n1-standard-4  |  4 vCPU and 26 Gb  |
+| Worker/Data   |  n1-highmem-8   |  8 vCPU and 52 Gb  |
+| ------------- | --------------- | ------------------ |
+| Master/Util   |  n1-highmem-8   | 8 vCPU and 52 Gb   |
+| Worker/Data   |  n1-highmem-16  | 16 vCPU and 104 Gb |
 
  
-Changing Machine Type:
+### Changing Machine Type:
 ```
 $ gcloud compute instances set-machine-type tdh-d01 --machine-type n1-highmem-16
 $ gcloud compute instances set-machine-type tdh-d02 --machine-type n1-highmem-16
