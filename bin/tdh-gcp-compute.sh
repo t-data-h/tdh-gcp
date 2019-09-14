@@ -257,7 +257,7 @@ if [ -n "$network" ] && [ -z "$subnet" ]; then
 fi
 
 if [ -z "$zone" ]; then
-    zone=$( gcloud config list | grep zone | awk -F= '{ print $2 }' )
+    zone=$( gcloud config list | grep zone | awk -F"= " '{ print $2 }' )
 fi
 echo "  GCP Zone = '$zone'"
 

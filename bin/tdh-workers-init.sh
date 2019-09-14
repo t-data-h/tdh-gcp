@@ -218,22 +218,21 @@ fi
 
 
 echo ""
-echo " -> Waiting for host to respond"
+echo " -> Waiting for last host to respond. ."
 
 if [ $dryrun -eq 0 ]; then
-    sleep 10
-    for x in {1..3}; do 
-        yf=$( $gssh $host --command 'uname -n' )
-        if [[ $yf == $host ]]; then
-            echo " It's ALIVE!!!"
-            break
-        fi 
-        echo -n "."
-        sleep 5
-    done
+    wait_for_host "$gssh $host"
+    rt=$?
+else
+    echo "  <DRYRUN skipped>"
 fi
 echo ""
 
+if [ $rt -ne 0 ]; then
+    echo "Error in wait_for_host(), no response from host or timed out"
+    echo "Will attempt to continue in 3...2.."
+    sleep 3
+fi
 
 for name in $names; do
     host="${prefix}-${name}"

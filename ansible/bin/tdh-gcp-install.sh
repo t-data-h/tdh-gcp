@@ -98,4 +98,7 @@ if [ $dryrun -eq 0 ]; then
     rt=$?
 fi
 
+echo "$PNAME finished. If this is a new install don't forget to run"
+echo "the post-install playbook, tdh-postinstall.yml"
+
 exit $rt
