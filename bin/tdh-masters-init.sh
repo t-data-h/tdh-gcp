@@ -24,6 +24,9 @@ subnet="tdh-net-west1"
 master_id="master-id_rsa.pub"
 master_id_file="${tdh_path}/../ansible/.ansible/${master_id}"
 
+gssh="gcloud compute ssh"
+gscp="gcloud compute scp"
+
 myid=1
 dryrun=0
 noprompt=0
@@ -112,8 +115,9 @@ read_password()
 }
 
 
-gssh="gcloud compute ssh"
-gscp="gcloud compute scp"
+# MAIN
+#
+rt=0
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -281,21 +285,18 @@ echo ""
 echo -n " -> Waiting for host to respond. . "
 
 if [ $dryrun -eq 0 ]; then
-    sleep 5
-    for x in {1..3}; do 
-        yf=$( $gssh $host --command 'uname -n' )
-        if [[ $yf == $host ]]; then
-            echo " It's ALIIIIVE!!!"
-            break
-        fi 
-        echo -n ". "
-        sleep 3
-    done
+    wait_for_host "$gssh $host"
+    rt=$?
 else
     echo "  <DRYRUN skipped>"
 fi
 echo ""
 
+if [ $rt -ne 0 ]; then
+    echo "Error in wait_for_host(), no response from host or timed out"
+    echo "Will attempt to continue in 3...2.."
+    sleep 3
+fi
 
 for name in $names; do
     host="${prefix}-${name}"
