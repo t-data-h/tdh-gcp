@@ -1,5 +1,5 @@
 ---
-tdh_env: 'gcpwest1'
+tdh_env: 't3-tdh-west1'
 
 tdh_user: 'tca'
 tdh_group: 'tca'
@@ -21,6 +21,7 @@ tdh_mysql_master_hosts:
 tdh_mysql_client_hosts:
   - 'tdh-m01.c.t3-dataintellence.internal'
   - 'tdh-m02.c.t3-dataintellence.internal'
+  - 'tdh-m03.c.t3-dataintellence.internal'
   - 'tdh-d01.c.t3-dataintellence.internal'
   - 'tdh-d02.c.t3-dataintellence.internal'
   - 'tdh-d03.c.t3-dataintellence.internal'

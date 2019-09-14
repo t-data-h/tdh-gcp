@@ -1,5 +1,5 @@
 ---
-tdh_env: 'alder-gcpwest1'
+tdh_env: 'alder-west1'
 
 tdh_user: 'tca'
 tdh_group: 'tca'
@@ -21,6 +21,7 @@ tdh_mysql_master_hosts:
 tdh_mysql_client_hosts:
   - 'tdh-m01.c.alderberry-22.internal'
   - 'tdh-m02.c.alderberry-22.internal'
+  - 'tdh-m03.c.alderberry-22.internal'
   - 'tdh-d01.c.alderberry-22.internal'
   - 'tdh-d02.c.alderberry-22.internal'
   - 'tdh-d03.c.alderberry-22.internal'
