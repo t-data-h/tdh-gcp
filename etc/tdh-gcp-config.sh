@@ -1,7 +1,7 @@
 #!/bin/bash
 export TDH_GCP_INCLUDE=1
 
-TDH_GCP_VERSION="0.9.6"
+TDH_GCP_VERSION="0.9.7"
 TDH_GCP_PREFIX="tdh"
 
 GCP_DEFAULT_MACHINETYPE="n1-standard-4"

@@ -40,7 +40,7 @@
     src: '{{ sysctl_conf_template }}'
     dest: "/etc/sysctl.conf"
     mode: 0644
-  notify: source sysctl.conf
+  notify: source_sysctl
 
 - name: Copy rc local
   become: true
