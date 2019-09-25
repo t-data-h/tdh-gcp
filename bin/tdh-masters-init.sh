@@ -23,9 +23,6 @@ subnet="tdh-net-west1"
 master_id="master-id_rsa.pub"
 master_id_file="${tdh_path}/../ansible/.ansible/${master_id}"
 
-gssh="gcloud compute ssh"
-gscp="gcloud compute scp"
-
 myid=1
 dryrun=0
 noprompt=0
@@ -58,7 +55,7 @@ fi
 
 usage() {
     echo ""
-    echo "Usage: $PNAME [options] <run>  host1 host2 ..."
+    echo "Usage: $TDH_PNAME [options] <run>  host1 host2 ..."
     echo "  -A|--attach           : Create an attached volume"
     echo "  -b|--bootsize <xxGB>  : Size of boot disk, Default is $bootsize"
     echo "  -d|--disksize <xxGB>  : Size of attached disk, Default is $disksize"
@@ -80,7 +77,7 @@ usage() {
     echo ""
     echo " Where <action> is 'run' or other, where any other action enables a "
     echo " dryrun, followed by a list of names that become '\$prefix-\$name'."
-    echo " eg.  '$PNAME test m01 m02 m03'"
+    echo " eg.  '$TDH_PNAME test m01 m02 m03'"
     echo " will dryrun 3 master nodes: $prefix-m01, $prefix-m02, and $prefix-m03"
     echo ""
 }
@@ -202,8 +199,8 @@ else
 fi
 
 if [ -n "$zone" ]; then
-    gssh="$gssh --zone $zone"
-    gscp="$gscp --zone $zone"
+    GSSH="$GSSH --zone $zone"
+    GScp="$GSCP --zone $zone"
 fi
 
 if [ -n "$namelist" ]; then
@@ -276,7 +273,7 @@ echo ""
 echo -n " -> Waiting for host to respond. . "
 
 if [ $dryrun -eq 0 ]; then
-    wait_for_host "$gssh $host"
+    wait_for_gcphost "$host"
     rt=$?
 else
     echo "  <DRYRUN skipped>"
@@ -284,7 +281,7 @@ fi
 echo ""
 
 if [ $rt -ne 0 ]; then
-    echo "Error in wait_for_host(), no response from host or timed out"
+    echo "Error in wait_for_gcphost(), no response from host or timed out"
     echo "Will attempt to continue in 3...2.."
     sleep 3
 fi
@@ -297,11 +294,11 @@ for name in $names; do
     if [ $attach -gt 0 ]; then
         device="/dev/sdb"
         mountpoint="/data"
-        echo "( $gssh $host --command './tdh-gcp-format.sh $device $mountpoint' )"
+        echo "( $GSSH $host --command './tdh-gcp-format.sh $device $mountpoint' )"
         if [ $dryrun -eq 0 ]; then
-            ( $gscp ${tdh_path}/tdh-gcp-format.sh ${host}: )
-            ( $gssh $host --command 'chmod +x tdh-gcp-format.sh' )
-            ( $gssh $host --command "./tdh-gcp-format.sh $device $mountpoint" )
+            ( $GSCP ${tdh_path}/tdh-gcp-format.sh ${host}: )
+            ( $GSSH $host --command 'chmod +x tdh-gcp-format.sh' )
+            ( $GSSH $host --command "./tdh-gcp-format.sh $device $mountpoint" )
         fi
 
         rt=$?
@@ -314,22 +311,22 @@ for name in $names; do
 
     #
     # disable  iptables and cups
-    echo "( $gssh $host --command 'sudo systemctl stop firewalld; sudo systemctl disable firewalld' )"
+    echo "( $GSSH $host --command 'sudo systemctl stop firewalld; sudo systemctl disable firewalld' )"
     if [ $dryrun -eq 0 ]; then
-        ( $gssh $host --command "sudo systemctl stop firewalld; sudo systemctl disable firewalld" )
+        ( $GSSH $host --command "sudo systemctl stop firewalld; sudo systemctl disable firewalld" )
     fi
 
 
     #
     # prereq's
-    echo "( $gssh $host --command ./tdh-prereqs.sh )"
+    echo "( $GSSH $host --command ./tdh-prereqs.sh )"
 
     if [ $dryrun -eq 0 ]; then
-        ( $gscp ${tdh_path}/../etc/bashrc ${host}:.bashrc )
-        ( $gscp ${tdh_path}/tdh-prereqs.sh ${host}: )
-        ( $gssh $host --command 'chmod +x tdh-prereqs.sh' )
-        ( $gssh $host --command ./tdh-prereqs.sh )
-        ( $gssh $host --command 'sudo yum install -y ansible ansible-lint' )
+        ( $GSCP ${tdh_path}/../etc/bashrc ${host}:.bashrc )
+        ( $GSCP ${tdh_path}/tdh-prereqs.sh ${host}: )
+        ( $GSSH $host --command 'chmod +x tdh-prereqs.sh' )
+        ( $GSSH $host --command ./tdh-prereqs.sh )
+        ( $GSSH $host --command 'sudo yum install -y ansible ansible-lint' )
     fi
 
     rt=$?
@@ -341,18 +338,18 @@ for name in $names; do
 
     #
     # ssh
-    echo "( $gssh $host --command \"ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa; \
+    echo "( $GSSH $host --command \"ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa; \
       cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys\" )"
 
     if [ $dryrun -eq 0 ]; then
-        ( $gssh $host --command "ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa; \
+        ( $GSSH $host --command "ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa; \
           cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys" )
 
         if [ -e "$master_id_file" ]; then
-            ( $gscp ${master_id_file} ${host}:.ssh/ )
-            ( $gssh $host --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys" )
+            ( $GSCP ${master_id_file} ${host}:.ssh/ )
+            ( $GSSH $host --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys" )
         else
-            ( $gscp ${host}:.ssh/id_rsa.pub ${master_id_file} )
+            ( $GSCP ${host}:.ssh/id_rsa.pub ${master_id_file} )
         fi
     fi
 
