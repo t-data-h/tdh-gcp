@@ -1,6 +1,5 @@
 #!/bin/bash
 #
-PNAME=${0##*\/}
 tdh_path=$(dirname "$(readlink -f "$0")")
 
 if [ -f ${tdh_path}/../etc/tdh-gcp-config.sh ]; then
@@ -46,7 +45,7 @@ usage()
     echo ""
     echo " Manage GCP Compute Engine instances: "
     echo ""
-    echo "Usage: $PNAME [options] <action> <instance-name>"
+    echo "Usage: $TDH_PNAME [options] <action> <instance-name>"
     echo "  -A|--attach           : Init and attach a data disk on 'create'"
     echo "  -b|--bootsize <xxGB>  : Size of instance boot disk"
     echo "  -d|--disksize <xxGB>  : Size of attached disk"
@@ -71,12 +70,6 @@ usage()
     echo "  Default Image is        '$image'"
     echo "  Default Boot Disk size  '$bootsize'"
     echo ""
-}
-
-
-version()
-{
-    echo "$PNAME: v$TDH_GCP_VERSION"
 }
 
 
@@ -231,7 +224,7 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         -V|--version)
-            version
+            tdh_version
             exit $rt
             ;;
         *)
@@ -244,7 +237,7 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-version
+tdh_version
 
 if [ -z "$names" ]; then
     usage
@@ -364,5 +357,5 @@ for name in $names; do
     esac
 done
 
-echo "$PNAME Finished."
+echo "$TDH_PNAME Finished."
 exit $rt

@@ -2,7 +2,6 @@
 #
 #  Creates an archive of a given path and pushes to remote GCP host.
 #
-PNAME=${0##*\/}
 tdh_path=$(dirname "$(readlink -f "$0")")
 
 if [ -f ${tdh_path}/../etc/tdh-gcp-config.sh ]; then
@@ -50,11 +49,6 @@ usage()
     echo ""
 }
 
-version()
-{
-    echo "$PNAME: v$TDH_GCP_VERSION"
-}
-
 
 # MAIN
 #
@@ -72,7 +66,7 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         -V|--version)
-            version
+            tdh_version
             exit $rt
             ;;
         *)
@@ -137,6 +131,5 @@ fi
 
 ( rm ${DISTPATH}/${aname}.tar.gz )
 
-echo "$PNAME Finished."
-
+echo "$TDH_PNAME Finished."
 exit $rt

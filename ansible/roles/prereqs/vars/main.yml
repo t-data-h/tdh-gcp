@@ -8,6 +8,9 @@ se_linux_conf: selinux.config
 jdk_sh_template: jdk.sh
 jdk_csh_template: jdk.csh
 
+yum_java_packages:
+ - java-1.8.0-openjdk-devel
+
 yum_install_packages:
  - nmap-ncat
  - bind-utils
@@ -27,3 +30,7 @@ yum_master_packages:
 
 yum_remove_packages:
  - mariadb-libs
+
+apt_java_packages:
+ - openjdk-8-jdk-headless
+

@@ -2,7 +2,6 @@
 #
 #  Initialize worker GCP instances.
 #
-PNAME=${0##*\/}
 tdh_path=$(dirname "$(readlink -f "$0")")
 
 if [ -f ${tdh_path}/../etc/tdh-gcp-config.sh ]; then
@@ -53,7 +52,7 @@ fi
 
 usage() {
     echo ""
-    echo "Usage: $PNAME [options] <run>  host1 host2 ..."
+    echo "Usage: $TDH_PNAME [options] <run>  host1 host2 ..."
     echo "  -A|--attach           : Create an attached volume"
     echo "  -b|--bootsize <xxGB>  : Size of boot disk in GB, Default is $bootsize"
     echo "  -d|--disksize <xxGB>  : Size of attached disk, Default is $disksize"
@@ -69,20 +68,14 @@ usage() {
     echo ""
     echo " Where <action> is 'run' or other, where any other action enables a "
     echo " dryrun,followed by a list of names that become '\$prefix-\$name'."
-    echo " eg. '$PNAME test d01 d02 d03' will dryrun 3 worker nodes with"
+    echo " eg. '$TDH_PNAME test d01 d02 d03' will dryrun 3 worker nodes with"
     echo " the names: $prefix-d01, $prefix-d02, and $prefix-d03"
     echo ""
 }
 
 
-version()
-{
-    echo "$PNAME: v$TDH_GCP_VERSION"
-}
-
-
-gssh="gcloud compute ssh"
-gscp="gcloud compute scp"
+# Main
+#
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -128,7 +121,7 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         -V|--version)
-            version
+            tdh_version
             exit 0
             ;;
         *)
@@ -142,7 +135,7 @@ while [ $# -gt 0 ]; do
 done
 
 if [ -z "$action" ]; then
-    version
+    tdh_version
     usage
     exit 1
 fi
@@ -153,7 +146,7 @@ if [ -n "$network" ] && [ -z "$subnet" ]; then
 fi
 
 echo ""
-version
+tdh_version
 
 if [ "$action" == "run" ] && [ $dryrun -eq 0 ]; then
     dryrun=0
@@ -163,8 +156,8 @@ else
 fi
 
 if [ -n "$zone" ]; then
-    gssh="$gssh --zone $zone"
-    gscp="$gscp --zone $zone"
+    GSSH="$GSSH --zone $zone"
+    GSCP="$GSCP --zone $zone"
 fi
 
 if [ -n "$namelist" ]; then
@@ -221,7 +214,7 @@ echo ""
 echo " -> Waiting for last host to respond. ."
 
 if [ $dryrun -eq 0 ]; then
-    wait_for_host "$gssh $host"
+    wait_for_gcphost "$host"
     rt=$?
 else
     echo "  <DRYRUN skipped>"
@@ -229,7 +222,7 @@ fi
 echo ""
 
 if [ $rt -ne 0 ]; then
-    echo "Error in wait_for_host(), no response from host or timed out"
+    echo "Error in wait_for_gcphost(), no response from host or timed out"
     echo "Will attempt to continue in 3...2.."
     sleep 3
 fi
@@ -243,12 +236,12 @@ for name in $names; do
         device="/dev/sdb"
         mountpoint="/data1"
 
-        echo "( $gssh ${host} --command './tdh-gcp-format.sh $device $mountpoint' )"
+        echo "( $GSSH ${host} --command './tdh-gcp-format.sh $device $mountpoint' )"
 
         if [ $dryrun -eq 0 ]; then
-            ( $gscp ${tdh_path}/tdh-gcp-format.sh ${host}: )
-            ( $gssh $host --command 'chmod +x tdh-gcp-format.sh' )
-            ( $gssh $host --command "./tdh-gcp-format.sh $device $mountpoint" )
+            ( $GSCP ${tdh_path}/tdh-gcp-format.sh ${host}: )
+            ( $GSSH $host --command 'chmod +x tdh-gcp-format.sh' )
+            ( $GSSH $host --command "./tdh-gcp-format.sh $device $mountpoint" )
         fi
 
         rt=$?
@@ -260,22 +253,22 @@ for name in $names; do
 
     #
     # disable  iptables and cups
-    echo "( $gssh $host --command 'sudo systemctl stop firewalld; sudo systemctl disable firewalld; sudo service cups stop; sudo chkconfig cups off' )"
+    echo "( $GSSH $host --command 'sudo systemctl stop firewalld; sudo systemctl disable firewalld; sudo service cups stop; sudo chkconfig cups off' )"
 
     if [ $dryrun -eq 0 ]; then
-        ( $gssh $host --command "sudo systemctl stop firewalld; sudo systemctl disable firewalld; sudo service cups stop; sudo chkconfig cups off" )
+        ( $GSSH $host --command "sudo systemctl stop firewalld; sudo systemctl disable firewalld; sudo service cups stop; sudo chkconfig cups off" )
     fi
 
 
     #
     # prereq's
-    echo "( $gssh $host --command ./tdh-prereqs.sh )"
+    echo "( $GSSH $host --command ./tdh-prereqs.sh )"
 
     if [ $dryrun -eq 0 ]; then
-        ( $gscp ${tdh_path}/../etc/bashrc ${host}:.bashrc )
-        ( $gscp ${tdh_path}/tdh-prereqs.sh ${host}: )
-        ( $gssh $host --command 'chmod +x tdh-prereqs.sh' )
-        ( $gssh $host --command ./tdh-prereqs.sh )
+        ( $GSCP ${tdh_path}/../etc/bashrc ${host}:.bashrc )
+        ( $GSCP ${tdh_path}/tdh-prereqs.sh ${host}: )
+        ( $GSSH $host --command 'chmod +x tdh-prereqs.sh' )
+        ( $GSSH $host --command ./tdh-prereqs.sh )
     fi
 
     rt=$?
@@ -287,11 +280,11 @@ for name in $names; do
 
     #
     # ssh
-    echo "( $gscp ${master_id_file} ${host}:.ssh" 
+    echo "( $GSCP ${master_id_file} ${host}:.ssh" 
 
     if [ $dryrun -eq 0 ]; then
-        ( $gscp ${master_id_file} ${host}:.ssh/ )
-        ( $gssh $host --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys " )
+        ( $GSCP ${master_id_file} ${host}:.ssh/ )
+        ( $GSSH $host --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys " )
     fi
 
     # mysql client
@@ -317,5 +310,5 @@ for name in $names; do
     echo ""
 done
 
-echo "$PNAME finished"
+echo "$TDH_PNAME finished"
 exit $rt

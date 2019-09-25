@@ -5,7 +5,8 @@ A Framework for building GCP compute instances and deploying TDH.
 
 The compute instances are managed by a set of scripts for building the master 
 and worker node instances. Ansible is used for installing or updating/upgrading 
-the TDH cluster.
+the TDH cluster. The playbook is currently OS focused on RHEL or CentOS flavors 
+of Linux.
 
 ### Instance initialization scripts:
 
