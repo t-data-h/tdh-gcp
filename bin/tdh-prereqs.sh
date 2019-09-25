@@ -2,7 +2,6 @@
 #
 #  Install host prerequisites
 #
-PNAME=${0##*\/}
 tdh_path=$(dirname "$(readlink -f "$0")")
 
 if [ -f ${tdh_path}/../etc/tdh-gcp-config.sh ]; then
@@ -22,6 +21,5 @@ if [ $rt -gt 0 ]; then
     echo "Error in install."
 fi
 
-echo "$PNAME finished"
-
-exit 0
+echo "$TDH_PNAME finished"
+exit $rt

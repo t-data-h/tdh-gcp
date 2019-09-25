@@ -2,7 +2,6 @@
 #
 #  Bootstrap mysqld for a GCP Instance
 #
-PNAME=${0##*\/}
 tdh_path=$(dirname "$(readlink -f "$0")")
 
 if [ -f ${tdh_path}/../etc/tdh-gcp-config.sh ]; then
@@ -34,12 +33,8 @@ usage()
     echo ""
 }
 
-version()
-{
-    echo "$PNAME: v$TDH_VERSION"
-}
-
-
+# Main
+#
 gssh="gcloud compute ssh"
 gscp="gcloud compute scp"
 
@@ -69,7 +64,7 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         -V|--version)
-            version
+            tdh_version
             exit 0
             ;;
         *)
@@ -83,7 +78,7 @@ done
 
 
 if [ -z "$host" ]; then
-    version
+    tdh_version
     usage
     exit 1
 fi
@@ -163,6 +158,5 @@ if [ "$role" == "master" ] || [ "$role" == "slave" ]; then
     fi
 fi
 
-echo "$PNAME finished."
-
+echo "$TDH_PNAME finished."
 exit $rt

@@ -1,7 +1,8 @@
 ---
-- name: source sysctl.conf
+- name: source_sysctl
   become: true
   shell: "sysctl --system"
+
 - name: selinux_setenforce
   become: true
   shell: "setenforce 0"
