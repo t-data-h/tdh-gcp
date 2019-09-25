@@ -2,7 +2,6 @@
 #
 #  Initialize master GCP instances.
 #
-PNAME=${0##*\/}
 tdh_path=$(dirname "$(readlink -f "$0")")
 
 if [ -f ${tdh_path}/../etc/tdh-gcp-config.sh ]; then
@@ -87,12 +86,6 @@ usage() {
 }
 
 
-version()
-{
-    echo "$PNAME: v$TDH_GCP_VERSION"
-}
-
-
 read_password()
 {
     local prompt="Password: "
@@ -171,7 +164,7 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         -V|--version)
-            version
+            tdh_version
             exit 0
             ;;
         -y|--no-prompt)
@@ -188,7 +181,7 @@ while [ $# -gt 0 ]; do
 done
 
 if [ -z "$action" ]; then
-    version
+    tdh_version
     usage
     exit 1
 fi
@@ -199,7 +192,7 @@ if [ -n "$network" ] && [ -z "$subnet" ]; then
 fi
 
 echo ""
-version
+tdh_version
 
 if [ "$action" == "run" ] && [ $dryrun -eq 0 ]; then
     dryrun=0
@@ -240,10 +233,8 @@ fi
 echo "Creating master instances '$mtype' for { $names }"
 echo ""
 
-
+# Create instance
 for name in $names; do
-    #
-    # Create instance
     host="${prefix}-${name}"
     cmd="${tdh_path}/tdh-gcp-compute.sh --prefix $prefix --type $mtype --bootsize $bootsize"
     
@@ -416,5 +407,5 @@ if [ -e "$pwfile" ]; then
     ( rm $pwfile )
 fi
 
-echo "$PNAME finished"
+echo "$TDH_PNAME finished"
 exit $rt

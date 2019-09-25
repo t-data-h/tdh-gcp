@@ -2,7 +2,6 @@
 #
 #  Initialize worker GCP instances.
 #
-PNAME=${0##*\/}
 tdh_path=$(dirname "$(readlink -f "$0")")
 
 if [ -f ${tdh_path}/../etc/tdh-gcp-config.sh ]; then
@@ -75,14 +74,11 @@ usage() {
 }
 
 
-version()
-{
-    echo "$PNAME: v$TDH_GCP_VERSION"
-}
-
-
+# Main
+#
 gssh="gcloud compute ssh"
 gscp="gcloud compute scp"
+
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -128,7 +124,7 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         -V|--version)
-            version
+            tdh_version
             exit 0
             ;;
         *)
@@ -142,7 +138,7 @@ while [ $# -gt 0 ]; do
 done
 
 if [ -z "$action" ]; then
-    version
+    tdh_version
     usage
     exit 1
 fi
@@ -153,7 +149,7 @@ if [ -n "$network" ] && [ -z "$subnet" ]; then
 fi
 
 echo ""
-version
+tdh_version
 
 if [ "$action" == "run" ] && [ $dryrun -eq 0 ]; then
     dryrun=0
@@ -317,5 +313,5 @@ for name in $names; do
     echo ""
 done
 
-echo "$PNAME finished"
+echo "$TDH_PNAME finished"
 exit $rt

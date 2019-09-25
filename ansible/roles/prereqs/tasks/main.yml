@@ -10,7 +10,7 @@
 - name: Add/Update OpenJDK
   become: true
   yum:
-    name: "java-1.8.0-openjdk-devel"
+    name: '{{ yum_java_packages }}'
     state: present
 
 - name: Copy Java Bash Profile
