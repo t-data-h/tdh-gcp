@@ -35,8 +35,6 @@ usage()
 
 # Main
 #
-gssh="gcloud compute ssh"
-gscp="gcloud compute scp"
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -90,22 +88,22 @@ if [ -z "$pw" ] && [ "$role" != "client" ]; then
 fi
 
 if [ -n "$zone" ]; then
-    gssh="$gssh --zone $zone"
-    gscp="$gscp --zone $zone"
+    GSSH="$GSSH --zone $zone"
+    GSCP="$GSCP --zone $zone"
 fi
 
 # copy repo, repo key, and server config
-( $gscp ${tdh_path}/../etc/mysql-community.repo ${host}: )
-( $gscp ${tdh_path}/../etc/RPM-GPG-KEY-mysql ${host}: )
+( $GSCP ${tdh_path}/../etc/mysql-community.repo ${host}: )
+( $GSCP ${tdh_path}/../etc/RPM-GPG-KEY-mysql ${host}: )
 
 # Install Client
-( $gssh $host --command 'sudo cp mysql-community.repo /etc/yum.repos.d' )
-( $gssh $host --command 'sudo cp RPM-GPG-KEY-mysql /etc/pki/rpm-gpg/')
-( $gssh $host --command 'sudo yum install -y mysql-community-libs mysql-community-client' )
+( $GSSH $host --command 'sudo cp mysql-community.repo /etc/yum.repos.d' )
+( $GSSH $host --command 'sudo cp RPM-GPG-KEY-mysql /etc/pki/rpm-gpg/')
+( $GSSH $host --command 'sudo yum install -y mysql-community-libs mysql-community-client' )
 
 # Install specific 5.1.46 JDBC Driver
-( $gssh $host --command 'wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.46.tar.gz' )
-( $gssh $host --command 'tar zxf mysql-connector-java-5.1.46.tar.gz; \
+( $GSSH $host --command 'wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.46.tar.gz' )
+( $GSSH $host --command 'tar zxf mysql-connector-java-5.1.46.tar.gz; \
 sudo mkdir -p /usr/share/java; \
 sudo cp mysql-connector-java-5.1.46/mysql-connector-java-5.1.46-bin.jar /usr/share/java/; \
 sudo chmod 644 /usr/share/java/mysql-connector-java-5.1.46-bin.jar; \
@@ -119,15 +117,15 @@ if [ "$role" == "client" ]; then
 fi
 
 
-( $gscp ${tdh_path}/../etc/tdh-mysql.cnf ${host}:my.cnf )
+( $GSCP ${tdh_path}/../etc/tdh-mysql.cnf ${host}:my.cnf )
 
 if [ "$role" == "slave" ]; then
     if [ $id -eq 1 ]; then
         id=2
     fi
-    ( $gssh $host --command 'mv my.cnf my-1.cnf' )
-    ( $gssh $host --command "sed -E 's/^(server-id[[:blank:]]*=[[:blank:]]*).*/\1$id/' my-1.cnf > my.cnf" )
-    ( $gssh $host --command "rm my-1.cnf" )
+    ( $GSSH $host --command 'mv my.cnf my-1.cnf' )
+    ( $GSSH $host --command "sed -E 's/^(server-id[[:blank:]]*=[[:blank:]]*).*/\1$id/' my-1.cnf > my.cnf" )
+    ( $GSSH $host --command "rm my-1.cnf" )
     rt=$?
     if [ $rt -gt 0 ]; then
         echo "Error in sed for slave my.cnf"
@@ -137,11 +135,11 @@ fi
 
 # Install Server
 if [ "$role" == "master" ] || [ "$role" == "slave" ]; then
-    ( $gssh $host --command 'sudo yum install -y mysql-community-server' )
-    ( $gssh $host --command 'sudo cp my.cnf /etc/my.cnf && sudo chmod 644 /etc/my.cnf' )
-    ( $gssh $host --command 'sudo mysqld --initialize-insecure --user=mysql' )
-    ( $gssh $host --command 'sudo systemctl start mysqld' )
-    ( $gssh $host --command 'sudo systemctl enable mysqld' )
+    ( $GSSH $host --command 'sudo yum install -y mysql-community-server' )
+    ( $GSSH $host --command 'sudo cp my.cnf /etc/my.cnf && sudo chmod 644 /etc/my.cnf' )
+    ( $GSSH $host --command 'sudo mysqld --initialize-insecure --user=mysql' )
+    ( $GSSH $host --command 'sudo systemctl start mysqld' )
+    ( $GSSH $host --command 'sudo systemctl enable mysqld' )
 
     rt=$?
     if [ $rt -gt 0 ]; then
@@ -149,8 +147,8 @@ if [ "$role" == "master" ] || [ "$role" == "slave" ]; then
         exit $rt
     fi
 
-    ( $gssh $host --command "printf \"[mysql]\nuser=root\npassword=$pw\n\" > .my.cnf"  )
-    ( $gssh $host --command "mysql -u root --skip-password -e \"ALTER USER 'root'@'localhost' IDENTIFIED BY '$pw'\"" )
+    ( $GSSH $host --command "printf \"[mysql]\nuser=root\npassword=$pw\n\" > .my.cnf"  )
+    ( $GSSH $host --command "mysql -u root --skip-password -e \"ALTER USER 'root'@'localhost' IDENTIFIED BY '$pw'\"" )
 
     rt=$?
     if [ $rt -gt 0 ]; then

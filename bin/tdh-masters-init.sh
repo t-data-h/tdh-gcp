@@ -75,8 +75,8 @@ usage() {
     echo "                          --pwfile must be provided for mysqld"
     echo "  -z|--zone <name>      : Set GCP zone to use."
     echo ""
-    echo " Where <action> is 'run' or other, where any other action enables a "
-    echo " dryrun, followed by a list of names that become '\$prefix-\$name'."
+    echo " Where <action> is 'run', any other action enables a dryrun, "
+    echo " followed by a list of names that become '\$prefix-\$name'."
     echo " eg.  '$TDH_PNAME test m01 m02 m03'"
     echo " will dryrun 3 master nodes: $prefix-m01, $prefix-m02, and $prefix-m03"
     echo ""
@@ -200,7 +200,7 @@ fi
 
 if [ -n "$zone" ]; then
     GSSH="$GSSH --zone $zone"
-    GScp="$GSCP --zone $zone"
+    GSCP="$GSCP --zone $zone"
 fi
 
 if [ -n "$namelist" ]; then

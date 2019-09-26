@@ -24,6 +24,7 @@ network=
 subnet=
 attach=0
 ssd=0
+vga=0
 dryrun=0
 keep=0
 
@@ -58,9 +59,10 @@ usage()
     echo "  -S|--ssd              : Use SSD as attached disk type"
     echo "  -t|--type             : Machine type to use for instance(s)"
     echo "  -z|--zone <name>      : Set GCP zone (use -l to list)"
+    echo "  -v|--vga              : Attach a display device at create"
     echo "  -V|--version          : Show version info and exit"
     echo ""
-    echo " Where <action> is one of the following "
+    echo " Where <action> is one of the following: "
     echo "     create             :  Initialize new GCP instance"
     echo "     start              :  Start an existing GCP instance"
     echo "     stop               :  Stop a running instance"
@@ -223,6 +225,9 @@ while [ $# -gt 0 ]; do
             zone="$2"
             shift
             ;;
+        -v|--vga)
+            vga=1
+            ;;
         -V|--version)
             tdh_version
             exit $rt
@@ -276,6 +281,9 @@ for name in $names; do
         fi
         if [ -n "$network" ]; then
             cmd="$cmd --network ${network} --subnet ${subnet}"
+        fi
+        if [ $vga -eq 1 ]; then
+            cmd="$cmd $GCP_ENABLE_VGA"
         fi
 
         cmd="$cmd --tags ${prefix} ${name}"
