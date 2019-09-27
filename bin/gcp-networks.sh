@@ -13,8 +13,8 @@ region="$GCP_REGION"
 addr=
 network=
 subnet=
-fwlocal=0
 yes=0
+fw=0
 dryrun=0
 
 # -----------------------------------
@@ -163,7 +163,7 @@ while [ $# -gt 0 ]; do
             dryrun=1
             ;;
         -L|--allow-local)
-            fwlocal=1
+            fw=1
             ;;
         -r|--region)
             region="$2"
@@ -217,6 +217,13 @@ create)
     fi
     echo "  GCP Region = '$region'"
 
+    # Ensure Subnet doesn't already exist
+    validate_subnet $subnet
+    if [ $? -eq 0 ]; then
+        echo "Error! Subnet '$subnet' already exists"
+        exit 1
+    fi
+
     # validate Network
     network_is_valid $network
     rt=$?
@@ -261,18 +268,20 @@ create)
     fi
 
     # Create default fw rule
-    if [ $fwlocal -eq 1 ]; then
+    if [ $fw -eq 1 ]; then
         rule_name="$network-allow-local"
-        cmd="gcloud compute firewall-rules create $rule_name --network $network --action allow"
+
+        cmd="gcloud compute firewall-rules create $rule_name"
+        cmd="$cmd --network $network --action allow"
         cmd="$cmd --direction ingress --source-ranges $addr --rules all"
         
-        echo "Creating fw-rule '$rule_name"
+        echo "Creating fw-rule '$rule_name': "
         echo "( $cmd )"
         if [ $dryrun -eq 0 ]; then
             ( $cmd )
             rt=$?
             if [ $rt -ne 0 ]; then
-                echo "Error in creating firewall-rules"
+                echo "Error creating firewall-rules"
             fi
         fi
     fi

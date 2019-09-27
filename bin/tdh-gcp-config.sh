@@ -64,7 +64,7 @@ function wait_for_gcphost() {
 function region_is_valid()
 {
     local reg="$1"
-    ( gcloud compute regions list | grep $reg > /dev/null )
+    ( gcloud compute regions list | grep "$reg " > /dev/null )
     return $?
 }
 
@@ -72,7 +72,7 @@ function region_is_valid()
 function zone_is_valid()
 {
     local zn="$1"
-    ( gcloud compute zones list | grep $zn > /dev/null )
+    ( gcloud compute zones list | grep "$zn " > /dev/null )
     return $?
 }
 
@@ -80,7 +80,7 @@ function zone_is_valid()
 function network_is_valid()
 {
     local net="$1"
-    ( gcloud compute networks list | grep $net > /dev/null )
+    ( gcloud compute networks list | grep "$net " > /dev/null )
     return $?
 }
 
@@ -101,7 +101,7 @@ function subnet_is_valid()
         reg="$GCP_DEFAULT_REGION"
     fi
 
-    ( gcloud compute networks subnets list | grep $net > /dev/null )
+    ( gcloud compute networks subnets list | grep "$net " > /dev/null )
 
     return $?
 }
