@@ -121,7 +121,7 @@ create_subnet()
 
     echo "( gcloud compute networks subnets create $subnet --network $net --region $reg --range $addy )"
     if [ $dryrun -eq 0 ]; then 
-        ( gcloud compute networks subnet create $subnet --network $net --region $reg --range $addy )
+        ( gcloud compute networks subnets create $subnet --network $net --region $reg --range $addy )
         rtn=$?
     fi
 
