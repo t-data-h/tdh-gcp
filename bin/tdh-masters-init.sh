@@ -4,8 +4,8 @@
 #
 tdh_path=$(dirname "$(readlink -f "$0")")
 
-if [ -f ${tdh_path}/../etc/tdh-gcp-config.sh ]; then
-    . ${tdh_path}/../etc/tdh-gcp-config.sh
+if [ -f ${tdh_path}/tdh-gcp-config.sh ]; then
+    . ${tdh_path}/tdh-gcp-config.sh
 fi
 
 # -----------------------------------
@@ -29,6 +29,7 @@ noprompt=0
 attach=0
 ssd=0
 pwfile=
+tags=
 action=
 rt=
 
@@ -60,25 +61,28 @@ usage() {
     echo "  -b|--bootsize <xxGB>  : Size of boot disk, Default is $bootsize"
     echo "  -d|--disksize <xxGB>  : Size of attached disk, Default is $disksize"
     echo "  -h|--help             : Display usage and exit"
-    echo "  -N|--network <name>   : Define a GCP Network to use for the instance."
+    echo "     --dryrun           :  Enable dryrun, no action is taken"
+    echo "  -N|--network <name>   : Define a GCP Network to use for instances."
     echo "  -n|--subnet <name>    : Used with --network to define the subnet"
-    echo "  -p|--prefix <name>    : Prefix name to use for instances"
+    echo "  -p|--prefix <name>    : Prefix name to use for instances."
     echo "                          Default prefix is '$prefix'"
-    echo "  -P|--pwfile <file>    : File containing mysql root password"
+    echo "  -P|--pwfile <file>    : File containing mysql root password."
     echo "                          Note this file is deleted at completion"
     echo "  -s|--server-id <n>    : Starting mysqld server-id, Default is 1"
     echo "                          1 is always master, all other ids are slaves"
     echo "  -S|--ssd              : Use SSD as attached disk type"
-    echo "  -t|--type             : Machine type to use for instance(s)"
+    echo "  -t|--type             : Machine type to use for instances"
     echo "                          Default is '$mtype'"
+    echo "  -T|--tags <tag1,..>   : List of tags to use for instances" 
     echo "  -y|--noprompt         : Will not prompt for password"
     echo "                          --pwfile must be provided for mysqld"
-    echo "  -z|--zone <name>      : Set GCP zone to use."
+    echo "  -z|--zone <name>      : Set GCP zone to use if not gcloud default."
     echo ""
-    echo " Where <action> is 'run' or other, where any other action enables a "
-    echo " dryrun, followed by a list of names that become '\$prefix-\$name'."
-    echo " eg.  '$TDH_PNAME test m01 m02 m03'"
-    echo " will dryrun 3 master nodes: $prefix-m01, $prefix-m02, and $prefix-m03"
+    echo " Where <action> is 'run', any other action enables a dryrun, "
+    echo " followed by a list of names that become '\$prefix-\$name'."
+    echo ""
+    echo " eg. '$TDH_PNAME test m01 m02 m03'"
+    echo " Will dryrun 3 master nodes: $prefix-m01, $prefix-m02, and $prefix-m03"
     echo ""
 }
 
@@ -200,7 +204,7 @@ fi
 
 if [ -n "$zone" ]; then
     GSSH="$GSSH --zone $zone"
-    GScp="$GSCP --zone $zone"
+    GSCP="$GSCP --zone $zone"
 fi
 
 if [ -n "$namelist" ]; then
@@ -249,6 +253,9 @@ for name in $names; do
     fi
     if [ $ssd -gt 0 ]; then
         cmd="$cmd --ssd"
+    fi
+    if [ -n "$tags" ]; then
+        cmd="$cmd --tags $tags"
     fi
 
     cmd="$cmd create $name"
