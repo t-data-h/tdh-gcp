@@ -2,8 +2,8 @@
 #
 tdh_path=$(dirname "$(readlink -f "$0")")
 
-if [ -f ${tdh_path}/../etc/tdh-gcp-config.sh ]; then
-    . ${tdh_path}/../etc/tdh-gcp-config.sh
+if [ -f ${tdh_path}/tdh-gcp-config.sh ]; then
+    . ${tdh_path}/tdh-gcp-config.sh
 fi
 
 # -----------------------------------
@@ -22,8 +22,10 @@ action=
 diskname=
 network=
 subnet=
+tags=
 attach=0
 ssd=0
+vga=0
 dryrun=0
 keep=0
 
@@ -38,6 +40,14 @@ if [ -n "$GCP_MACHINE_IMAGE" ]; then
     image="$GCP_MACHINE_IMAGE"
 fi
 
+if [ -n "$GCP_NETWORK" ]; then
+    network="$GCP_NETWORK"
+fi
+
+if [ -n "$GCP_SUBNET" ]; then 
+    subnet="$GCP_SUBNET"
+fi
+
 # -----------------------------------
 
 usage()
@@ -46,29 +56,38 @@ usage()
     echo " Manage GCP Compute Engine instances: "
     echo ""
     echo "Usage: $TDH_PNAME [options] <action> <instance-name>"
-    echo "  -A|--attach           : Init and attach a data disk on 'create'"
-    echo "  -b|--bootsize <xxGB>  : Size of instance boot disk"
-    echo "  -d|--disksize <xxGB>  : Size of attached disk"
-    echo "  -h|--help             : Display usage and exit"
-    echo "  -k|--keep             : Sets --keep-disks=data on delete action"
-    echo "  -l|--list             : List available machine-types for a zone"
-    echo "  -N|--network <name>   : GCP Network name when not using default"
-    echo "  -n|--subnet <name>    : Used with --network to define the subnet"
-    echo "  -p|--prefix <name>    : Prefix name to use for instances"
-    echo "  -S|--ssd              : Use SSD as attached disk type"
-    echo "  -t|--type             : Machine type to use for instance(s)"
-    echo "  -z|--zone <name>      : Set GCP zone (use -l to list)"
-    echo "  -V|--version          : Show version info and exit"
+    echo "  -A|--attach          : Init and attach a data disk on 'create'"
+    echo "  -b|--bootsize <xxGB> : Size of instance boot disk"
+    echo "  -d|--disksize <xxGB> : Size of attached disk"
+    echo "  -h|--help            : Display usage and exit"
+    echo "  -k|--keep            : Sets --keep-disks=data on delete action"
+    echo "  -l|--list            : List available machine-types for a zone"
+    echo "     --dryrun          :  Enable dryrun, no action is taken"
+    echo "  -N|--network <name>  : GCP Network name when not using default"
+    echo "  -n|--subnet <name>   : Used with --network to define the subnet"
+    echo "  -p|--prefix <name>   : Prefix name to use for instances"
+    echo "  -S|--ssd             : Use SSD as attached disk type"
+    echo "  -t|--type            : Machine type to use for instances"
+    echo "  -T|--tags <tag1,..>  : A set of tags to use for instances"
+    echo "  -z|--zone <name>     : Set GCP zone "
+    echo "  -v|--vga             : Attach a display device at create"
+    echo "  -V|--version         : Show version info and exit"
     echo ""
-    echo " Where <action> is one of the following "
-    echo "     create             :  Initialize new GCP instance"
-    echo "     start              :  Start an existing GCP instance"
-    echo "     stop               :  Stop a running instance"
-    echo "     delete             :  Delete an instance"
+    echo " Where <action> is one of the following: "
+    echo "     create            :  Initialize new GCP instance"
+    echo "     start             :  Start an existing GCP instance"
+    echo "     stop              :  Stop a running instance"
+    echo "     delete            :  Delete an instance"
     echo ""
     echo "  Default Machine Type is '$mtype'"
     echo "  Default Image is        '$image'"
     echo "  Default Boot Disk size  '$bootsize'"
+    echo "  Default GCP Zone is     '$GCP_DEFAULT_ZONE'"
+    echo "  Default tags are set to '$prefix' or --prefix" 
+    echo "" 
+    echo " The following environment variables are honored for overrides:"
+    echo "  GCP_MACHINE_TYPE, GCP_MACHINE_IMAGE, GCP_IMAGEPROJECT, GCP_ZONE"
+    echo "  GCP_NETWORK, GCP_SUBNET"
     echo ""
 }
 
@@ -219,9 +238,16 @@ while [ $# -gt 0 ]; do
             mtype="$2"
             shift
             ;;
+        -T|--tags)
+            tags="$2"
+            shift
+            ;;
         -z|--zone)
             zone="$2"
             shift
+            ;;
+        -v|--vga)
+            vga=1
             ;;
         -V|--version)
             tdh_version
@@ -244,13 +270,17 @@ if [ -z "$names" ]; then
     exit 1
 fi
 
+if [ -z "$tags" ]; then
+    tags="$prefix"
+fi
+
 if [ -n "$network" ] && [ -z "$subnet" ]; then
     echo "Error, subnet not defined; it is required with --network"
     exit 1
 fi
 
 if [ -z "$zone" ]; then
-    zone=$( gcloud config list | grep zone | awk -F"= " '{ print $2 }' )
+    zone="$GCP_DEFAULT_ZONE"
 fi
 echo "  GCP Zone = '$zone'"
 
@@ -277,8 +307,11 @@ for name in $names; do
         if [ -n "$network" ]; then
             cmd="$cmd --network ${network} --subnet ${subnet}"
         fi
+        if [ $vga -eq 1 ]; then
+            cmd="$cmd $GCP_ENABLE_VGA"
+        fi
 
-        cmd="$cmd --tags ${prefix} ${name}"
+        cmd="$cmd --tags ${tags} ${name}"
 
         echo ""
         echo "( $cmd )"
