@@ -34,6 +34,7 @@ usage()
     echo "  -a|--addr  <ipaddr/mb> :  Ip Address range of the subnet (required)"
     echo "  -r|--region <name>     :  Region to create the subnet"
     echo "                            Default region is currently '$region'"
+    echo "  -n|--dryrun            :  Enable dryrun, no action is taken"
     echo "  -y|--yes               :  Do not prompt on create. This will auto-create"
     echo "                            the network if it does not already exist"
     echo ""
@@ -42,7 +43,9 @@ usage()
     echo "    list-networks           :  List available networks"
     echo "    list-subnets            :  List available subnets by region"
     echo "  delete-subnet    [subnet] :  Delete a custom subnet"
-    echo "  delete-network   [subnet] :  Delete a network"
+    echo "  delete-network   [subnet] :  Delete a network."
+    echo ""
+    echo " Delete actions require that no resources use the given network/subnet"
     echo ""
 }
 

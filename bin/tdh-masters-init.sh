@@ -61,6 +61,7 @@ usage() {
     echo "  -b|--bootsize <xxGB>  : Size of boot disk, Default is $bootsize"
     echo "  -d|--disksize <xxGB>  : Size of attached disk, Default is $disksize"
     echo "  -h|--help             : Display usage and exit"
+    echo "     --dryrun           :  Enable dryrun, no action is taken"
     echo "  -N|--network <name>   : Define a GCP Network to use for instances."
     echo "  -n|--subnet <name>    : Used with --network to define the subnet"
     echo "  -p|--prefix <name>    : Prefix name to use for instances."

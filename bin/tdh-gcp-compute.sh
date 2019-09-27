@@ -62,6 +62,7 @@ usage()
     echo "  -h|--help            : Display usage and exit"
     echo "  -k|--keep            : Sets --keep-disks=data on delete action"
     echo "  -l|--list            : List available machine-types for a zone"
+    echo "     --dryrun          :  Enable dryrun, no action is taken"
     echo "  -N|--network <name>  : GCP Network name when not using default"
     echo "  -n|--subnet <name>   : Used with --network to define the subnet"
     echo "  -p|--prefix <name>   : Prefix name to use for instances"
