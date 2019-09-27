@@ -28,7 +28,6 @@ dryrun=0
 ssd=0
 tags=
 action=
-rt=
 
 # ----------------------------------
 # Default overrides
@@ -71,6 +70,7 @@ usage() {
     echo ""
     echo " Where <action> is 'run', any other action enables a dryrun, "
     echo " followed by a list of names that become '\$prefix-\$name'."
+    echo ""
     echo " eg. '$TDH_PNAME test d01 d02 d03' will dryrun 3 worker nodes with"
     echo " the names: $prefix-d01, $prefix-d02, and $prefix-d03"
     echo ""
@@ -79,6 +79,7 @@ usage() {
 
 # Main
 #
+rt=0
 
 while [ $# -gt 0 ]; do
     case "$1" in
