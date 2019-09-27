@@ -145,7 +145,6 @@ delete_subnet()
 }
 
 
-
 # MAIN
 #
 rt=0
@@ -265,14 +264,14 @@ create)
     if [ $fwlocal -eq 1 ]; then
         rule_name="$network-allow-local"
         cmd="gcloud compute firewall-rules create $rule_name --network $network --action allow"
-        cmd="$cmd --direction ingress --source-ranges $addr --rules all --destination-ranges $addr"
+        cmd="$cmd --direction ingress --source-ranges $addr --rules all"
         
         echo "Creating fw-rule '$rule_name"
         echo "( $cmd )"
         if [ $dryrun -eq 0 ]; then
             ( $cmd )
             rt=$?
-            if [ rt -ne 0 ]; then
+            if [ $rt -ne 0 ]; then
                 echo "Error in creating firewall-rules"
             fi
         fi
