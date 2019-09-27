@@ -1,14 +1,20 @@
 TDH-GCP 
 =========
 
+# Overview
+
 A Framework for building GCP compute instances and deploying TDH.
 
 The compute instances are managed by a set of scripts for building the master 
-and worker node instances. Ansible is used for installing or updating/upgrading 
-the TDH cluster. The playbook is currently OS focused on RHEL or CentOS flavors 
-of Linux.
+and worker node instances. The scripts wrap the GCP API via *gcloud* CLI tool 
+and as a result, the Google Cloud SDK must be installed for the scripts to 
+function. 
 
-### Instance initialization scripts:
+Ansible is used for installing or updating/upgrading the TDH cluster. The 
+playbook is currently OS focused on RHEL or CentOS flavors of Linux.
+
+
+## Instance initialization scripts:
 
 * tdh-gcp-compute.sh:
   
@@ -29,7 +35,7 @@ is considered as the primary management node where Ansible is run from.
  of a different machine type, mysql client library, java, etc.
 
 
-### Support scripts:
+## Support scripts:
 
 * tdh-gcp-format.sh: 
   
@@ -76,7 +82,7 @@ is considered as the primary management node where Ansible is run from.
 
 Create three master nodes, first with a test run:
 ```
-./bin/tdh-masters-init.sh -t 'n1-standard-4' test m01 m02 m03
+./bin/tdh-masters-init.sh -t 'n1-standard-2' test m01 m02 m03
 ./bin/tdh-masters-init.sh -t 'n1-standard-4' run m01 m02 m03
 ```
 
@@ -87,8 +93,8 @@ Create four worker nodes, with 256G boot drive as SSD.
 
 ### Resource considerations:
 
-All of this varies, of course, on data sizes and workloads and 
-is intended as a starting point.
+All of this varies, of course, on data sizes and workloads and is
+intended as a starting point.
 
 Minimum memory values for a production-like cluster:
 *  NN/SN = 4 Gb ea.
@@ -128,8 +134,8 @@ M03:
 
 |    Role       |  Machine Type   |  vCPU and Memory   |
 | ------------- | --------------- | ------------------ |
-| Master/Util   |  n1-standard-4  |  4 vCPU and 26 Gb  |
-| Worker/Data   |  n1-highmem-8   |  8 vCPU and 52 Gb  |
+| Master/Util   |  n1-standard-2  |  4 vCPU and 26 Gb  |  VERY SMALL
+| Worker/Data   |  n1-standard-4  |  8 vCPU and 52 Gb  |
 | ------------- | --------------- | ------------------ |
 | Master/Util   |  n1-highmem-8   | 8 vCPU and 52 Gb   |
 | Worker/Data   |  n1-highmem-16  | 16 vCPU and 104 Gb |
@@ -141,4 +147,25 @@ $ gcloud compute instances set-machine-type tdh-d01 --machine-type n1-highmem-16
 $ gcloud compute instances set-machine-type tdh-d02 --machine-type n1-highmem-16
 $ gcloud compute instances set-machine-type tdh-d03 --machine-type n1-highmem-16
 ```
+
+## Environment Variables
+
+When interacting with the various GCP scripts, each support overriding the 
+various defaults via commandline or environment variable.  Some defaults, such as
+region and zone are taken from the active gcloud api configuration. Note that option
+provided at script runtime takes higher precedence that environment variables.
+Essentially the precedence order is `default < envvar < cmdline`.
+
+| Environment Variable |  Description  |
+| -------------------- | ------------- |
+| `GCP_REGION`         | Override the default region, generally not needed as most scripts (save networks) rely on zone. 
+| `GCP_ZONE`           | Override the default zone. 
+| `GCP_MACHINE_TYPE`   | Generally provided via --type can alternatively be provided by the environment. 
+| `GCP_MACHINE_IMAGE`  | Override the default machine image of 'centos-7' 
+| `GCP_IMAGE_PROJECT`  | Override the default Image Project of 'centos-cloud' 
+| `GCP_NETWORK`        | Provide the Network to use for create operations.
+| `GCP_SUBNET`         | Provide the Network Subnet to use for create operations. Note this should match the Network in that subnets belong to GCP Networks".
+| `GCP_PUSH_HOST`      | Host to use for push operations supported by *gcp-push.sh*.
+| `GCP_DIST_PATH`      | The Host distribution path to drop binarys utilized by *gcp-push.sh*.
+
 

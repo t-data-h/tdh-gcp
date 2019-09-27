@@ -40,6 +40,10 @@ if [ -n "$GCP_MACHINE_IMAGE" ]; then
     image="$GCP_MACHINE_IMAGE"
 fi
 
+if [ -n "$GCP_IMAGE_PROJECT" ]; then
+    image="$GCP_IMAGE_PROJECT"
+fi
+
 if [ -n "$GCP_NETWORK" ]; then
     network="$GCP_NETWORK"
 fi
@@ -86,7 +90,7 @@ usage()
     echo "  Default tags are set to '$prefix' or --prefix" 
     echo "" 
     echo " The following environment variables are honored for overrides:"
-    echo "  GCP_MACHINE_TYPE, GCP_MACHINE_IMAGE, GCP_IMAGEPROJECT, GCP_ZONE"
+    echo "  GCP_MACHINE_TYPE, GCP_MACHINE_IMAGE, GCP_IMAGE_PROJECT, GCP_ZONE"
     echo "  GCP_NETWORK, GCP_SUBNET"
     echo ""
 }
