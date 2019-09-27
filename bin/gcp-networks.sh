@@ -2,8 +2,8 @@
 #
 tdh_path=$(dirname "$(readlink -f "$0")")
 
-if [ -f ${tdh_path}/../etc/tdh-gcp-config.sh ]; then
-    . ${tdh_path}/../etc/tdh-gcp-config.sh
+if [ -f ${tdh_path}/tdh-gcp-config.sh ]; then
+    . ${tdh_path}/tdh-gcp-config.sh
 fi
 
 # -----------------------------------
@@ -160,7 +160,7 @@ while [ $# -gt 0 ]; do
             usage
             exit $rt
             ;;
-        --dryrun)
+        -n|--dryrun)
             dryrun=1
             ;;
         -L|--allow-local)
@@ -225,7 +225,7 @@ create)
     if [ $rt -ne 0 ]; then
         crnet=0
         
-        echo "GCP Network '$network' not found!"
+        echo "GCP Network '$network' not found..."
 
         if [ $yes -eq 0 ]; then
             if ask "Create new network '$network' in region '$region'?" Y; then
@@ -235,6 +235,7 @@ create)
                 exit 1
             fi
         else
+            echo "  Auto-create of network enabled."
             crnet=1
         fi
 
@@ -250,6 +251,8 @@ create)
     fi
 
     # Create the Subnet
+    echo ""
+    echo "Creating new subnet '$subnet' [$addr] in region '$region'"
     create_subnet $network $subnet $region $addr
     rt=$?
 

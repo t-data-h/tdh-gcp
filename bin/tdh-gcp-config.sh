@@ -3,7 +3,6 @@ export TDH_GCP_CONFIG=1
 
 TDH_PNAME=${0##*\/}
 TDH_GCP_VERSION="0.9.8"
-
 TDH_GCP_PREFIX="tdh"
 
 GCP_DEFAULT_MACHINETYPE="n1-standard-4"
@@ -20,7 +19,9 @@ GCP_DEFAULT_REGION=$( gcloud config list 2>/dev/null | grep region | awk -F"= " 
 GSSH="gcloud compute ssh"
 GSCP="gcloud compute scp"
 
+
 # -----------------------------------
+
 
 function tdh_version() {
     printf "$TDH_PNAME: (tdh-gcp) v$TDH_GCP_VERSION\n"
@@ -48,7 +49,7 @@ function wait_for_gcphost() {
     for x in {1..3}; do 
         yf=$( $cmd --command 'uname -n' )
         if [[ $yf == $host ]]; then
-            echo " It's ALIIIIVE!!!"
+            #echo " It's ALIIIIVE!!!"
             rt=0
             break
         fi 
@@ -89,6 +90,22 @@ function list_networks()
     ( gcloud compute networks list )
     return $?
 }
+
+
+function subnet_is_valid()
+{
+    local net="$1"
+    local reg="$2"
+
+    if [ -z "$reg" ]; then
+        reg="$GCP_DEFAULT_REGION"
+    fi
+
+    ( gcloud compute networks subnets list | grep $net > /dev/null )
+
+    return $?
+}
+
 
 function list_subnets()
 {

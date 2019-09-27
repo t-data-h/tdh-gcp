@@ -2,8 +2,8 @@
 #
 tdh_path=$(dirname "$(readlink -f "$0")")
 
-if [ -f ${tdh_path}/../etc/tdh-gcp-config.sh ]; then
-    . ${tdh_path}/../etc/tdh-gcp-config.sh
+if [ -f ${tdh_path}/tdh-gcp-config.sh ]; then
+    . ${tdh_path}/tdh-gcp-config.sh
 fi
 
 # -----------------------------------
