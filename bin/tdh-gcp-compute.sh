@@ -284,6 +284,18 @@ if [ -z "$zone" ]; then
 fi
 echo "  GCP Zone = '$zone'"
 
+validate_zone $zone
+if [ $? -ne 0 ]; then
+    echo "Error, provided zone '$zone' not valid"
+    exit $?
+fi
+
+validate_subnet $subnet
+if [ $? -ne 0 ]; then
+    echo "Error, subnet '$subnet' not found. Has it been creaated?"
+    exit $?
+fi
+
 for name in $names; do 
     if [ -n "$prefix" ]; then
         ( echo $name | grep "^${prefix}-" >/dev/null 2>&1 )
@@ -361,13 +373,16 @@ for name in $names; do
         ;;
 
     delete)
-        cmd="gcloud compute instances delete --zone $zone"
+        cmd="gcloud compute instances delete $name --zone $zone --quiet"
+
         if [ $keep -eq 1 ]; then 
             cmd="$cmd $name --keep-disks=data"
         else
             cmd="$cmd $name --delete-disks=all"
         fi
+
         echo "( $cmd )"
+
         if [ $dryrun -eq 0 ]; then
             ( $cmd )
         fi

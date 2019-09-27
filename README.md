@@ -12,7 +12,7 @@ of Linux.
 
 * tdh-gcp-compute.sh:
   
-  This is the base script for creating a new GCP Compute Instance. It Will 
+  This is the base script for creating a new GCP Compute Instance. It will 
 create an instance and optionally attach data disks to the instance. It is 
 used by the master and worker init script for creating custom instances.
 
