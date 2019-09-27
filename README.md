@@ -14,7 +14,7 @@ of Linux.
   
   This is the base script for creating a new GCP Compute Instance. It Will 
 create an instance and optionally attach data disks to the instance. It is 
-used by the master and worker init script for creating the custom instances.
+used by the master and worker init script for creating custom instances.
 
 * tdh-masters-init.sh:
   
@@ -26,22 +26,27 @@ is considered as the primary management node where Ansible is run from.
 * tdh-workers-init.sh:  
   
   Builds TDH worker nodes in GCP similarly to the masters init, but generally 
- of a different machine type.
+ of a different machine type, mysql client library, java, etc.
 
 
 ### Support scripts:
 
 * tdh-gcp-format.sh: 
   
-  Script for formatting and mounting a new data drive for a given instance.
+  Script for formatting and mounting a new data drive for a given instance. This
+  is used by the master/worker init scripts when using an attached data drive.
 
 * tdh-mysql-install.sh: 
   
-  Bootstraps a Mysql 5.7 Server instance.
+  Bootstraps a Mysql 5.7 Server instance (on master hosts)
 
 * tdh-prereqs.sh:
   
-  Installs host prerequisites that may be needed prior to ansible.
+  Installs host prerequisites that may be needed prior to ansible (eg. wget, ansible).
+
+* gcp-networks.sh:
+
+   Provides a wrapper for creating custom GCP networks and subnets.
 
 * gcp-push.sh
 
