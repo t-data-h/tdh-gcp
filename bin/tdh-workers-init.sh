@@ -26,6 +26,7 @@ myid=1
 attach=0
 dryrun=0
 ssd=0
+tags=
 action=
 rt=
 
@@ -62,8 +63,9 @@ usage() {
     echo "  -p|--prefix <name>    : Prefix name to use for instances"
     echo "                          Default prefix is '$prefix'"
     echo "  -S|--ssd              : Use SSD as attached disk type"
-    echo "  -t|--type             : Machine type to use for instance(s)"
+    echo "  -t|--type             : Machine type to use for instances"
     echo "                          Default is '$mtype'"
+    echo "  -T|--tags <tag1,..>   : List of tags to use for instances" 
     echo "  -z|--zone <name>      : Set GCP zone to use, if not gcloud default."
     echo ""
     echo " Where <action> is 'run', any other action enables a dryrun, "
@@ -190,6 +192,9 @@ for name in $names; do
     fi
     if [ $ssd -gt 0 ]; then
         cmd="${cmd} --ssd"
+    fi
+    if [ -n "$tags" ]; then
+        cmd="$cmd --tags $tags"
     fi
 
     cmd="${cmd} create ${name}"

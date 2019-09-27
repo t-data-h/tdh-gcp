@@ -30,17 +30,19 @@ usage()
     echo ""
     echo " Manage GCP Subnets: "
     echo ""
-    echo "Usage: $TDH_PNAME [-a iprange] {options} [action] [network] [subnet]"
+    echo "Usage: $TDH_PNAME [-a iprange] {options} [action] "
     echo "  -a|--addr  <ipaddr/mb> :  Ip Address range of the subnet (required)"
     echo "  -r|--region <name>     :  Region to create the subnet"
     echo "                            Default region is currently '$region'"
-    echo "  -y|--yes               :  Do not prompt for create. This will auto-"
-    echo "                            create the network if it does not exist"
+    echo "  -y|--yes               :  Do not prompt on create. This will auto-create"
+    echo "                            the network if it does not already exist"
     echo ""
     echo " Where <action> is one of the following: "
-    echo "    create       :  Create a new subnet (and optionally netowork)"
-    echo "  list-networks  :  List available networks"
-    echo "  list-subnets   :  List available subnets (optionally by region)"
+    echo "  create [network] [subnet] :  Create a new subnet (& optionally network)"
+    echo "    list-networks           :  List available networks"
+    echo "    list-subnets            :  List available subnets by region"
+    echo "  delete-subnet    [subnet] :  Delete a custom subnet"
+    echo "  delete-network   [subnet] :  Delete a network"
     echo ""
 }
 
@@ -88,6 +90,22 @@ create_network()
     return $rtn
 }
 
+
+delete_network()
+{
+    local net="$1"
+    local rtn=0
+
+    echoe "( gcloud compute networks delete $net )"
+    if [ $dryrun -eq 0 ]; then
+        ( gcloud compute networks delete $net )
+        rtn=$?
+    fi
+
+    return $rtn
+}
+
+
 create_subnet()
 {
     local net="$1"
@@ -106,6 +124,23 @@ create_subnet()
 
     return $rtn
 }
+
+
+delete_subnet()
+{
+    local net="$1"
+    local reg="$2"
+    local rtn=0
+
+    echoe "( gcloud compute networks subnets delete $net --region $reg )"
+    if [ $dryrun -eq 0 ]; then
+        ( gcloud compute networks subnets delete $net --region $reg )
+        rtn=$?
+    fi
+
+    return $rtn
+}
+
 
 
 # MAIN
@@ -153,19 +188,20 @@ if [ -z "$action" ]; then
     exit 1
 fi
 
-if [ -z "$network" ] || [ -z "$subnet" ]; then
-    echo "Error, network and subnet must both be defined"
-    exit 1
-fi
-
-if [ -z "$addr" ]; then
-    echo "Error, address range must be provided for the subnet"
-    exit 1
-fi
 
 
 case "$action" in
 create)
+    if [ -z "$network" ] || [ -z "$subnet" ]; then
+        echo "Error, network and subnet must both be defined on create"
+        exit 1
+    fi
+
+    if [ -z "$addr" ]; then
+        echo "Error, address range must be provided for the subnet"
+        exit 1
+    fi
+
     # validate region 
     region_is_valid $region
     rt=$?
@@ -223,5 +259,6 @@ list-subnets)
     ;;
 esac
 
+echo ""
 echo "$TDH_PNAME Finished."
 exit $rt

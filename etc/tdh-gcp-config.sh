@@ -3,6 +3,7 @@ export TDH_GCP_CONFIG=1
 
 TDH_PNAME=${0##*\/}
 TDH_GCP_VERSION="0.9.8"
+
 TDH_GCP_PREFIX="tdh"
 
 GCP_DEFAULT_MACHINETYPE="n1-standard-4"
@@ -13,8 +14,8 @@ GCP_DEFAULT_IMAGE="centos-7"
 GCP_DEFAULT_IMAGEPROJECT="centos-cloud"
 GCP_ENABLE_VGA="--enable-display-device"
 
-GCP_DEFAULT_ZONE=$( gcloud config list | grep zone | awk -F"= " '{ print $2 }' )
-GCP_DEFAULT_REGION=$( gcloud config list | grep region | awk -F"= " '{ print $2 }' )
+GCP_DEFAULT_ZONE=$( gcloud config list 2>/dev/null | grep zone | awk -F"= " '{ print $2 }' )
+GCP_DEFAULT_REGION=$( gcloud config list 2>/dev/null | grep region | awk -F"= " '{ print $2 }' )
 
 GSSH="gcloud compute ssh"
 GSCP="gcloud compute scp"
@@ -22,7 +23,7 @@ GSCP="gcloud compute scp"
 # -----------------------------------
 
 function tdh_version() {
-    printf "$TDH_PNAME: v$TDH_GCP_VERSION\n"
+    printf "$TDH_PNAME: (tdh-gcp) v$TDH_GCP_VERSION\n"
 }
 
 
