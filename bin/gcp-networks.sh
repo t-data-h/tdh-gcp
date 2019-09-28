@@ -42,10 +42,12 @@ usage()
     echo ""
     echo " Where <action> is one of the following: "
     echo "  create [network] [subnet] :  Create a new subnet (& optionally network)"
-    echo "    list-networks           :  List available networks"
-    echo "    list-subnets            :  List available subnets by region"
+    echo "  list-networks             :  List available networks"
+    echo "  list-subnets              :  List available subnets by region"
     echo "  delete-subnet    [subnet] :  Delete a custom subnet"
     echo "  delete-network   [subnet] :  Delete a network."
+    echo "  describe        [network] :  Get GCP network details"
+    echo "  describe-subnet  [subnet] :  Describes the GCP subnet"
     echo ""
     echo " Delete actions require that no resources use the given network/subnet"
     echo ""
@@ -120,7 +122,7 @@ create_subnet()
     local rtn=0
 
     echo "( gcloud compute networks subnets create $subnet --network $net --region $reg --range $addy )"
-    if [ $dryrun -eq 0 ]; then 
+    if [ $dryrun -eq 0 ]; then
         ( gcloud compute networks subnets create $subnet --network $net --region $reg --range $addy )
         rtn=$?
     fi
@@ -207,7 +209,7 @@ create)
         exit 1
     fi
 
-    # validate region 
+    # validate region
     region_is_valid $region
     rt=$?
 
@@ -230,7 +232,7 @@ create)
 
     if [ $rt -ne 0 ]; then
         crnet=0
-        
+
         echo "GCP Network '$network' not found..."
 
         if [ $yes -eq 0 ]; then
@@ -274,7 +276,7 @@ create)
         cmd="gcloud compute firewall-rules create $rule_name"
         cmd="$cmd --network $network --action allow"
         cmd="$cmd --direction ingress --source-ranges $addr --rules all"
-        
+
         echo "Creating fw-rule '$rule_name': "
         echo "( $cmd )"
         if [ $dryrun -eq 0 ]; then
@@ -292,6 +294,16 @@ list-networks)
     ;;
 list-subnets)
     list_subnets $region
+    ;;
+describe|describe-network)
+    if network_is_valid $network; then
+        ( gcloud compute networks describe $network )
+    fi
+    ;;
+describe-subnet)
+    if subnet_is_valid $network; then
+        ( gcloud compute networks subnets describe $network )
+    fi
     ;;
 *)
     echo "Action Not Recognized! '$action'"
