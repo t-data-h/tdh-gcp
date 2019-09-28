@@ -155,6 +155,7 @@ tdh_version
 if [ "$action" == "run" ] && [ $dryrun -eq 0 ]; then
     dryrun=0
 else
+    echo "Action provided is: '$action'. Use 'run' to execute"
     dryrun=1  # action -ne run
     echo "  <DRYRUN> enabled"
 fi
