@@ -95,8 +95,8 @@ if [ -z "$apath" ]; then
 fi
 
 if [ -n "$zone" ]; then
-    gssh="$GSSH --zone $zone"
-    gscp="$GSCP --zone $zone"
+    GSSH="$GSSH --zone $zone"
+    GSCP="$GSCP --zone $zone"
 fi
 
 apath=$(readlink -f "$apath")
