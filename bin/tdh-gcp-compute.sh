@@ -28,6 +28,7 @@ ssd=0
 vga=0
 dryrun=0
 keep=0
+serial=1
 
 # -----------------------------------
 # default overrides
@@ -75,6 +76,7 @@ usage()
     echo "  -T|--tags <tag1,..>  : A set of tags to use for instances"
     echo "  -z|--zone <name>     : Set GCP zone "
     echo "  -v|--vga             : Attach a display device at create"
+    echo "  -X|--no-serial       : Don't enable logging to serial by default"
     echo "  -V|--version         : Show version info and exit"
     echo ""
     echo " Where <action> is one of the following: "
@@ -253,6 +255,9 @@ while [ $# -gt 0 ]; do
         -v|--vga)
             vga=1
             ;;
+        -X|--no-serial)
+            serial=0
+            ;;
         -V|--version)
             tdh_version
             exit $rt
@@ -361,6 +366,10 @@ for name in $names; do
                 echo "Error in attach_disk() rt=$rt"
                 exit $rt
             fi
+        fi
+
+        if [ $serial -gt 0 ]; then
+            ( gcloud compute instances add-metadata $name --metadata serial-port-enable=true )
         fi
         ;;
 
