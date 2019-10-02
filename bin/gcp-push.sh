@@ -61,7 +61,7 @@ while [ $# -gt 0 ]; do
             exit $rt
             ;;
         -z|--zone)
-            zone="$zone"
+            zone="$2"
             shift
             ;;
         -V|--version)
