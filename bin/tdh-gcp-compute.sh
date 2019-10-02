@@ -369,9 +369,9 @@ for name in $names; do
         fi
 
         if [ $serial -gt 0 ]; then
-            echo "( gcloud compute instances add-metadata $name --metadata serial-port-enable=true )"
+            echo "( gcloud compute instances add-metadata $name --zone $zone --metadata serial-port-enable=true )"
             if [ $dryrun -eq 0 ]; then
-                ( gcloud compute instances add-metadata $name --metadata serial-port-enable=true )
+                ( gcloud compute instances add-metadata $name --zone $zone --metadata serial-port-enable=true )
             fi
         fi
         ;;
