@@ -354,10 +354,15 @@ for name in $names; do
           cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys" )
 
         if [ -e "$master_id_file" ]; then
+            echo "( $GSCP ${master_id_file} ${host}:.ssh/ )"
             ( $GSCP ${master_id_file} ${host}:.ssh/ )
+            echo "( $GSSH $host --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys" )"
             ( $GSSH $host --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys" )
         else
+            echo "( $GSCP ${host}:.ssh/id_rsa.pub ${master_id_file} )"
             ( $GSCP ${host}:.ssh/id_rsa.pub ${master_id_file} )
+            echo "( $GSSH $host --command \"cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys\" )"
+            ( $GSSH $host --command "cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys" )
         fi
     fi
 
