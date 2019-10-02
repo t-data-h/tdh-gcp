@@ -289,6 +289,7 @@ for name in $names; do
     #
     # ssh
     echo "( $GSCP ${master_id_file} ${host}:.ssh" 
+    echo "( $GSSH $host --command \"cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys\" )"
 
     if [ $dryrun -eq 0 ]; then
         ( $GSCP ${master_id_file} ${host}:.ssh/ )

@@ -352,16 +352,23 @@ for name in $names; do
     if [ $dryrun -eq 0 ]; then
         ( $GSSH $host --command "ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa; \
           cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys" )
+    fi
+        
+    if [ -e "$master_id_file" ]; then
+        echo "( $GSCP ${master_id_file} ${host}:.ssh/ )"
+        echo "( $GSSH $host --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys" )"
 
-        if [ -e "$master_id_file" ]; then
-            echo "( $GSCP ${master_id_file} ${host}:.ssh/ )"
+        if [ $dryrun -eq 0 ]; then
             ( $GSCP ${master_id_file} ${host}:.ssh/ )
-            echo "( $GSSH $host --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys" )"
             ( $GSSH $host --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys" )
-        else
-            echo "( $GSCP ${host}:.ssh/id_rsa.pub ${master_id_file} )"
+        fi
+    else
+        echo " => Primary Master Host is '$host'"
+        echo "( $GSCP ${host}:.ssh/id_rsa.pub ${master_id_file} )"
+        echo "( $GSSH $host --command \"cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys\" )"
+
+        if [ $dryrun -eq 0 ]; then
             ( $GSCP ${host}:.ssh/id_rsa.pub ${master_id_file} )
-            echo "( $GSSH $host --command \"cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys\" )"
             ( $GSSH $host --command "cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys" )
         fi
     fi
