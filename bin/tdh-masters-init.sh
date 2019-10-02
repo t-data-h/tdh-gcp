@@ -278,7 +278,7 @@ fi
 
 
 echo ""
-echo -n " -> Waiting for host to respond. . "
+echo -n " -> Waiting for last host '$host' to respond. . "
 
 if [ $dryrun -eq 0 ]; then
     wait_for_gcphost "$host"
@@ -297,11 +297,14 @@ fi
 for name in $names; do
     host="${prefix}-${name}"
 
+    echo "" 
+    echo "=> Bootstrapping host '$host'"
     #
     # Device format and mount
     if [ $attach -gt 0 ]; then
         device="/dev/sdb"
         mountpoint="/data"
+        echo " -> Attaching disk"
         echo "( $GSSH $host --command './tdh-gcp-format.sh $device $mountpoint' )"
         if [ $dryrun -eq 0 ]; then
             ( $GSCP ${tdh_path}/tdh-gcp-format.sh ${host}: )
@@ -314,8 +317,8 @@ for name in $names; do
             echo "Error in tdh-gcp-format for $host"
             break
         fi
+        echo "" 
     fi
-
 
     #
     # disable  iptables and cups
@@ -342,10 +345,11 @@ for name in $names; do
         echo "Error in tdh-prereqs for $host"
         break
     fi
-
+    echo ""
 
     #
     # ssh
+    echo "-> Configure ssh host keys"
     echo "( $GSSH $host --command \"ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa; \
       cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys\" )"
 
@@ -363,7 +367,7 @@ for name in $names; do
             ( $GSSH $host --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys" )
         fi
     else
-        echo " => Primary Master Host is '$host'"
+        echo "-> Primary Master Host is '$host'"
         echo "( $GSCP ${host}:.ssh/id_rsa.pub ${master_id_file} )"
         echo "( $GSSH $host --command \"cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys\" )"
 
@@ -388,6 +392,8 @@ for name in $names; do
         cmd="$cmd --zone $zone"
     fi
 
+    echo ""
+    echo " -> Mysqld install" 
     echo "( $cmd -s $myid -P $pwfile $host $role )"
 
     if [ $dryrun -eq 0 ]; then
@@ -416,7 +422,7 @@ for name in $names; do
         ( $cmd ${tdh_path}/.. tdh-gcp $host )
     fi
 
-    echo "Initialization complete for $host"
+    echo "-> Initialization complete for $host"
     echo ""
 done
 
