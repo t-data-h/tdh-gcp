@@ -365,11 +365,11 @@ for name in $names; do
             ( $GSSH $host --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys" )
         fi
     else
-        echo "-> Primary Master Host is '$host'"
         echo "( $GSCP ${host}:.ssh/id_rsa.pub ${master_id_file} )"
         echo "( $GSSH $host --command \"cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys\" )"
 
         if [ $dryrun -eq 0 ]; then
+            echo "-> Primary Master Host is '$host'"
             ( $GSCP ${host}:.ssh/id_rsa.pub ${master_id_file} )
             ( $GSSH $host --command "cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys" )
         fi
