@@ -317,7 +317,6 @@ for name in $names; do
             echo "Error in tdh-gcp-format for $host"
             break
         fi
-        echo "" 
     fi
 
     #
@@ -345,7 +344,6 @@ for name in $names; do
         echo "Error in tdh-prereqs for $host"
         break
     fi
-    echo ""
 
     #
     # ssh
@@ -392,7 +390,6 @@ for name in $names; do
         cmd="$cmd --zone $zone"
     fi
 
-    echo ""
     echo " -> Mysqld install" 
     echo "( $cmd -s $myid -P $pwfile $host $role )"
 
