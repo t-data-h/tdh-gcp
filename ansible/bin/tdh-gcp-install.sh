@@ -106,8 +106,11 @@ if [ $dryrun -eq 0 ]; then
 fi
 
 echo ""
-echo "If this is a new install don't forget to run the"
-echo "playbook 'tdh-postinstall.yml'"
-echo "$TDH_PNAME finished. "
+echo "If this is a new install don't forget to run the "
+echo "post-install playbook 'tdh-postinstall.yml'"
+echo "eg. $ ansible-playbook -i inventory/$env/hosts tdh-postinstall.yml"
+echo "Note this requires the cluster to have been started as well"
+echo ""
 
+echo "$TDH_PNAME finished. "
 exit $rt

@@ -143,10 +143,20 @@ cluster. As an example, we can push a locally maintained anaconda distribution b
 the push script:
 `./bin/gcp-push.sh /opt/python/anaconda3 tdh-anaconda3 $GCP_PUSH_HOST`
 
+## Starting TDH
+
+
+Once a full TDH install has run, the final step is to run the post-install playbook.
+This is a one-time operation that performs some HDFS directory seeding needed for 
+the cluster to be fully operational. (eg. hive warehouse directory and permissions, 
+log directories, hdfs tmp and user paths, etc.).  To perform these steps, however, the 
+cluster should first be started via tdh-mgr. If the ansible steps all worked and the 
+cluster configuration deployed, simply running `tdh-init.sh start` should start HDFS 
+and other services. At minimum HDFS should be operational for the post-install step. 
+
 ## Post-Install:
 
-Once a full TDH install has run, the final step is to run the post-install playbook, 
-*tdh-postinstall.yml*. This is a one-time operation that performs some HDFS directory 
-seeding needed for the cluster to be fully operational. (eg. hive warehouse directory 
-and permissions, log directories, hdfs tmp and user paths, etc.)
-
+Run the post-install playbook once HDFS is operational.
+```
+$ ansible-playbook -i inventory/$GCP_ENV/hosts tdh-postinstall.yml
+```
