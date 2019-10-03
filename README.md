@@ -152,11 +152,13 @@ M03:
 
 |    Role       |  Machine Type   |  vCPU and Memory   |
 | ------------- | --------------- | ------------------ |
-| Master/Util   |  n1-standard-2  |  4 vCPU and 26 Gb  |  VERY SMALL
-| Worker/Data   |  n1-standard-4  |  8 vCPU and 52 Gb  |
+| Master/Util   |  n1-standard-2  |  2 vCPU and 7.5 Gb |  VERY SMALL
+| Worker/Data   |  n1-standard-4  |  4 vCPU and 15 Gb  |
+| Worker/Data   |  n1-standard-8  |  8 vCPU and 30 Gb  |
 | ------------- | --------------- | ------------------ |
 | Master/Util   |  n1-highmem-8   | 8 vCPU and 52 Gb   |
 | Worker/Data   |  n1-highmem-16  | 16 vCPU and 104 Gb |
+| Worker/Data   |  n1-highmem-32  | 32 vCPU and 208 Gb |
 
  
 ### Changing Machine Type:
