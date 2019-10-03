@@ -1,5 +1,5 @@
 ---
-tdh_env: 't3-tdh-west1'
+tdh_env: 't3-tdh'
 
 tdh_user: 'tca'
 tdh_group: 'tca'
