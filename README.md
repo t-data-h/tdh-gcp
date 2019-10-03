@@ -5,13 +5,14 @@ TDH-GCP
 
 A Framework for building GCP compute instances and deploying TDH.
 
-The compute instances are managed by a set of scripts for building the master 
-and worker node instances. The scripts wrap the GCP API via *gcloud* CLI tool 
-and as a result, the Google Cloud SDK must be installed for the scripts to 
-function. 
+The compute instances are managed by a set of scripts for initializing the 
+master and worker node instances. The scripts wrap the GCP API via the 
+*gcloud* CLI tool and accordingly, the Google Cloud SDK must be installed 
+for the scripts to function. 
 
-Ansible is used for installing or updating/upgrading the TDH cluster. The 
-playbook is currently OS focused on RHEL or CentOS flavors of Linux.
+Ansible playbooks are used for installing or updating/upgrading the TDH 
+cluster. The playbook is currently OS focused for RHEL or CentOS flavors 
+of Linux. Refer to the *README.md* located in **./ansible**.
 
 
 ## Instance initialization scripts:
@@ -26,57 +27,74 @@ used by the master and worker init script for creating custom instances.
   
   Wraps *tdh-gcp-copmpute.sh* with defaults for initializing master hosts.
 This will bootstrap master hosts with mysqld and ansible as we use ansible
-from the master host(s) to manage and deploy the cluster. The first master 
-is considered as the primary management node where Ansible is run from.
+from the master host(s) to deploy and manage the cluster. The first master 
+is considered as the primary management node for running Ansible.
 
 * tdh-workers-init.sh:  
   
-  Builds TDH worker nodes in GCP similarly to the masters init, but generally 
- of a different machine type, mysql client library, java, etc.
+  Builds TDH worker nodes in similarly to the masters init, but generally 
+ of a different machine type. Installs a few prerequisites such as the
+ mysql client library and tools like wget that may be needed prior to 
+ ansible bootstrapping.
 
 
 ## Support scripts:
 
+Support scripts utilized by the initialization scripts.
+
 * tdh-gcp-format.sh: 
   
   Script for formatting and mounting a new data drive for a given instance. This
-  is used by the master/worker init scripts when using an attached data drive.
+  is used by the master/worker init scripts when using an attached data drive and
+  is generally not used directly. The init process copies this to the host to 
+  locally format and add the drive(s) to the system.
 
 * tdh-mysql-install.sh: 
   
-  Bootstraps a Mysql 5.7 Server instance (on master hosts)
+  Bootstraps a Mysql 5.7 Server instance (on master hosts). This script is used 
+  directly by the masters init script is generally not run directly.
 
 * tdh-prereqs.sh:
   
   Installs host prerequisites that may be needed prior to ansible (eg. wget, ansible).
+  Like the previous support scripts, this is utilized by the init scripts and is not 
+  run directly.
+
+## Utility Scripts:
+
+Additional support scripts used in addition to the init scripts.
 
 * gcp-networks.sh:
 
-   Provides a wrapper for creating custom GCP networks and subnets.
+  Provides a wrapper for creating custom GCP networks and subnets. If not specified, 
+  GCP will revert to using the default network and subnet. If the intention is to 
+  deploy on given network, this script is first run to define the subnet and 
+  associated address range in CIDR Format.
 
 * gcp-push.sh
 
-   For pushing a directory of assets to a GCP host. The script will automatically 
-   archive a directory, ensuring the directory to be archived remains as the root
-   directory and links are honored. It creates a tarball to be transferred to a 
-   GCP host. The environment variable GCP_PUSH_HOST is used as the default target 
-   host when not provided directly. In the context of TDH, this script is used to 
-   push updates, such as this repository, TDH Manager (tdh-mgr), and cluster 
-   configs from 'tdh-config'. The script also uses a common distribution path for 
-   moving the binaries. By default, this is set to *~/tmp/dist*, but can be provided 
-   by setting GCP_DIST_PATH in the environment.
-   ```
-   $ export GCP_PUSH_HOST="tdh-m01"
-   $ ./bin/gcp-push.sh .
-     => result: gcloud compute scp tdh-gcp.tar.gz tdh-m01:tmp/dist/
-   $ ./bin/gcp-push.sh ../tdh-mgr
-     => result: gcloud compute scp tdh-mgr.tar.gz tdh-m01:tmp/dist/
-   $ ./bin/gcp-push.sh ../tdh-config/gcpwest1 tdh-conf
-     => result: gcloud compute scp tdh-conf.tar.gz tdh-m01:tmp/dist/
-   $ ./bin/gcp-push.sh /opt/python/anaconda3 tdh-anaconda3
-     => result: gcloud compute scp tdh-anaconda3.tar.gz tdh-m01:tmp/dist/
-   ```
-
+  For pushing a directory of assets to a GCP host. The script will automatically 
+  archive a directory, ensuring the directory to be archived remains as the root
+  directory and any soft links within are honored. It creates a tarball to be 
+  transferred to a GCP host. 
+  
+  The environment variable GCP_PUSH_HOST is used as the default target host when 
+  not provided directly to the script. In the context of TDH, this script is used 
+  to push updates, such as this repository, TDH Manager (tdh-mgr), cluster 
+  configs from 'tdh-config', and a python distribution. The script also uses a 
+  common distribution path for pushing the binaries. By default, this is set to 
+  *~/tmp/dist*, but can be provided by setting GCP_DIST_PATH in the environment.
+  ```
+  $ export GCP_PUSH_HOST="tdh-m01"
+  $ ./bin/gcp-push.sh .
+    => result: gcloud compute scp tdh-gcp.tar.gz tdh-m01:tmp/dist/
+  $ ./bin/gcp-push.sh ../tdh-mgr
+    => result: gcloud compute scp tdh-mgr.tar.gz tdh-m01:tmp/dist/
+  $ ./bin/gcp-push.sh ../tdh-config/gcpwest1 tdh-conf
+    => result: gcloud compute scp tdh-conf.tar.gz tdh-m01:tmp/dist/
+  $ ./bin/gcp-push.sh /opt/python/anaconda3 tdh-anaconda3
+    => result: gcloud compute scp tdh-anaconda3.tar.gz tdh-m01:tmp/dist/
+  ```
 
 ### Examples:
 
@@ -143,9 +161,12 @@ M03:
  
 ### Changing Machine Type:
 ```
-$ gcloud compute instances set-machine-type tdh-d01 --machine-type n1-highmem-16
-$ gcloud compute instances set-machine-type tdh-d02 --machine-type n1-highmem-16
-$ gcloud compute instances set-machine-type tdh-d03 --machine-type n1-highmem-16
+$ gcloud compute instances set-machine-type tdh-d01 \
+  --machine-type n1-highmem-16
+$ gcloud compute instances set-machine-type tdh-d02 \
+  --machine-type n1-highmem-16
+$ gcloud compute instances set-machine-type tdh-d03 \
+  --machine-type n1-highmem-16
 ```
 
 ## Environment Variables
@@ -154,18 +175,18 @@ When interacting with the various GCP scripts, each support overriding the
 various defaults via commandline or environment variable.  Some defaults, such as
 region and zone are taken from the active gcloud api configuration. Note that option
 provided at script runtime takes higher precedence that environment variables.
-Essentially the precedence order is `default < envvar < cmdline`.
+Essentially the precedence order is:   `default < envvar < cmdline`.
 
 | Environment Variable |  Description  |
 | -------------------- | ------------- |
-| `GCP_REGION`         | Override the default region, generally not needed as most scripts (save networks) rely on zone. 
-| `GCP_ZONE`           | Override the default zone. 
-| `GCP_MACHINE_TYPE`   | Generally provided via --type can alternatively be provided by the environment. 
-| `GCP_MACHINE_IMAGE`  | Override the default machine image of 'centos-7' 
-| `GCP_IMAGE_PROJECT`  | Override the default Image Project of 'centos-cloud' 
-| `GCP_NETWORK`        | Provide the Network to use for create operations.
-| `GCP_SUBNET`         | Provide the Network Subnet to use for create operations. Note this should match the Network in that subnets belong to GCP Networks".
+| `GCP_REGION`         | Override the default region, generally not needed as most scripts (save for networks) rely on the zone only. 
+| `GCP_ZONE`           | Override the default zone (set in gcloud api). 
+| `GCP_MACHINE_TYPE`   | Generally provided via the `--type` cmdline parameter, it can alternatively be provided by the environment. 
+| `GCP_MACHINE_IMAGE`  | Override the default machine image of `centos-7`.
+| `GCP_IMAGE_PROJECT`  | Override the default Image Project of `centos-cloud`. 
+| `GCP_NETWORK`        | Provide the network to use for create operations. Otherwise needed at the command-line via the `--network` parameter.
+| `GCP_SUBNET`         | Provide the Network Subnet to use for create operations. Note this should match the correct network. Same as the command-line parameter `--subnet`.
 | `GCP_PUSH_HOST`      | Host to use for push operations supported by *gcp-push.sh*.
-| `GCP_DIST_PATH`      | The Host distribution path to drop binarys utilized by *gcp-push.sh*.
+| `GCP_DIST_PATH`      | The distribution path to drop binary packages. Utilized by *gcp-push.sh*.
 
 
