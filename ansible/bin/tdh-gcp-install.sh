@@ -9,7 +9,6 @@ TDH_ANSIBLE_HOME=$(dirname $tdh_path)
 action=
 env=
 dryrun=1
-rt=0
 
 # -------
 
@@ -18,6 +17,22 @@ if [ -e $TDH_ANSIBLE_HOME/../bin/tdh-gcp-config.sh ]; then
 fi
 
 # -------
+
+usage() 
+{
+    echo ""
+    echo "Usage: $TDH_PNAME <action> <env>"
+    echo "  <action> any action other than 'run' is a 'dryrun'"
+    echo "  <env>    is the inventory name for the gcp environment."
+    echo ""
+    echo " The environment variable TDH_GCP_ENV is honored if the"
+    echo "environment parameter is not provided."
+    echo ""
+}
+
+# MAIN
+#
+rt=0
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -43,22 +58,13 @@ if [ -z "$env" ] && [ -n "$TDH_GCP_ENV" ]; then
 fi
 
 if [ -z "$action" ] || [ -z "$env" ]; then
-    echo ""
-    echo "Usage: $PNAME <action> <env>"
-    echo "  <action> any action other than 'run' is a 'dryrun'"
-    echo "  <env>    is the inventory name for the gcp environment."
-    echo ""
-    echo " The environment variable TDH_GCP_ENV is honored if the"
-    echo "environment parameter is not provided."
-    echo ""
+    usage
     exit 1
 fi
-
 
 if [[ $action == "run" ]]; then
     dryrun=0
 fi
-
 
 cd $TDH_ANSIBLE_HOME
 
@@ -99,8 +105,8 @@ if [ $dryrun -eq 0 ]; then
     rt=$?
 fi
 
-echo "If this is a new install don't forget to run"
-echo "the post-install playbook, tdh-postinstall.yml"
+echo "If this is a new install don't forget to run the"
+echo "post-install playbook, tdh-postinstall.yml"
 echo "$TDH_PNAME finished. "
 
 exit $rt
