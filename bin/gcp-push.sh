@@ -20,14 +20,13 @@ zone=
 apath=
 aname=
 gcphost=
-rt=0
 
 # -----------------------------------
 
 usage()
 {
     echo ""
-    echo "$PNAME [options] [path] <archive_name> <gcphost>"
+    echo "$TDH_PNAME [options] [path] <archive_name> <gcphost>"
     echo ""
     echo "  path         : is the directory to be archived (required)."
     echo "  archive_name : an altername name to call the tarball. The value"
@@ -45,15 +44,15 @@ usage()
     echo "  The script uses a common tmp path for both creating the archive "
     echo " locally, and for the target host path.  This uses the value of "
     echo " 'GCP_DIST_PATH' if set,or the default'~/tmp/dist' if not set."
-    echo " Essentially, the path should exist locally as well as remotely."
+    echo " The path should exist locally as well as remotely."
     echo ""
 }
 
 
 # MAIN
 #
-gssh="gcloud compute ssh"
-gscp="gcloud compute scp"
+rt=0
+
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -62,7 +61,7 @@ while [ $# -gt 0 ]; do
             exit $rt
             ;;
         -z|--zone)
-            zone="$zone"
+            zone="$2"
             shift
             ;;
         -V|--version)
@@ -96,8 +95,8 @@ if [ -z "$apath" ]; then
 fi
 
 if [ -n "$zone" ]; then
-    gssh="$gssh --zone $zone"
-    gscp="$gscp --zone $zone"
+    GSSH="$GSSH --zone $zone"
+    GSCP="$GSCP --zone $zone"
 fi
 
 apath=$(readlink -f "$apath")
@@ -119,10 +118,10 @@ if [ $rt -gt 0 ]; then
 fi
 
 ( gzip ${DISTPATH}/${aname}.tar )
-( $gssh ${gcphost} --command "mkdir -p ${DISTPATH}" )
+( $GSSH ${gcphost} --command "mkdir -p ${DISTPATH}" )
 
 echo "scp ${DISTPATH}/${aname}.tar.gz ${gcphost}:${DISTPATH}"
-( $gscp ${DISTPATH}/${aname}.tar.gz ${gcphost}:${DISTPATH} )
+( $GSCP ${DISTPATH}/${aname}.tar.gz ${gcphost}:${DISTPATH} )
 
 rt=$?
 if [ $rt -gt 0 ]; then

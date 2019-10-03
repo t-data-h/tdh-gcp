@@ -14,7 +14,6 @@ addr=
 network=
 subnet=
 yes=0
-fw=0
 dryrun=0
 
 # -----------------------------------
@@ -33,7 +32,6 @@ usage()
     echo ""
     echo "Usage: $TDH_PNAME [-a iprange] {options} [action] "
     echo "  -a|--addr  <ipaddr/mb> :  Ip Address range of the subnet (required)"
-    echo "  -L|--allow-local       :  On create, add fw rule for the local subnet"
     echo "  -r|--region <name>     :  Region to create the subnet"
     echo "                            Default region is currently '$region'"
     echo "  -n|--dryrun            :  Enable dryrun, no action is taken"
@@ -42,10 +40,12 @@ usage()
     echo ""
     echo " Where <action> is one of the following: "
     echo "  create [network] [subnet] :  Create a new subnet (& optionally network)"
-    echo "    list-networks           :  List available networks"
-    echo "    list-subnets            :  List available subnets by region"
+    echo "  list-networks             :  List available networks"
+    echo "  list-subnets              :  List available subnets by region"
     echo "  delete-subnet    [subnet] :  Delete a custom subnet"
     echo "  delete-network   [subnet] :  Delete a network."
+    echo "  describe        [network] :  Get GCP network details"
+    echo "  describe-subnet  [subnet] :  Describes the GCP subnet"
     echo ""
     echo " Delete actions require that no resources use the given network/subnet"
     echo ""
@@ -120,7 +120,7 @@ create_subnet()
     local rtn=0
 
     echo "( gcloud compute networks subnets create $subnet --network $net --region $reg --range $addy )"
-    if [ $dryrun -eq 0 ]; then 
+    if [ $dryrun -eq 0 ]; then
         ( gcloud compute networks subnets create $subnet --network $net --region $reg --range $addy )
         rtn=$?
     fi
@@ -161,9 +161,6 @@ while [ $# -gt 0 ]; do
             ;;
         -n|--dryrun)
             dryrun=1
-            ;;
-        -L|--allow-local)
-            fw=1
             ;;
         -r|--region)
             region="$2"
@@ -207,7 +204,7 @@ create)
         exit 1
     fi
 
-    # validate region 
+    # validate region
     region_is_valid $region
     rt=$?
 
@@ -218,7 +215,7 @@ create)
     echo "  GCP Region = '$region'"
 
     # Ensure Subnet doesn't already exist
-    validate_subnet $subnet
+    subnet_is_valid $subnet
     if [ $? -eq 0 ]; then
         echo "Error! Subnet '$subnet' already exists"
         exit 1
@@ -230,7 +227,7 @@ create)
 
     if [ $rt -ne 0 ]; then
         crnet=0
-        
+
         echo "GCP Network '$network' not found..."
 
         if [ $yes -eq 0 ]; then
@@ -266,25 +263,6 @@ create)
         echo "Error in create_subnet"
         exit $rt
     fi
-
-    # Create default fw rule
-    if [ $fw -eq 1 ]; then
-        rule_name="$network-allow-local"
-
-        cmd="gcloud compute firewall-rules create $rule_name"
-        cmd="$cmd --network $network --action allow"
-        cmd="$cmd --direction ingress --source-ranges $addr --rules all"
-        
-        echo "Creating fw-rule '$rule_name': "
-        echo "( $cmd )"
-        if [ $dryrun -eq 0 ]; then
-            ( $cmd )
-            rt=$?
-            if [ $rt -ne 0 ]; then
-                echo "Error creating firewall-rules"
-            fi
-        fi
-    fi
     ;;
 
 list-networks)
@@ -292,6 +270,16 @@ list-networks)
     ;;
 list-subnets)
     list_subnets $region
+    ;;
+describe|describe-network)
+    if network_is_valid $network; then
+        ( gcloud compute networks describe $network )
+    fi
+    ;;
+describe-subnet)
+    if subnet_is_valid $network; then
+        ( gcloud compute networks subnets describe $network )
+    fi
     ;;
 *)
     echo "Action Not Recognized! '$action'"

@@ -28,6 +28,7 @@ ssd=0
 vga=0
 dryrun=0
 keep=0
+serial=1
 
 # -----------------------------------
 # default overrides
@@ -40,12 +41,20 @@ if [ -n "$GCP_MACHINE_IMAGE" ]; then
     image="$GCP_MACHINE_IMAGE"
 fi
 
+if [ -n "$GCP_IMAGE_PROJECT" ]; then
+    image="$GCP_IMAGE_PROJECT"
+fi
+
 if [ -n "$GCP_NETWORK" ]; then
     network="$GCP_NETWORK"
 fi
 
-if [ -n "$GCP_SUBNET" ]; then 
+if [ -n "$GCP_SUBNET" ]; then
     subnet="$GCP_SUBNET"
+fi
+
+if [ -z "$zone" ]; then
+    zone="$GCP_DEFAULT_ZONE"
 fi
 
 # -----------------------------------
@@ -71,6 +80,7 @@ usage()
     echo "  -T|--tags <tag1,..>  : A set of tags to use for instances"
     echo "  -z|--zone <name>     : Set GCP zone "
     echo "  -v|--vga             : Attach a display device at create"
+    echo "  -X|--no-serial       : Don't enable logging to serial by default"
     echo "  -V|--version         : Show version info and exit"
     echo ""
     echo " Where <action> is one of the following: "
@@ -83,10 +93,10 @@ usage()
     echo "  Default Image is        '$image'"
     echo "  Default Boot Disk size  '$bootsize'"
     echo "  Default GCP Zone is     '$GCP_DEFAULT_ZONE'"
-    echo "  Default tags are set to '$prefix' or --prefix" 
-    echo "" 
+    echo "  Default tags are set to '$prefix' or --prefix"
+    echo ""
     echo " The following environment variables are honored for overrides:"
-    echo "  GCP_MACHINE_TYPE, GCP_MACHINE_IMAGE, GCP_IMAGEPROJECT, GCP_ZONE"
+    echo "  GCP_MACHINE_TYPE, GCP_MACHINE_IMAGE, GCP_IMAGE_PROJECT, GCP_ZONE"
     echo "  GCP_NETWORK, GCP_SUBNET"
     echo ""
 }
@@ -144,10 +154,10 @@ attach_disk()
     local rt=0
 
     echo ""
-    echo "( gcloud compute instances attach-disk --disk ${diskname} ${name} )"
+    echo "( gcloud compute instances attach-disk --disk ${diskname} ${name} --zone $zone)"
 
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute instances attach-disk --disk ${diskname} ${name} )
+        ( gcloud compute instances attach-disk --disk ${diskname} ${name} --zone $zone )
         rt=$?
     fi
 
@@ -249,6 +259,9 @@ while [ $# -gt 0 ]; do
         -v|--vga)
             vga=1
             ;;
+        -X|--no-serial)
+            serial=0
+            ;;
         -V|--version)
             tdh_version
             exit $rt
@@ -284,7 +297,22 @@ if [ -z "$zone" ]; then
 fi
 echo "  GCP Zone = '$zone'"
 
-for name in $names; do 
+zone_is_valid $zone
+rt=$?
+if [ $rt -ne 0 ]; then
+    echo "Error, provided zone '$zone' not valid"
+    exit $rt
+fi
+
+if [ -n "$subnet" ]; then
+    subnet_is_valid $subnet
+    if [ $? -ne 0 ]; then
+        echo "Error, subnet '$subnet' not found. Has it been creaated?"
+        exit $?
+    fi
+fi
+
+for name in $names; do
     if [ -n "$prefix" ]; then
         ( echo $name | grep "^${prefix}-" >/dev/null 2>&1 )
         if [ $? -ne 0 ]; then
@@ -343,10 +371,17 @@ for name in $names; do
                 exit $rt
             fi
         fi
+
+        if [ $serial -gt 0 ]; then
+            echo "( gcloud compute instances add-metadata $name --zone $zone --metadata serial-port-enable=true )"
+            if [ $dryrun -eq 0 ]; then
+                ( gcloud compute instances add-metadata $name --zone $zone --metadata serial-port-enable=true )
+            fi
+        fi
         ;;
 
     start)
-        cmd="gcloud compute instances start --zone $zone" 
+        cmd="gcloud compute instances start --zone $zone"
 
         echo "( $cmd $name )"
         if [ $dryrun -eq 0 ]; then
@@ -361,13 +396,16 @@ for name in $names; do
         ;;
 
     delete)
-        cmd="gcloud compute instances delete --zone $zone"
-        if [ $keep -eq 1 ]; then 
-            cmd="$cmd $name --keep-disks=data"
+        cmd="gcloud compute instances delete $name --zone $zone --quiet"
+
+        if [ $keep -eq 1 ]; then
+            cmd="$cmd --keep-disks=data"
         else
-            cmd="$cmd $name --delete-disks=all"
+            cmd="$cmd --delete-disks=all"
         fi
+
         echo "( $cmd )"
+
         if [ $dryrun -eq 0 ]; then
             ( $cmd )
         fi

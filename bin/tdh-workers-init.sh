@@ -57,7 +57,7 @@ usage() {
     echo "  -b|--bootsize <xxGB>  : Size of boot disk in GB, Default is $bootsize"
     echo "  -d|--disksize <xxGB>  : Size of attached disk, Default is $disksize"
     echo "  -h|--help             : Display usage and exit"
-    echo "     --dryrun           :  Enable dryrun, no action is taken"
+    echo "     --dryrun           : Enable dryrun, no action is taken"
     echo "  -N|--network <name>   : GCP Network name. Default is $network"
     echo "  -n|--subnet <name>    : GCP Network subnet name. Default is $subnet"
     echo "  -p|--prefix <name>    : Prefix name to use for instances"
@@ -155,6 +155,7 @@ tdh_version
 if [ "$action" == "run" ] && [ $dryrun -eq 0 ]; then
     dryrun=0
 else
+    echo "Action provided is: '$action'. Use 'run' to execute"
     dryrun=1  # action -ne run
     echo "  <DRYRUN> enabled"
 fi
@@ -288,6 +289,7 @@ for name in $names; do
     #
     # ssh
     echo "( $GSCP ${master_id_file} ${host}:.ssh" 
+    echo "( $GSSH $host --command \"cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys\" )"
 
     if [ $dryrun -eq 0 ]; then
         ( $GSCP ${master_id_file} ${host}:.ssh/ )

@@ -5,11 +5,11 @@ Ansible playbooks for distributing and configuring a TDH environment in GCP.
 The environment is defined by the inventory files located in 
 *inventory/env/* where *env* is a specific TDH deployment.
 
-The install is initiated by the *tdh-install.yml* playbook, but requires 
-assets to be distributed first via *tdh-distribute.yml*. Wrapper scripts 
+The install is initiated by the ***tdh-install.yml*** playbook, but requires 
+assets to be distributed first via ***tdh-distribute.yml***. Wrapper scripts 
 are provided to run the various stages:
 
-- tdh-install.sh:  Full-run, distribute + the install playbook.
+- tdh-install.sh:  Complete run, distribute + the install playbook.
 - tdh-config-update.sh:  Runs distribute and only the cluster config update steps.
 - tdh-mgr-update.sh: Runs distribute and only the tdh-mgr update steps
 - tdh-python-update.sh: Runs distribute and pushes the Ananconda distribution.
@@ -32,7 +32,7 @@ ansible-vault encrypt ./inventory/ENV/group_vars/all/vault
 ```
 and decrypted similarly using the 'decrypt' command. The password can be stored
 in a password vault file of .ansible/.ansible_vault as defined in the ansible.cfg
-file given that the .ansible directory is untracked via .gitignore.
+file given that the .ansible directory is untracked via *.gitignore*.
 ```
 echo 'myvaultpw' > .ansible/.ansible_vault
 chmod 400 !$
@@ -73,12 +73,15 @@ all nodes of the cluster for use by the install phase.
 ## Installation via Playbook
 
 The primary script for running both the deploy and install playbooks is called
-*tdh-gcp-install.sh*.  This will run the *tdh-install.yml* playbook and install
+***tdh-gcp-install.sh***.  This will run the *tdh-install.yml* playbook, install
 all prerequisites and install/update the TDH Enviornment depending on what 
 'dropfiles' exist in the 'drop_path'. The playbook is properly idempotent with
 the install capable of being run over an existing installation without affect. 
+The caveat here being the cluster configurations themselves, pushed by the 
+playbook. 
  
-The install scripts provided are to run portions of the install playbook via tags:
+The various install scripts provided are to run portions of the install playbook 
+via ansible tags:
 
 |    Script/Command      |    Tag     |        Asset            |
 | ---------------------- | ---------- | ----------------------- |
@@ -88,7 +91,8 @@ The install scripts provided are to run portions of the install playbook via tag
 | *tdh-python-update.sh* | tdh-python | *tdh-anaconda3.tar.gz*  |
 
 Note that running the install playbook with no files would result in running 
-through just the prerequisites, which in of itself can be handy for host bootstrapping.
+through just the prerequisites, which in of itself can be handy for GCP host 
+bootstrapping.
 
 
 ## Post-Install:
@@ -96,4 +100,5 @@ through just the prerequisites, which in of itself can be handy for host bootstr
 Once a full TDH install has run, the final step is to run the post-install playbook, 
 *tdh-postinstall.yml*. This is a one-time operation that performs some HDFS directory 
 seeding needed for the cluster to be fully operational. (eg. hive warehouse directory 
-and permissions, log directories, hdfs paths, etc.)
+and permissions, log directories, hdfs tmp and user paths, etc.)
+

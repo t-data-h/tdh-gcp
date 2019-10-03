@@ -2,22 +2,37 @@
 #
 #  Install wrapper script to distribute packages and run the installation
 #
-PNAME=${0##*\/}
 tdh_path=$(dirname "$(readlink -f "$0")")
 
 TDH_ANSIBLE_HOME=$(dirname $tdh_path)
+
 action=
 env=
 dryrun=1
-rt=0
 
 # -------
 
-if [ -e $TDH_ANSIBLE_HOME/../etc/tdh-gcp-config.sh ]; then
-    . $TDH_ANSIBLE_HOME/../etc/tdh-gcp-config.sh
+if [ -e $TDH_ANSIBLE_HOME/../bin/tdh-gcp-config.sh ]; then
+    . $TDH_ANSIBLE_HOME/../bin/tdh-gcp-config.sh
 fi
 
 # -------
+
+usage() 
+{
+    echo ""
+    echo "Usage: $TDH_PNAME <action> <env>"
+    echo "  <action> any action other than 'run' is a 'dryrun'"
+    echo "  <env>    is the inventory name for the gcp environment."
+    echo ""
+    echo " The environment variable TDH_GCP_ENV is honored if the"
+    echo "environment parameter is not provided."
+    echo ""
+}
+
+# MAIN
+#
+rt=0
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -26,7 +41,7 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         -V|--version)
-            echo "$PNAME  (tdh-gcp)  v$TDH_GCP_VERSION"
+            tdh_version
             exit 1
             ;;
         *)
@@ -43,27 +58,19 @@ if [ -z "$env" ] && [ -n "$TDH_GCP_ENV" ]; then
 fi
 
 if [ -z "$action" ] || [ -z "$env" ]; then
-    echo ""
-    echo "Usage: $PNAME <action> <env>"
-    echo "  <action> any action other than 'run' is a 'dryrun'"
-    echo "  <env>    is the inventory name for the gcp environment."
-    echo ""
-    echo " The environment variable TDH_GCP_ENV is honored if env"
-    echo "is not provided."
-    echo ""
+    usage
     exit 1
 fi
-
 
 if [[ $action == "run" ]]; then
     dryrun=0
 fi
 
-
 cd $TDH_ANSIBLE_HOME
 
 echo ""
 echo "TDH_ANSIBLE_HOME = '$TDH_ANSIBLE_HOME'"
+echo "TDH_GCP_ENV      = '$env'"
 echo "Running Ansible Playbooks : tdh-distribute, tdh_install"
 if [ -n "$tags" ]; then
     echo "  Tags: '$tags'"
@@ -98,7 +105,9 @@ if [ $dryrun -eq 0 ]; then
     rt=$?
 fi
 
-echo "$PNAME finished. If this is a new install don't forget to run"
-echo "the post-install playbook, tdh-postinstall.yml"
+echo ""
+echo "If this is a new install don't forget to run the"
+echo "playbook 'tdh-postinstall.yml'"
+echo "$TDH_PNAME finished. "
 
 exit $rt
