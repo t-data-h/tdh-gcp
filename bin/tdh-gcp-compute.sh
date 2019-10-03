@@ -53,6 +53,10 @@ if [ -n "$GCP_SUBNET" ]; then
     subnet="$GCP_SUBNET"
 fi
 
+if [ -z "$zone" ]; then
+    zone="$GCP_DEFAULT_ZONE"
+fi
+
 # -----------------------------------
 
 usage()
@@ -150,10 +154,10 @@ attach_disk()
     local rt=0
 
     echo ""
-    echo "( gcloud compute instances attach-disk --disk ${diskname} ${name} )"
+    echo "( gcloud compute instances attach-disk --disk ${diskname} ${name} --zone $zone)"
 
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute instances attach-disk --disk ${diskname} ${name} )
+        ( gcloud compute instances attach-disk --disk ${diskname} ${name} --zone $zone )
         rt=$?
     fi
 
