@@ -36,7 +36,7 @@
         mode: 0750
         state: directory
     - name: Format namenode
-      shell: 'hadoop namenode -format'
+      shell: '{{ tdh_install_path }}/hadoop/bin/hadoop namenode -format'
       when: inventory_hostname in groups['master01']
     when: nndir.stat.exists == false
   - name: Provision Kafka Broker Id
