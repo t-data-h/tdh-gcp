@@ -41,7 +41,7 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         -V|--version)
-            version
+            tdh_version
             exit 1
             ;;
         *)
@@ -105,8 +105,9 @@ if [ $dryrun -eq 0 ]; then
     rt=$?
 fi
 
+echo ""
 echo "If this is a new install don't forget to run the"
-echo "post-install playbook, tdh-postinstall.yml"
+echo "playbook 'tdh-postinstall.yml'"
 echo "$TDH_PNAME finished. "
 
 exit $rt
