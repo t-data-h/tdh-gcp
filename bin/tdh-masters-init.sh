@@ -223,6 +223,7 @@ if [ -z "$pwfile" ]; then
     fi
 
     echo "Please provide the root mysqld password..."
+    echo "  This should match the password configured in ansible inventory."
     if [ $dryrun -eq 0 ]; then
         read_password
         if [ $? -gt 0 ]; then
