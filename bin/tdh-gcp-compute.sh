@@ -154,7 +154,8 @@ attach_disk()
     local rt=0
 
     echo ""
-    echo "( gcloud compute instances attach-disk --disk ${diskname} ${name} --zone $zone)"
+    echo "-> attach_disk() "
+    echo "( gcloud compute instances attach-disk --disk ${diskname} ${name} --zone $zone )"
 
     if [ $dryrun -eq 0 ]; then
         ( gcloud compute instances attach-disk --disk ${diskname} ${name} --zone $zone )
@@ -182,6 +183,7 @@ create_disk()
     cmd="$cmd --size=${disksize} ${diskname}"
 
     echo ""
+    echo "-> create_disk() "
     echo "( $cmd )"
 
     if [ $dryrun -eq 0 ]; then
@@ -354,13 +356,17 @@ for name in $names; do
             exit $rt
         fi
 
+        # Attach disks
         if [ $attach -gt 0 ]; then
-            create_disk "$diskname" "$disksize" $ssd $dryrun
-            rt=$?
+            ( gcloud compute disks list --filter="name=($diskname)" 2>/dev/null | grep $diskname > /dev/null )
+            if [ $? -gt 0 ]; then
+                create_disk "$diskname" "$disksize" $ssd $dryrun
+                rt=$?
 
-            if [ $rt -ne 0 ]; then
-                echo "Error in create_disk()"
-                exit $rt
+                if [ $rt -ne 0 ]; then
+                    echo "Error in create_disk(), aborting..."
+                    exit $rt
+                fi
             fi
 
             attach_disk "$diskname" "$name" $dryrun

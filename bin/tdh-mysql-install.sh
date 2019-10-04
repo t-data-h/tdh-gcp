@@ -149,6 +149,7 @@ if [ "$role" == "master" ] || [ "$role" == "slave" ]; then
 
     ( $GSSH $host --command "printf \"[mysql]\nuser=root\npassword=$pw\n\" > .my.cnf"  )
     ( $GSSH $host --command "mysql -u root --skip-password -e \"ALTER USER 'root'@'localhost' IDENTIFIED BY '$pw'\"" )
+    ( $GSSH $host --command "sudo cp .my.cnf /root/" )
 
     rt=$?
     if [ $rt -gt 0 ]; then
