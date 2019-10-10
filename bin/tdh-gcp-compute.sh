@@ -289,6 +289,16 @@ if [ -z "$tags" ]; then
     tags="$prefix"
 fi
 
+if [ -z "$network" ]; then
+    if [ -n "$subnet" ]; then 
+        echo "Error, subnet defined without network"
+        exit 1
+    fi
+    echo "Network not defined, using 'default'"
+    network="default"
+    subnet="default"
+fi
+
 if [ -n "$network" ] && [ -z "$subnet" ]; then
     echo "Error, subnet not defined; it is required with --network"
     exit 1
@@ -310,7 +320,7 @@ if [ -n "$subnet" ]; then
     subnet_is_valid $subnet
     if [ $? -ne 0 ]; then
         echo "Error, subnet '$subnet' not found. Has it been creaated?"
-        exit $?
+        exit 1
     fi
 fi
 
