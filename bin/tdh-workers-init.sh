@@ -68,7 +68,7 @@ usage() {
     echo "  -T|--tags <tag1,..>   : List of tags to use for instances" 
     echo "  -z|--zone <name>      : Set GCP zone to use, if not gcloud default."
     echo ""
-    echo " Where <action> is 'run', any other action enables a dryrun, "
+    echo " Where <action> is 'run' (any other action enables '--dryrun') "
     echo " followed by a list of names that become '\$prefix-\$name'."
     echo ""
     echo " eg. '$TDH_PNAME test d01 d02 d03' will dryrun 3 worker nodes with"
