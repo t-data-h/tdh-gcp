@@ -17,12 +17,13 @@ zone=
 mtype="n1-highmem-16"
 bootsize="$GCP_DEFAULT_BOOTSIZE"
 disksize="$GCP_DEFAULT_DISKSIZE"
-master_id="master-id_rsa.pub"
-master_id_file="${tdh_path}/../ansible/.ansible/${master_id}"
 network=
 subnet=
 
-myid=1
+gcpcompute="${tdh_path}/gcp-compute.sh"
+master_id="master-id_rsa.pub"
+master_id_file="${tdh_path}/../ansible/.ansible/${master_id}"
+
 attach=0
 dryrun=0
 ssd=0
@@ -179,7 +180,7 @@ for name in $names; do
     #
     # Create instance
     host="${prefix}-${name}"
-    cmd="${tdh_path}/tdh-gcp-compute.sh --prefix $prefix --type $mtype --bootsize $bootsize"
+    cmd="${gcpcompute} --prefix $prefix --type $mtype --bootsize $bootsize"
     
     if [ -n "$network" ]; then
         cmd="$cmd --network $network --subnet $subnet"
