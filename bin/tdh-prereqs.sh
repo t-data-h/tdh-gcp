@@ -14,7 +14,7 @@ fi
 rt=0
 
 # Disable cloud sdk repo check
-( sudo yum install --disablerepo=google-cloud-sdk -y wget yum-utils )
+( sudo yum install --disablerepo=google-cloud-sdk -y wget yum-utils rng-tools )
 ( sudo yum-config-manager --disable google-cloud-sdk )
 
 if [ $rt -gt 0 ]; then

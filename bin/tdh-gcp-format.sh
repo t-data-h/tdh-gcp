@@ -1,5 +1,8 @@
 #!/bin/bash
 #
+#  Format attached GCP Disk. Intended to be ran on a 
+#  GCP compute instance.
+#
 PNAME=${0##*\/}
 
 # -----------------------------------

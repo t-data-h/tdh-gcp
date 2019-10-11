@@ -20,6 +20,7 @@ disksize="$GCP_DEFAULT_DISKSIZE"
 network=
 subnet=
 
+gcpcompute="${tdh_path}/gcp-compute.sh"
 master_id="master-id_rsa.pub"
 master_id_file="${tdh_path}/../ansible/.ansible/${master_id}"
 
@@ -67,7 +68,6 @@ usage() {
     echo "  -p|--prefix <name>    : Prefix name to use for instances."
     echo "                          Default prefix is '$prefix'"
     echo "  -P|--pwfile <file>    : File containing mysql root password."
-    echo "                          Note this file is deleted at completion"
     echo "  -s|--server-id <n>    : Starting mysqld server-id, Default is 1"
     echo "                          1 is always master, all other ids are slaves"
     echo "  -S|--ssd              : Use SSD as attached disk type"
@@ -78,7 +78,7 @@ usage() {
     echo "                          --pwfile must be provided for mysqld"
     echo "  -z|--zone <name>      : Set GCP zone to use if not gcloud default."
     echo ""
-    echo " Where <action> is 'run', any other action enables a dryrun, "
+    echo " Where <action> is 'run' (any other action enables '--dryrun') "
     echo " followed by a list of names that become '\$prefix-\$name'."
     echo ""
     echo " eg. '$TDH_PNAME test m01 m02 m03'"
@@ -239,7 +239,7 @@ echo ""
 # Create instance
 for name in $names; do
     host="${prefix}-${name}"
-    cmd="${tdh_path}/tdh-gcp-compute.sh --prefix $prefix --type $mtype --bootsize $bootsize"
+    cmd="${tdh_path}/gcp-compute.sh --prefix $prefix --type $mtype --bootsize $bootsize"
     
     if [ -n "$network" ]; then 
         cmd="$cmd --network $network --subnet $subnet"

@@ -1,5 +1,10 @@
 #!/bin/bash
 #
+#  gcp-compute.sh 
+#    Manages GCP Compute Instances
+#
+#  @author Timothy C. Arland <tcarland@gmail.com>
+#
 tdh_path=$(dirname "$(readlink -f "$0")")
 
 if [ -f ${tdh_path}/tdh-gcp-config.sh ]; then
@@ -70,8 +75,9 @@ usage()
     echo "  -d|--disksize <xxGB> : Size of attached disk"
     echo "  -h|--help            : Display usage and exit"
     echo "  -k|--keep            : Sets --keep-disks=data on delete action"
-    echo "  -l|--list            : List available machine-types for a zone"
-    echo "     --dryrun          :  Enable dryrun, no action is taken"
+    echo "  -l|--list-types      : List available machine-types for a zone"
+    echo "     --disk-types      : List available disk types for a zone"
+    echo "     --dryrun          : Enable dryrun, no action is taken"
     echo "  -N|--network <name>  : GCP Network name when not using default"
     echo "  -n|--subnet <name>   : Used with --network to define the subnet"
     echo "  -p|--prefix <name>   : Prefix name to use for instances"
@@ -213,10 +219,6 @@ while [ $# -gt 0 ]; do
             usage
             exit $rt
             ;;
-        -l|--list)
-            list_machine_types
-            exit $rt
-            ;;
         -d|--disksize)
             disksize="$2"
             shift
@@ -228,9 +230,13 @@ while [ $# -gt 0 ]; do
         -k|--keep)
             keep=1
             ;;
-        -p|--prefix)
-            prefix="$2"
-            shift
+        -l|--list-types)
+            list_machine_types
+            exit $rt
+            ;;
+        --disk-types)
+            list_disk_types
+            exit $rt
             ;;
         --dryrun)
             dryrun=1
@@ -241,6 +247,10 @@ while [ $# -gt 0 ]; do
             ;;
         -n|--subnet)
             subnet="$2"
+            shift
+            ;;
+        -p|--prefix)
+            prefix="$2"
             shift
             ;;
         -S|--ssd)
@@ -254,12 +264,12 @@ while [ $# -gt 0 ]; do
             tags="$2"
             shift
             ;;
+        -v|--vga)
+            vga=1
+            ;;
         -z|--zone)
             zone="$2"
             shift
-            ;;
-        -v|--vga)
-            vga=1
             ;;
         -X|--no-serial)
             serial=0
