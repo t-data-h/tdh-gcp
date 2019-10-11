@@ -299,7 +299,7 @@ for name in $names; do
     host="${prefix}-${name}"
 
     echo "" 
-    echo "=> Bootstrapping host '$host'"
+    echo " => Bootstrapping host '$host'"
     #
     # Device format and mount
     if [ $attach -gt 0 ]; then
@@ -320,18 +320,15 @@ for name in $names; do
         fi
     fi
 
-    #
+    # prereq's
     # disable  iptables and cups
+    echo " -> Prereqs"
     echo "( $GSSH $host --command 'sudo systemctl stop firewalld; sudo systemctl disable firewalld' )"
     if [ $dryrun -eq 0 ]; then
         ( $GSSH $host --command "sudo systemctl stop firewalld; sudo systemctl disable firewalld" )
     fi
 
-
-    #
-    # prereq's
     echo "( $GSSH $host --command ./tdh-prereqs.sh )"
-
     if [ $dryrun -eq 0 ]; then
         ( $GSCP ${tdh_path}/../etc/bashrc ${host}:.bashrc )
         ( $GSCP ${tdh_path}/tdh-prereqs.sh ${host}: )
@@ -348,7 +345,7 @@ for name in $names; do
 
     #
     # ssh
-    echo "-> Configure ssh host keys"
+    echo " -> Configure ssh host keys"
     echo "( $GSSH $host --command \"ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa; \
       cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys\" )"
 
