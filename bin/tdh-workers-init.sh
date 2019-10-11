@@ -19,8 +19,8 @@ bootsize="$GCP_DEFAULT_BOOTSIZE"
 disksize="$GCP_DEFAULT_DISKSIZE"
 master_id="master-id_rsa.pub"
 master_id_file="${tdh_path}/../ansible/.ansible/${master_id}"
-network="tdh-net"
-subnet="tdh-net-west1"
+network=
+subnet=
 
 myid=1
 attach=0
