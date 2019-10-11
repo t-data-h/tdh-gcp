@@ -1,18 +1,17 @@
 TDH-GCP 
 =========
 
-# Overview
+## Overview
 
-A Framework for building GCP compute instances and deploying TDH.
+A framework for building GCP compute instances and deploying TDH (Hadoop).
 
 The compute instances are managed by a set of scripts for initializing the 
-master and worker node instances. The scripts wrap the GCP API via the 
-*gcloud* CLI tool and accordingly, the Google Cloud SDK must be installed 
-for the scripts to function. 
+master and worker node instances. The scripts wrap the GCP API via  
+*gcloud* CLI tool and accordingly, the Google Cloud SDK must be installed.
 
-Ansible playbooks are used for installing or updating/upgrading the TDH 
+Ansible playbooks are used for installing or updating/upgrading a TDH 
 cluster. The playbook is currently OS focused for RHEL or CentOS flavors 
-of Linux. Refer to the *README.md* located in **./ansible**.
+of Linux. Refer to the `README.md` located in *./ansible*.
 
 
 ## Instance initialization scripts:
@@ -20,22 +19,22 @@ of Linux. Refer to the *README.md* located in **./ansible**.
 * tdh-gcp-compute.sh:
   
   This is the base script for creating a new GCP Compute Instance. It will 
-create an instance and optionally attach data disks to the instance. It is 
-used by the master and worker init script for creating custom instances.
+  create an instance and optionally attach data disks to the instance. It is 
+  used by the master and worker init script for creating custom instances.
 
 * tdh-masters-init.sh:
   
-  Wraps *tdh-gcp-copmpute.sh* with defaults for initializing master hosts.
-This will bootstrap master hosts with mysqld and ansible as we use ansible
-from the master host(s) to deploy and manage the cluster. The first master 
-is considered as the primary management node for running Ansible.
+  Wraps `tdh-gcp-copmpute.sh` with defaults for initializing master hosts.
+  This will bootstrap master hosts with mysqld and ansible as we use ansible
+  from the master host(s) to deploy and manage the cluster. The first master 
+  is considered as the primary management node for running Ansible.
 
 * tdh-workers-init.sh:  
   
   Builds TDH worker nodes in similarly to the masters init, but generally 
- of a different machine type. Installs a few prerequisites such as the
- mysql client library and tools like wget that may be needed prior to 
- ansible bootstrapping.
+  of a different machine type. Installs a few prerequisites such as the
+  mysql client library and tools like wget that may be needed prior to 
+  ansible bootstrapping.
 
 
 ## Support scripts:
@@ -52,7 +51,11 @@ Support scripts utilized by the initialization scripts.
 * tdh-mysql-install.sh: 
   
   Bootstraps a Mysql 5.7 Server instance (on master hosts). This script is used 
-  directly by the masters init script is generally not run directly.
+  directly by the masters init script is generally not run directly. It takes 
+  care of an initial install of mysql server and client, setting the root password 
+  as well as ensuring `server-id` is set in accordance to the number of masters.
+  Actual slave configuration and TDH accounts are provisioned later by the 
+  ansible playbooks.
 
 * tdh-prereqs.sh:
   
@@ -96,7 +99,9 @@ Additional support scripts used in addition to the init scripts.
     => result: gcloud compute scp tdh-anaconda3.tar.gz tdh-m01:tmp/dist/
   ```
 
-### Examples:
+---
+
+## Examples:
 
 Create three master nodes, first with a test run:
 ```
@@ -109,7 +114,9 @@ Create four worker nodes, with 256G boot drive as SSD.
 ./bin/tdh-workers-init.sh -b 256GB -S run d01 d02 d03 d04
 ```
 
-### Resource considerations:
+---
+
+## Resource considerations:
 
 All of this varies, of course, on data sizes and workloads and is
 intended as a starting point.
@@ -148,6 +155,8 @@ M03:
                         6-8       4
 ```
 
+---
+
 ## GCP Machine-Types:
 
 |    Role       |  Machine Type   |  vCPU and Memory   |
@@ -161,7 +170,7 @@ M03:
 | Worker/Data   |  n1-highmem-32  | 32 vCPU and 208 Gb |
 
  
-### Changing Machine Type:
+## Changing Machine Type:
 ```
 $ gcloud compute instances set-machine-type tdh-d01 \
   --machine-type n1-highmem-16
@@ -170,6 +179,8 @@ $ gcloud compute instances set-machine-type tdh-d02 \
 $ gcloud compute instances set-machine-type tdh-d03 \
   --machine-type n1-highmem-16
 ```
+
+---
 
 ## Environment Variables
 

@@ -22,7 +22,7 @@ id=1
 usage()
 {
     echo ""
-    echo "Usage: $PNAME [options]  [host] [ROLE]"
+    echo "Usage: $TDH_PNAME [options]  [host] [ROLE]"
     echo "  -h|--help             : Display help and exit"
     echo "  -p|--password <pw>    : The root mysql password"
     echo "  -P|--pwfile <file>    : File containing root mysql password"

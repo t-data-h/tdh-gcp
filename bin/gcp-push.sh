@@ -2,6 +2,8 @@
 #
 #  Creates an archive of a given path and pushes to remote GCP host.
 #
+#  @author Timothy C. Arland <tcarland@gmail.com>
+#
 tdh_path=$(dirname "$(readlink -f "$0")")
 
 if [ -f ${tdh_path}/tdh-gcp-config.sh ]; then
@@ -35,16 +37,17 @@ usage()
     echo "  gcphost      : Name of gcp host. To override GCP_PUSH_HOST"
     echo ""
     echo "   The script assumes that the archive will contain the final"
-    echo " directory, so a path of a '/a/b/target' will create the archive from "
-    echo " 'b' with the tarfile containing './target/' as the root directory"
+    echo " directory target, so a path of a '/a/b/target' will create the "
+    echo " archive from 'b' with the tarfile containing './target/' as the "
+    echo " root directory."
     echo ""
-    echo "  The environment variable 'GCP_PUSH_HOST' is honored as the "
-    echo " the default 'gcphost' to use. If not set, all three parameters"
-    echo " are required."
-    echo "  The script uses a common tmp path for both creating the archive "
-    echo " locally, and for the target host path.  This uses the value of "
-    echo " 'GCP_DIST_PATH' if set,or the default'~/tmp/dist' if not set."
-    echo " The path should exist locally as well as remotely."
+    echo "   The environment variable 'GCP_PUSH_HOST' is honored as the "
+    echo " default 'gcphost' to use. If not set, all three parameters are"
+    echo " required."
+    echo ""
+    echo "   The script uses a common tmp path for both creating the archive "
+    echo " locally, and for the target host path.  This is defined by the "
+    echo " variable 'GCP_DIST_PATH'. The default is '~/tmp/dist' if not set."
     echo ""
 }
 
