@@ -5,16 +5,12 @@ tdh-m01
 [master02]
 tdh-m02
 
-[master03]
-tdh-m03
-
 [masters:children]
 master01
 master02
-master03
 
 [workers]
-tdh-d[01:04]
+tdh-d[01:03]
 
 [mysql_master]
 tdh-m01
