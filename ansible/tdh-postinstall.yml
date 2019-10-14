@@ -14,3 +14,5 @@
     shell: 'hdfs dfs -mkdir -p /tmp/logs'
   - name: mkdir /tmp/spark
     shell: 'hdfs dfs -mkdir -p /tmp/spark'
+  - name: mkdir /tmp/spark2
+    shell: 'hdfs dfs -mkdir -p /tmp/spark2'
