@@ -1,0 +1,28 @@
+---
+tdh_env: 't3-labs'
+
+tdh_user: 'tarland'
+tdh_group: 'tarland'
+
+mysql_master_hostname: 'ta-dil0001.labs.trace3.com'
+mysql_slave_hostname: 'ta-dil0002.labs.trace3.com'
+mysql_hostname: '{{ mysql_master_hostname }}'
+mysql_port: 3306
+
+mysql_repl_user: 'cdhrepl'
+mysql_hive_user: 'hive'
+mysql_hive_db: 'metastore'
+mysql_hive_schemafile: '/opt/TDH/hive/scripts/metastore/upgrade/mysql/hive-schema-1.2.0.mysql.sql'
+
+tdh_mysql_master_hosts:
+  - '{{ mysql_master_hostname }}'
+  - '{{ mysql_slave_hostname }}'
+
+tdh_mysql_client_hosts:
+  - 'ta-dil00001.labs.trace3.com'
+  - 'ta-dil00002.labs.trace3.com'
+  - 'ta-dil00003.labs.trace3.com'
+  - 'ta-dil00004.labs.trace3.com'
+  - 'ta-dil00005.labs.trace3.com'
+  - 'ta-dil00006.labs.trace3.com'
+  - 'ta-dil00007.labs.trace3.com'
