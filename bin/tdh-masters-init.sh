@@ -381,7 +381,7 @@ for name in $names; do
     else
         role="slave"
     fi
-My Saved Search
+
     cmd="${tdh_path}/tdh-mysql-install.sh"
 
     if [ -n "$zone" ]; then

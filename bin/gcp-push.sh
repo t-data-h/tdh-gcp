@@ -21,7 +21,8 @@ fi
 zone=
 apath=
 aname=
-gcphost=
+host=
+nocopy=0
 
 # -----------------------------------
 
@@ -34,7 +35,7 @@ usage()
     echo "  archive_name : an altername name to call the tarball. The value"
     echo "                 of 'somepkg' will result in 'somepkg.tar.gz'"
     echo "                 By default, the the final directory name is used."
-    echo "  gcphost      : Name of gcp host. To override GCP_PUSH_HOST"
+    echo "  host         : Name of target host. To override GCP_PUSH_HOST"
     echo ""
     echo "   The script assumes that the archive will contain the final"
     echo " directory target, so a path of a '/a/b/target' will create the "
@@ -71,21 +72,24 @@ while [ $# -gt 0 ]; do
             tdh_version
             exit $rt
             ;;
+        -x|--no-copy)
+            nocopy=1
+            ;;
         *)
             apath="$1"
             aname="$2"
-            gcphost="$3"
+            host="$3"
             shift $#
             ;;
     esac
     shift
 done
 
-if [ -z "$gcphost" ]; then
-    gcphost="$GCP_PUSH_HOST"
+if [ -z "$host" ]; then
+    host="$GCP_PUSH_HOST"
 fi
 
-if [ -z "$gcphost" ]; then
+if [ -z "$host" ]; then
     echo "Error! GCP_PUSH_HOST not defined or provided."
     usage
     exit 1
@@ -121,17 +125,19 @@ if [ $rt -gt 0 ]; then
 fi
 
 ( gzip ${DISTPATH}/${aname}.tar )
-( $GSSH ${gcphost} --command "mkdir -p ${DISTPATH}" )
 
 echo "scp ${DISTPATH}/${aname}.tar.gz ${gcphost}:${DISTPATH}"
-( $GSCP ${DISTPATH}/${aname}.tar.gz ${gcphost}:${DISTPATH} )
+if [ $nocopy -eq 0 ]; then
+    ( $GSSH ${gcphost} --command "mkdir -p ${DISTPATH}" )
+    ( $GSCP ${DISTPATH}/${aname}.tar.gz ${gcphost}:${DISTPATH} )
 
-rt=$?
-if [ $rt -gt 0 ]; then
-    echo "Error in gcp"
+    rt=$?
+    if [ $rt -gt 0 ]; then
+        echo "Error in gcp"
+    fi
+
+    ( rm ${DISTPATH}/${aname}.tar.gz )
 fi
-
-( rm ${DISTPATH}/${aname}.tar.gz )
 
 echo "$TDH_PNAME Finished."
 exit $rt
