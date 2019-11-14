@@ -137,7 +137,6 @@ if [ "$role" == "client" ]; then
     exit 0
 fi
 
-
 ( $scp ${tdh_path}/../etc/tdh-mysql.cnf ${user}@${host}:my.cnf )
 
 if [ "$role" == "slave" ]; then
