@@ -12,16 +12,18 @@ fi
 
 # -----------------------------------
 
-DISTPATH="${HOME}/tmp/dist"
+DISTPATH="/tmp/dist"
 
-if [ -n "$GCP_DIST_PATH" ]; then
-    DISTPATH="$GCP_DIST_PATH"
+if [ -n "$TDH_DIST_PATH" ]; then
+    DISTPATH="$TDH_DIST_PATH"
 fi
 
 zone=
 apath=
 aname=
 host=
+user="$USER"
+usegcp=0
 nocopy=0
 
 # -----------------------------------
@@ -30,25 +32,30 @@ usage()
 {
     echo ""
     echo "$TDH_PNAME [options] [path] <archive_name> <gcphost>"
+    echo "  -G|--use-gcp     : Use GCloud API to scp file."
+    echo "  -h|--help        : Show usage info and exit."
+    echo "  -u:--user        : Username for scp action."
+    echo "  -z|--zone <zone> : GCP Zone if not default."
+    echo "  -V|--version     : Show version info and exit." 
     echo ""
-    echo "  path         : is the directory to be archived (required)."
-    echo "  archive_name : an altername name to call the tarball. The value"
-    echo "                 of 'somepkg' will result in 'somepkg.tar.gz'"
-    echo "                 By default, the the final directory name is used."
-    echo "  host         : Name of target host. To override GCP_PUSH_HOST"
+    echo "  path             : is the directory to be archived (required)."
+    echo "  archive_name     : an altername name to call the tarball. The "
+    echo "                     value of 'pkg' will result in 'pkg.tar.gz'"
+    echo "                     By default, the final directory name is used."
+    echo "  host             : Name of target. To override set TDH_PUSH_HOST"
     echo ""
     echo "   The script assumes that the archive will contain the final"
     echo " directory target, so a path of a '/a/b/target' will create the "
     echo " archive from 'b' with the tarfile containing './target/' as the "
     echo " root directory."
     echo ""
-    echo "   The environment variable 'GCP_PUSH_HOST' is honored as the "
+    echo "   The environment variable 'TDH_PUSH_HOST' is honored as the "
     echo " default 'gcphost' to use. If not set, all three parameters are"
     echo " required."
     echo ""
     echo "   The script uses a common tmp path for both creating the archive "
     echo " locally, and for the target host path.  This is defined by the "
-    echo " variable 'GCP_DIST_PATH'. The default is '~/tmp/dist' if not set."
+    echo " variable 'TDH_DIST_PATH'. The default is '/tmp/dist' if not set."
     echo ""
 }
 
@@ -56,6 +63,8 @@ usage()
 # MAIN
 #
 rt=0
+ssh="ssh"
+scp="scp"
 
 
 while [ $# -gt 0 ]; do
@@ -63,6 +72,13 @@ while [ $# -gt 0 ]; do
         -h|--help)
             usage
             exit $rt
+            ;;
+        -G|--use-gcp)
+            usegcp=1
+            ;;
+        -u|--user)
+            user="$2"
+            shift
             ;;
         -z|--zone)
             zone="$2"
@@ -86,11 +102,11 @@ while [ $# -gt 0 ]; do
 done
 
 if [ -z "$host" ]; then
-    host="$GCP_PUSH_HOST"
+    host="$TDH_PUSH_HOST"
 fi
 
 if [ -z "$host" ]; then
-    echo "Error! GCP_PUSH_HOST not defined or provided."
+    echo "Error! TDH_PUSH_HOST not defined or provided."
     usage
     exit 1
 fi
@@ -101,9 +117,16 @@ if [ -z "$apath" ]; then
     exit 1
 fi
 
-if [ -n "$zone" ]; then
-    GSSH="$GSSH --zone $zone"
-    GSCP="$GSCP --zone $zone"
+if [ $usegcp -gt 0 ]; then
+    ssh="$GSSH"
+    scp="$GSCP"
+    if [ -n "$zone" ]; then
+        ssh="$ssh --zone $zone"
+        scp="$scp --zone $zone"
+    fi
+    ssh="$ssh ${user}@${host} --command"
+else
+    ssh="$ssh ${user}@${host}"
 fi
 
 apath=$(readlink -f "$apath")
@@ -126,10 +149,10 @@ fi
 
 ( gzip ${DISTPATH}/${aname}.tar )
 
-echo "scp ${DISTPATH}/${aname}.tar.gz ${gcphost}:${DISTPATH}"
+echo "scp ${DISTPATH}/${aname}.tar.gz ${host}:${DISTPATH}"
 if [ $nocopy -eq 0 ]; then
-    ( $GSSH ${gcphost} --command "mkdir -p ${DISTPATH}" )
-    ( $GSCP ${DISTPATH}/${aname}.tar.gz ${gcphost}:${DISTPATH} )
+    ( $ssh "mkdir -p ${DISTPATH}" )
+    ( $scp ${DISTPATH}/${aname}.tar.gz ${user}@${host}:${DISTPATH} )
 
     rt=$?
     if [ $rt -gt 0 ]; then
