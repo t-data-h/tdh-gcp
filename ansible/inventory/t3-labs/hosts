@@ -14,7 +14,7 @@ master02
 master03
 
 [workers]
-ta-dil00[01:04]
+ta-dil0000[1:4]
 
 [mysql_master]
 master01
