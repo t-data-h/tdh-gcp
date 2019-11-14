@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#  Creates an archive of a given path and pushes to remote GCP host.
+#  Creates an archive of a given path and pushes to a remote host.
 #
 #  @author Timothy C. Arland <tcarland@gmail.com>
 #
