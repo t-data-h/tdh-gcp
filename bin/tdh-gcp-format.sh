@@ -1,17 +1,63 @@
 #!/bin/bash
 #
-#  Format attached GCP Disk. Intended to be ran on a 
-#  GCP compute instance.
+#  Format an attached data disk. Intended to be ran directly on a 
+#  remote host. This assumes we are a full block data device and 
+#  thus we do not create partitions. 
+#  eg.
+#  scp $PNAME remote_host:
+#  ssh $remote_host $PNAME /dev/sdb /data1
 #
 PNAME=${0##*\/}
 
 # -----------------------------------
 
-device="$1"
-mount="$2"
-devname=${device##*\/}
+device=
+mount=
+devname=
+cmd="mkfs"
+fstype="ext4"
+xfstype="xfs"
+force=0
+usexfs=0
 
 # -----------------------------------
+
+
+usage()
+{
+    echo ""
+    echo "Usage: $PNAME [options] <device> <mountpoint>"
+    echo "  -f|--force   : Set force option on mkfs"
+    echo "  -h|--help    : Show usage info and exit"
+    echo "  -x|--use-xfs : Use XFS Filesytem instead of default ext4"
+    echo ""
+}
+
+# -----------------------------------
+
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        -f|--force)
+            force=1
+            ;;
+        -x|--use-xfs)
+            usexfs=1
+            ;;
+        *)
+            device="$1"
+            mount="$2"
+            shift $#
+            ;;
+    esac
+    shift
+done
+
+devname=${device##*\/}
 
 if [ -z "$device" ] || [ -z "$mount" ]; then
     echo "Usage: $PNAME <device> <mountpoint>"
@@ -20,7 +66,33 @@ fi
 
 # Format and mount attached disk
 ( sudo mkdir -p $mount )
-( sudo mkfs.ext4 -F $device )
+rt=$?
+
+if [ $rt -ne 0 ]; then
+    echo "Error in mkdir of mount path: $mount"
+    exit $rt
+fi
+
+if [ $usexfs -eq 1 ]; then
+    fstype="$xfstype"
+    cmd="${cmd}.${xfstype}"
+    if [ $force -eq 1 ]; then
+        cmd="$cmd -F"
+    fi
+else
+    cmd="${cmd}.${fstype}"
+    if [ $force -eq 1 ]; then
+        cmd="$cmd -f"
+    fi
+fi
+
+echo "$PNAME Formatting device '$device' as $fstype:"
+
+# Execute our mkfs cmd
+cmd="$cmd $device"
+echo "( $cmd )"
+
+( sudo $cmd )
 
 rt=$?
 if [ $rt -gt 0 ]; then
@@ -42,9 +114,10 @@ echo " $device  UUID='$uuid'"
 
 # add mount to fstab
 fstab=$(mktemp /tmp/tdh-fstab.XXXXXXXX)
+echo "Created fstab tmp file: '$fstab'"
 
 ( cp /etc/fstab $fstab )
-( echo "UUID=$uuid  $mount                  ext4     defaults         1 2" >> $fstab )
+( echo "UUID=$uuid  $mount                  $fstype     defaults         1 2" >> $fstab )
 ( sudo cp $fstab /etc/fstab; sudo chmod 644 /etc/fstab )
 ( sudo mount $mount )
 
