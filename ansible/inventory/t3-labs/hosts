@@ -17,10 +17,10 @@ master03
 ta-dil0000[1:4]
 
 [mysql_master]
-master01
+ta-dil00001
 
 [mysql_slave]
-master02
+ta-dil00002
 
 [mysql:children]
 mysql_master
