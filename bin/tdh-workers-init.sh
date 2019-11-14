@@ -17,6 +17,7 @@ zone=
 mtype="n1-highmem-16"
 bootsize="$GCP_DEFAULT_BOOTSIZE"
 disksize="$GCP_DEFAULT_DISKSIZE"
+format="$TDH_FORMAT"
 network=
 subnet=
 
@@ -245,17 +246,17 @@ for name in $names; do
         device="/dev/sdb"
         mountpoint="/data1"
 
-        echo "( $GSSH ${host} --command './tdh-gcp-format.sh $device $mountpoint' )"
+        echo "( $GSSH ${host} --command './${format} $device $mountpoint' )"
 
         if [ $dryrun -eq 0 ]; then
-            ( $GSCP ${tdh_path}/tdh-gcp-format.sh ${host}: )
-            ( $GSSH $host --command 'chmod +x tdh-gcp-format.sh' )
-            ( $GSSH $host --command "./tdh-gcp-format.sh $device $mountpoint" )
+            ( $GSCP ${tdh_path}/${format} ${host}: )
+            ( $GSSH $host --command "chmod +x $format" )
+            ( $GSSH $host --command "./${format} $device $mountpoint" )
         fi
 
         rt=$?
         if [ $rt -gt 0 ]; then
-            echo "Error in tdh-gcp-format for $host"
+            echo "Error in $format for $host"
             break
         fi
     fi

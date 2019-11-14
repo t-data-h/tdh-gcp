@@ -25,6 +25,10 @@ GCP_DEFAULT_ZONE=$( gcloud config list 2>/dev/null | grep zone | awk -F"= " '{ p
 GSSH="gcloud compute ssh"
 GSCP="gcloud compute scp"
 
+TDH_FORMAT="tdh-format.sh"
+TDH_PUSH="tdh-push.sh"
+TDH_PREREQS="tdh-prereqs.sh"
+
 
 # -----------------------------------
 
