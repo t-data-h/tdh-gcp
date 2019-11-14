@@ -4,8 +4,8 @@ tdh_env: 't3-labs'
 tdh_user: 'tarland'
 tdh_group: 'tarland'
 
-mysql_master_hostname: 'ta-dil0001.labs.trace3.com'
-mysql_slave_hostname: 'ta-dil0002.labs.trace3.com'
+mysql_master_hostname: 'ta-dil00001.labs.trace3.com'
+mysql_slave_hostname: 'ta-dil00002.labs.trace3.com'
 mysql_hostname: '{{ mysql_master_hostname }}'
 mysql_port: 3306
 

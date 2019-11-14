@@ -8,7 +8,7 @@ export TDH_GCP_CONFIG=1
 
 TDH_PNAME=${0##*\/}
 
-TDH_GCP_VERSION="1.0.5"
+TDH_GCP_VERSION="1.0.6"
 TDH_GCP_PREFIX="tdh"
 
 GCP_DEFAULT_MACHINETYPE="n1-standard-4"
@@ -24,6 +24,10 @@ GCP_DEFAULT_ZONE=$( gcloud config list 2>/dev/null | grep zone | awk -F"= " '{ p
 
 GSSH="gcloud compute ssh"
 GSCP="gcloud compute scp"
+
+TDH_FORMAT="tdh-format.sh"
+TDH_PUSH="tdh-push.sh"
+TDH_PREREQS="tdh-prereqs.sh"
 
 
 # -----------------------------------
