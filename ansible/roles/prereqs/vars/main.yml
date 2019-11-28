@@ -26,11 +26,9 @@ yum_install_packages:
 
 yum_master_packages:
  - tmux
- - clustershell
 
 yum_remove_packages:
  - mariadb-libs
 
 apt_java_packages:
  - openjdk-8-jdk-headless
-
