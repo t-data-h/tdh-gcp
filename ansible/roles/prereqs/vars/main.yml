@@ -32,3 +32,14 @@ yum_remove_packages:
 
 apt_java_packages:
  - openjdk-8-jdk-headless
+
+apt_install_packages:
+  - dnsutils
+  - bzip2
+  - unzip
+  - wget
+  - rng-tools
+  - openssl
+  - zlib1g-dev
+  - krb5-user
+  - libkrb5-dev
