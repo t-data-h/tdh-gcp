@@ -66,6 +66,14 @@ if [ -z "$device" ] || [ -z "$mount" ]; then
     exit 1
 fi
 
+# Ensure mount for device does not already exist
+mnt=( mount | grep $device 2>/dev/null )
+rt=$?
+if [ $rt -eq 0 ]; then
+    echo "Error! Mount appears to exist: '$mnt'"
+    exit 1
+fi
+
 # Format and mount attached disk
 ( sudo mkdir -p $mount )
 rt=$?
