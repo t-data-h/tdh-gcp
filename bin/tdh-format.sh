@@ -31,6 +31,8 @@ usage()
     echo "  -h|--help    : Show usage info and exit"
     echo "  -x|--use-xfs : Use XFS Filesytem instead of default ext4"
     echo ""
+    echo " eg. $PNAME -x /dev/sdb /data1"
+    echo ""
 }
 
 # -----------------------------------
@@ -60,7 +62,7 @@ done
 devname=${device##*\/}
 
 if [ -z "$device" ] || [ -z "$mount" ]; then
-    echo "Usage: $PNAME <device> <mountpoint>"
+    usage
     exit 1
 fi
 
