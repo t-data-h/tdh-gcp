@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-#  Format an attached data disk. Intended to be ran directly on a 
-#  remote host. This assumes we are a full block data device and 
-#  thus we do not create partitions. 
+#  Format an attached data disk. Intended to be ran directly on a
+#  remote host. This assumes we are a full block data device and
+#  thus we do not create partitions.
 #  eg.
 #  scp $PNAME remote_host:
 #  ssh $remote_host $PNAME /dev/sdb /data1
@@ -117,7 +117,7 @@ fstab=$(mktemp /tmp/tdh-fstab.XXXXXXXX)
 echo "Created fstab tmp file: '$fstab'"
 
 ( cp /etc/fstab $fstab )
-( echo "UUID=$uuid  $mount                  $fstype     defaults         1 2" >> $fstab )
+( echo "UUID=$uuid  $mount                  $fstype     defaults,noatime      1 2" >> $fstab )
 ( sudo cp $fstab /etc/fstab; sudo chmod 644 /etc/fstab )
 ( sudo mount $mount )
 

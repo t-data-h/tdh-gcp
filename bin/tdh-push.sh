@@ -32,11 +32,11 @@ usage()
 {
     echo ""
     echo "$TDH_PNAME [options] [path] <archive_name> <gcphost>"
-    echo "  -G|--use-gcp     : Use GCloud API to scp file."
+    echo "  -G|--use-gcp     : Use GCloud API to gcloud scp the archive."
     echo "  -h|--help        : Show usage info and exit."
-    echo "  -u:--user        : Username for scp action."
+    echo "  -u|--user        : Username for scp action if not '$USER'."
     echo "  -z|--zone <zone> : GCP Zone if not default."
-    echo "  -V|--version     : Show version info and exit." 
+    echo "  -V|--version     : Show version info and exit."
     echo ""
     echo "  path             : is the directory to be archived (required)."
     echo "  archive_name     : an altername name to call the tarball. The "
@@ -137,7 +137,12 @@ if [ -z "$aname" ]; then
     aname="$name"
 fi
 
+if ! [ -e "$DISTPATH" ]; then
+    ( mkdir -p $DISTPATH )
+fi
+
 cd $target
+
 echo " ( tar -cf ${DISTPATH}/${aname}.tar --exclude-vcs ./${name} )"
 ( tar -cf ${DISTPATH}/${aname}.tar --exclude-vcs ./${name} )
 
@@ -150,6 +155,7 @@ fi
 ( gzip ${DISTPATH}/${aname}.tar )
 
 echo "scp ${DISTPATH}/${aname}.tar.gz ${host}:${DISTPATH}"
+
 if [ $nocopy -eq 0 ]; then
     ( $ssh "mkdir -p ${DISTPATH}" )
     ( $scp ${DISTPATH}/${aname}.tar.gz ${user}@${host}:${DISTPATH} )
