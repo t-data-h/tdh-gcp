@@ -67,7 +67,7 @@ if [ -z "$device" ] || [ -z "$mount" ]; then
 fi
 
 # Ensure mount for device does not already exist
-mnt=( mount | grep $device 2>/dev/null )
+mnt=$( mount | grep $device 2>/dev/null )
 rt=$?
 if [ $rt -eq 0 ]; then
     echo "Error! Mount appears to exist: '$mnt'"
