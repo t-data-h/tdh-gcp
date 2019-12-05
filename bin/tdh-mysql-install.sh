@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#  Bootstrap mysqld for a GCP Instance
+#  Bootstrap mysqld for a compute instance.
 #
 tdh_path=$(dirname "$(readlink -f "$0")")
 
@@ -30,8 +30,8 @@ usage()
     echo "  -p|--password <pw>    : The root mysql password"
     echo "  -P|--pwfile <file>    : File containing root mysql password"
     echo "  -s|--server-id <n>    : Server ID to use for mysql instance"
-    echo "  -u|--user <name>      : SSH Username to use for target host"
-    echo "  -z|--zone <zoneid>    : GCP Zone of target host, if not default"
+    echo "  -u|--user <name>      : SSH Username to use for target host."
+    echo "  -z|--zone <zoneid>    : GCP Zone of target host, if needed."
     echo "  -V|--version          : Show version info and exit"
     echo " Where ROLE is 'master', 'slave', or 'client'"
     echo ""
@@ -132,7 +132,7 @@ sudo ln -s /usr/share/java/mysql-connector-java-5.1.46-bin.jar /usr/share/java/m
 rm -rf mysql-connector-java-5.1.46 mysql-connector-java-5.1.46.tar.gz')
 
 
-if [ "$role" == "client" ]; then 
+if [ "$role" == "client" ]; then
     echo "$PNAME client finished."
     exit 0
 fi
