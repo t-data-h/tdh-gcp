@@ -137,6 +137,10 @@ if [ -z "$aname" ]; then
     aname="$name"
 fi
 
+if ! [ -e "$DISTPATH" ]; then
+    ( mkdir -p $DISTPATH )
+fi
+
 cd $target
 
 echo " ( tar -cf ${DISTPATH}/${aname}.tar --exclude-vcs ./${name} )"
