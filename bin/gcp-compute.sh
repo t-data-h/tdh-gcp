@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#  gcp-compute.sh 
+#  gcp-compute.sh
 #    Manages GCP Compute Instances
 #
 #  @author Timothy C. Arland <tcarland@gmail.com>
@@ -205,6 +205,8 @@ create_disk()
 #
 rt=0
 names=
+ipre='([0-9]{1,3}[\.]){3}[0-9]{1,3}'
+
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -300,7 +302,7 @@ if [ -z "$tags" ]; then
 fi
 
 if [ -z "$network" ]; then
-    if [ -n "$subnet" ]; then 
+    if [ -n "$subnet" ]; then
         echo "Error, subnet defined without network"
         exit 1
     fi

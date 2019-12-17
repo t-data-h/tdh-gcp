@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#  Manage GCP VPC Networks
+#  Manage Google Cloud Platform VPC Networks
 #
 #  @author Timothy C. Arland <tcarland@gmail.com>
 #
@@ -43,7 +43,7 @@ usage()
     echo "                            the network if it does not already exist"
     echo ""
     echo " Where <action> is one of the following: "
-    echo "  create [network] [subnet] :  Create a new subnet (& optionally network)"
+    echo "  create [network] [subnet] :  Create a new network and subnet"
     echo "  list-networks             :  List available networks"
     echo "  list-subnets              :  List available subnets by region"
     echo "  delete-subnet    [subnet] :  Delete a custom subnet"
@@ -124,7 +124,7 @@ create_subnet()
     local rtn=0
 
     echo "( gcloud compute networks subnets create $subnet --network $net --region $reg --range $addy )"
-    if [ $dryrun -eq 0 ]; then 
+    if [ $dryrun -eq 0 ]; then
         ( gcloud compute networks subnets create $subnet --network $net --region $reg --range $addy )
         rtn=$?
     fi
@@ -195,7 +195,6 @@ if [ -z "$action" ]; then
 fi
 
 
-
 case "$action" in
 create)
     if [ -z "$network" ] || [ -z "$subnet" ]; then
@@ -208,7 +207,7 @@ create)
         exit 1
     fi
 
-    # validate region 
+    # validate region
     region_is_valid $region
     rt=$?
 
@@ -231,7 +230,7 @@ create)
 
     if [ $rt -ne 0 ]; then
         crnet=0
-        
+
         echo "GCP Network '$network' not found..."
 
         if [ $yes -eq 0 ]; then
@@ -242,7 +241,7 @@ create)
                 exit 1
             fi
         else
-            echo "  Auto-create of network enabled."
+            echo "  Auto-creating network."
             crnet=1
         fi
 
@@ -259,7 +258,7 @@ create)
 
     # Create the Subnet
     echo ""
-    echo "-> Creating new subnet '$subnet' [$addr] in region '$region'"
+    echo "-> Creating subnet '$subnet' [$addr] in region '$region'"
     create_subnet $network $subnet $region $addr
     rt=$?
 
@@ -277,7 +276,7 @@ create)
     if [ $? -ne 0 ]; then
         cmd="$gfw create $rule_name --network $network --action allow"
         cmd="$cmd --direction ingress --source-ranges $addr --rules all"
-        
+
         echo "Creating fw-rule '$rule_name': "
         echo "( $cmd )"
 
