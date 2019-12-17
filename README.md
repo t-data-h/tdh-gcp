@@ -8,17 +8,18 @@ A framework for building compute instances and deploying TDH (Hadoop).
 The compute instances are managed by a set of scripts for initializing the
 master and worker node instances. The scripts primarily wrap the GCP API via  
 *gcloud* CLI tool and accordingly, the Google Cloud SDK should be installed
-for utilizing GCP, though not all bootstrapping scripts here require GCP.
+for creating GCP-based instances, though GCP is not a strict requirement for
+many of the bootstrapping scripts provided.
 
 Ansible playbooks are used for installing or updating/upgrading a TDH
 cluster. The playbook is currently OS focused for RHEL or CentOS flavors
 of Linux. Refer to the `README.md` located in *./ansible*. The playbooks
-are idempotent and are not GCP specific.
+are idempotent and are also not GCP specific.
 
 
 ## Instance initialization scripts:
 
-* tdh-gcp-compute.sh:
+* gcp-compute.sh:
 
   This is the base script for creating a new GCP Compute Instance. It will
   create an instance and optionally attach data disks to the instance. It is
@@ -26,8 +27,8 @@ are idempotent and are not GCP specific.
 
 * tdh-masters-init.sh:
 
-  Wraps `tdh-gcp-copmpute.sh` with defaults for initializing master hosts.
-  This will bootstrap master hosts with mysqld and ansible as we use ansible
+  Wraps `gcp-copmpute.sh` with defaults for initializing master hosts.
+  This will bootstrap master hosts with Mysqld and Ansible as we use Ansible
   from the master host(s) to deploy and manage the cluster. The first master
   is considered as the primary management node for running Ansible.
 
@@ -45,7 +46,7 @@ Support scripts utilized by the initialization scripts, but are not GCP specific
 and can be used for any environment where the compute instances have already
 been created.
 
-* tdh-gcp-format.sh:
+* tdh-format.sh:
 
   Script for formatting and mounting a new data drive for a given instance. This
   is used by the master/worker init scripts when using an attached data drive and
@@ -72,7 +73,7 @@ Additional support scripts used in addition to the init scripts.
 
 * gcp-networks.sh:
 
-  Provides a wrapper for creating custom GCP networks and subnets. If not specified,
+  Provides a wrapper for creating custom GCP Networks and Subnets. If not specified,
   GCP will revert to using the default network and subnet. If the intention is to
   deploy on given network, this script is first run to define the subnet and
   associated address range in CIDR Format.
