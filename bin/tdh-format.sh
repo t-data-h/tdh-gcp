@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-#  Format an attached data disk. Intended to be ran directly on a
-#  remote host. This assumes we are a full block data device and
-#  thus we do not create partitions.
+#  Format an attached data disk. Intended to be ran directly on a remote
+#  host. By default this will format the device as a full singleton block
+#  device with no partitions.
 #  eg.
 #  scp $PNAME remote_host:
 #  ssh $remote_host $PNAME /dev/sdb /data1
@@ -96,12 +96,12 @@ else
     fi
 fi
 
-echo "$PNAME Formatting device '$device' as $fstype:"
+echo "$PNAME Formatting device '$device' as $fstype..."
 
-# Execute our mkfs cmd
+# Execute mkfs
 cmd="$cmd $device"
-echo "( $cmd )"
 
+echo "( $cmd )"
 ( sudo $cmd )
 
 rt=$?
@@ -110,7 +110,7 @@ if [ $rt -gt 0 ]; then
     exit $rt
 fi
 
-sleep 3
+sleep 3  # allow for kernel to settle on new device
 
 # Get UUID
 uuid=$( ls -l /dev/disk/by-uuid/ | grep $devname | awk '{ print $9 }' )
@@ -120,7 +120,7 @@ if [ -z "$uuid" ]; then
     exit 1
 fi
 
-echo " $device  UUID='$uuid'"
+echo " $device UUID='$uuid'"
 
 # add mount to fstab
 fstab=$(mktemp /tmp/tdh-fstab.XXXXXXXX)

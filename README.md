@@ -8,12 +8,13 @@ A framework for building compute instances and deploying TDH (Hadoop).
 The compute instances are managed by a set of scripts for initializing the
 master and worker node instances. The scripts primarily wrap the GCP API via  
 *gcloud* CLI tool and accordingly, the Google Cloud SDK should be installed
-for utilizing GCP, though not all bootstrapping scripts here require GCP.
+for creating GCP-based instances, though GCP is not a strict requirement for
+many of the bootstrapping scripts provided.
 
 Ansible playbooks are used for installing or updating/upgrading a TDH
 cluster. The playbook is currently OS focused for RHEL or CentOS flavors
 of Linux. Refer to the `README.md` located in *./ansible*. The playbooks
-are idempotent and are not GCP specific.
+are idempotent and are also not GCP specific.
 
 
 ## Instance initialization scripts:
