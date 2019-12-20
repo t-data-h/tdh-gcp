@@ -28,6 +28,7 @@ tdh_log_dir: '/var/log/hadoop'
 
 tdh_log_dirs:
   - '{{ tdh_log_dir }}'
+  - '{{ tdh_log_dir }}/zookeeper'
   - '{{ tdh_log_dir }}/hbase'
   - '{{ tdh_log_dir }}/hive'
   - '{{ tdh_log_dir }}/kafka'

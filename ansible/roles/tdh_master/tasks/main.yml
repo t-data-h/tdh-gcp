@@ -15,8 +15,8 @@
     name: '{{ yum_master_packages }}'
     lock_timeout: 180
     state: present
-  
-- name: TDH Provisioning ... 
+
+- name: TDH Provisioning ...
   block:
   - name: TDH Provisioning Step 1 - Mysql
     shell: '{{ tdh_install_path }}/sbin/01-tdh-mysql-provision.sh'
@@ -26,6 +26,7 @@
     shell: '{{ tdh_install_path }}/sbin/05-spark-provision.sh'
   - name: Increase Host Entropy
     shell: 'rngd -r /dev/urandom'
+
   - name: Configure HDFS Namenode...
     block:
     - name: Create NameNode path
@@ -39,8 +40,10 @@
       shell: '{{ tdh_install_path }}/hadoop/bin/hadoop namenode -format'
       when: inventory_hostname in groups['master01']
     when: nndir.stat.exists == false
+
   - name: Provision Kafka Broker Id
     shell: '{{ tdh_install_path }}/sbin/07-kafka-provision.sh'
+    
   - name: Configure Metastore password
     replace:
       path: '{{ tdh_install_path }}/hive/conf/hive-site.xml'
