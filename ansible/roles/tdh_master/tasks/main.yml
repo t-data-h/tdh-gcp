@@ -40,15 +40,15 @@
     - name: Format namenode
       shell: '{{ tdh_install_path }}/hadoop/bin/hadoop namenode -format'
       when: inventory_hostname in groups['master01']
-      
-    - name: Create ZooKeeper dataLogDir
+
+    - name: Create ZooKeeper 'dataLogDir'
       file:
         path: '{{ tdh_zk_datalog_dir }}'
         owner: '{{ tdh_user }}'
         group: '{{ tdh_group }}'
         mode: 0750
         state: directory
-    - name: Create ZooKeeper dataDir
+    - name: Create ZooKeeper 'dataDir'
       file:
         path: '{{ tdh_zk_data_dir }}'
         owner: '{{ tdh_user }}'
