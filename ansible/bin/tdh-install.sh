@@ -18,14 +18,14 @@ fi
 
 # -------
 
-usage() 
+usage()
 {
     echo ""
     echo "Usage: $TDH_PNAME <action> <env>"
     echo "  <action> any action other than 'run' is a 'dryrun'"
-    echo "  <env>    is the inventory name for the gcp environment."
+    echo "  <env>    is the ansible inventory name."
     echo ""
-    echo " The environment variable TDH_GCP_ENV is honored if the"
+    echo " The environment variable TDH_ANSIBLE_ENV is honored if the"
     echo "environment parameter is not provided."
     echo ""
 }
@@ -53,8 +53,8 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-if [ -z "$env" ] && [ -n "$TDH_GCP_ENV" ]; then
-    env="$TDH_GCP_ENV"
+if [ -z "$env" ] && [ -n "$TDH_ANSIBLE_ENV" ]; then
+    env="$TDH_ANSIBLE_ENV"
 fi
 
 if [ -z "$action" ] || [ -z "$env" ]; then
@@ -70,12 +70,12 @@ cd $TDH_ANSIBLE_HOME
 
 echo ""
 echo "TDH_ANSIBLE_HOME = '$TDH_ANSIBLE_HOME'"
-echo "TDH_GCP_ENV      = '$env'"
+echo "TDH_ANSIBLE_ENV  = '$env'"
 echo "Running Ansible Playbooks : tdh-distribute, tdh_install"
 if [ -n "$tags" ]; then
     echo "  Tags: '$tags'"
 fi
-echo "" 
+echo ""
 
 # ------- Distribute
 

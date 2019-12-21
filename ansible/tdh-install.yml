@@ -3,8 +3,6 @@
 - name: Install TDH
   hosts: all
   gather_facts: False
-  vars_files:
-    - roles/common/vars/constants.yml
 
 - name: Deploy TDH Workers
   hosts: workers
