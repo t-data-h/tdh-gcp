@@ -1,7 +1,7 @@
 ---
 tdh_install_path: '/opt/TDH'
 tdh_tmp_path: '/tmp/TDH/'
-tdh_dist_path: '~/tmp/dist/'
+tdh_dist_path: '/tmp/dist/'
 tdh_drop_path: '{{ tdh_tmp_path }}'
 
 tdh_tarball_file: 'TDH.tar.gz'
@@ -21,13 +21,16 @@ tdh_python3_install_path: '/opt/python'
 tdh_python3_path: '{{ tdh_python3_install_path }}/anaconda3'
 
 tdh_data_dir: '/data'
-tdh_namenode_dir: '/data/hdfs/nn'
-tdh_datanode_dir: '/data/hdfs/dn'
-tdh_nodemanager_dir: '/data/hdfs/nm'
+tdh_namenode_dir: '{{ tdh_data_dir }}/hdfs/nn'
+tdh_datanode_dir: '{{ tdh_data_dir }}/hdfs/dn'
+tdh_nodemanager_dir: '{{ tdh_data_dir }}/hdfs/nm'
+tdh_zk_data_dir: '{{ tdh_data_dir }}/zk'
+tdh_zk_datalog_dir: '/var/lib/zookeeper'
 tdh_log_dir: '/var/log/hadoop'
 
 tdh_log_dirs:
   - '{{ tdh_log_dir }}'
+  - '{{ tdh_log_dir }}/zookeeper'
   - '{{ tdh_log_dir }}/hbase'
   - '{{ tdh_log_dir }}/hive'
   - '{{ tdh_log_dir }}/kafka'
