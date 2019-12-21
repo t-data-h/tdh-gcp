@@ -15,17 +15,19 @@
     name: '{{ yum_master_packages }}'
     lock_timeout: 180
     state: present
-  
-- name: TDH Provisioning ... 
+
+- name: TDH Provisioning ...
   block:
   - name: TDH Provisioning Step 1 - Mysql
     shell: '{{ tdh_install_path }}/sbin/01-tdh-mysql-provision.sh'
+    when: inventory_hostname in groups['master01'] and nndir.stat.exists == false
   - name: TDH Provisioning Step 2 - TDH
     shell: '{{ tdh_install_path }}/sbin/03-tdh-provision.sh'
   - name: TDH Provisioning Step 3 - Spark
     shell: '{{ tdh_install_path }}/sbin/05-spark-provision.sh'
   - name: Increase Host Entropy
     shell: 'rngd -r /dev/urandom'
+
   - name: Configure HDFS Namenode...
     block:
     - name: Create NameNode path
@@ -38,9 +40,28 @@
     - name: Format namenode
       shell: '{{ tdh_install_path }}/hadoop/bin/hadoop namenode -format'
       when: inventory_hostname in groups['master01']
+    - name: Create ZooKeeper 'dataLogDir'
+      file:
+        path: '{{ tdh_zk_datalog_dir }}'
+        owner: '{{ tdh_user }}'
+        group: '{{ tdh_group }}'
+        mode: 0750
+        state: directory
+    - name: Create ZooKeeper 'dataDir'
+      file:
+        path: '{{ tdh_zk_data_dir }}'
+        owner: '{{ tdh_user }}'
+        group: '{{ tdh_group }}'
+        mode: 0750
+        state: directory
     when: nndir.stat.exists == false
+
+  - name: Provision ZooKeeper Id
+    shell: '{{ tdh_install_path }}/sbin/06-zk-provision.sh'
+
   - name: Provision Kafka Broker Id
     shell: '{{ tdh_install_path }}/sbin/07-kafka-provision.sh'
+
   - name: Configure Metastore password
     replace:
       path: '{{ tdh_install_path }}/hive/conf/hive-site.xml'

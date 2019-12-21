@@ -6,6 +6,6 @@ tag="tdh-mgr"
 
 # -------
 
-( $tdh_path/tdh-gcp-install.sh --tags $tag $@ )
+( $tdh_path/tdh-install.sh --tags $tag $@ )
 
 exit $?

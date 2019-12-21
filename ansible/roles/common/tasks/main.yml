@@ -1,7 +1,6 @@
 ---
 # TDH Ansible Common Role
 #
-- include_vars: ../vars/constants.yml
 
 - name: Check for TDH tarball drop
   stat:
@@ -57,7 +56,7 @@
       state: link
   when: tdhdropstat.stat.exists
 
-- name: TDH Config Deploy... 
+- name: TDH Config Deploy...
   block:
   - name: Extract TDH Config package
     unarchive:
