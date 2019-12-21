@@ -20,6 +20,7 @@
   block:
   - name: TDH Provisioning Step 1 - Mysql
     shell: '{{ tdh_install_path }}/sbin/01-tdh-mysql-provision.sh'
+    when: inventory_hostname in groups['master01'] and nndir.stat.exists == false
   - name: TDH Provisioning Step 2 - TDH
     shell: '{{ tdh_install_path }}/sbin/03-tdh-provision.sh'
   - name: TDH Provisioning Step 3 - Spark
@@ -36,11 +37,9 @@
         group: '{{ tdh_group }}'
         mode: 0750
         state: directory
-
     - name: Format namenode
       shell: '{{ tdh_install_path }}/hadoop/bin/hadoop namenode -format'
       when: inventory_hostname in groups['master01']
-
     - name: Create ZooKeeper 'dataLogDir'
       file:
         path: '{{ tdh_zk_datalog_dir }}'
