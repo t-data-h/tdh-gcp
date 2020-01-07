@@ -31,11 +31,11 @@ nocopy=0
 usage()
 {
     echo ""
-    echo "$TDH_PNAME [options] [path] <archive_name> <gcphost>"
+    echo "$TDH_PNAME [options] [path] <archive_name> <host>"
     echo "  -G|--use-gcp     : Use the GCloud API to scp the archive."
     echo "  -h|--help        : Show usage info and exit."
     echo "  -u|--user        : Username for scp action if not '$USER'."
-    echo "  -z|--zone <zone> : GCP Zone if not default."
+    echo "  -z|--zone <zone> : GCP Zone if not default (used with -G)."
     echo "  -V|--version     : Show version info and exit."
     echo ""
     echo "  path             : is the directory to be archived (required)."
