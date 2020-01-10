@@ -1,11 +1,11 @@
 ---
-tdh_env: 't3-labs'
+tdh_env: 't3-lab1'
 
 tdh_user: 'tarland'
 tdh_group: 'tarland'
 
-mysql_master_hostname: 'ta-dil00001.labs.trace3.com'
-mysql_slave_hostname: 'ta-dil00002.labs.trace3.com'
+mysql_master_hostname: 'ta-dil00008.labs.trace3.com'
+mysql_slave_hostname: 'ta-dil00009.labs.trace3.com'
 mysql_hostname: '{{ mysql_master_hostname }}'
 mysql_port: 3306
 
@@ -19,10 +19,10 @@ tdh_mysql_master_hosts:
   - '{{ mysql_slave_hostname }}'
 
 tdh_mysql_client_hosts:
-  - 'ta-dil00001.labs.trace3.com'
-  - 'ta-dil00002.labs.trace3.com'
-  - 'ta-dil00003.labs.trace3.com'
-  - 'ta-dil00004.labs.trace3.com'
-  - 'ta-dil00005.labs.trace3.com'
-  - 'ta-dil00006.labs.trace3.com'
-  - 'ta-dil00007.labs.trace3.com'
+  - 'ta-dil00008.labs.trace3.com'
+  - 'ta-dil00009.labs.trace3.com'
+  - 'ta-dil00010.labs.trace3.com'
+  - 'ta-dil00011.labs.trace3.com'
+  - 'ta-dil00012.labs.trace3.com'
+  - 'ta-dil00013.labs.trace3.com'
+  - 'ta-dil00014.labs.trace3.com'
