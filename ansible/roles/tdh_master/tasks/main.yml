@@ -31,6 +31,7 @@
   - name: Configure HDFS Namenode...
     block:
     - name: Create NameNode path
+      become: true
       file:
         path: '{{ tdh_namenode_dir }}'
         owner: '{{ tdh_user }}'
@@ -41,6 +42,7 @@
       shell: '{{ tdh_install_path }}/hadoop/bin/hadoop namenode -format'
       when: inventory_hostname in groups['master01']
     - name: Create ZooKeeper 'dataLogDir'
+      become: true
       file:
         path: '{{ tdh_zk_datalog_dir }}'
         owner: '{{ tdh_user }}'
@@ -48,6 +50,7 @@
         mode: 0750
         state: directory
     - name: Create ZooKeeper 'dataDir'
+      become: true
       file:
         path: '{{ tdh_zk_data_dir }}'
         owner: '{{ tdh_user }}'
@@ -67,6 +70,5 @@
       path: '{{ tdh_install_path }}/hive/conf/hive-site.xml'
       regexp: 'chhive'
       replace: '{{ mysql_hive_password }}'
-  become: true
   tags: [ tdh-config ]
   when: tdhstat.stat.exists
