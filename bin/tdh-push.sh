@@ -160,7 +160,7 @@ echo "scp ${DISTPATH}/${aname}.tar.gz ${host}:${DISTPATH}"
 
 if [ $nocopy -eq 0 ]; then
     ( $ssh "mkdir -p ${DISTPATH}" )
-    ( $scp ${DISTPATH}/${aname}.tar.gz ${user}@${host}:${DISTPATH} )
+    ( $scp ${DISTPATH}/${aname}.tar.gz ${user}@${host}:${DISTPATH}/ )
 
     rt=$?
     if [ $rt -gt 0 ]; then

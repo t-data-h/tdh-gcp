@@ -43,6 +43,9 @@
       src: '{{ tdh_dropfile }}'
       dest: '/opt'
       remote_src: 'yes'
+      owner: '{{ tdh_user }}'
+      group: '{{ tdh_group }}'
+      mode: 0755
       creates: '{{ tdh_install_path }}'
   - name: Cleanup TDH install package
     file:
@@ -63,6 +66,9 @@
       src: '{{ tdh_config_dropfile }}'
       dest: '{{ tdh_tmp_path }}'
       remote_src: 'yes'
+      owner: '{{ tdh_user }}'
+      group: '{{ tdh_group }}'
+      mode: 0755
       creates: '{{ tdh_config_path }}'
   - name: Synchronize TDH Config
     shell: 'rsync -aK {{ tdh_config_path }}/ {{ tdh_install_path }}/'
@@ -84,6 +90,8 @@
       src: '{{ tdh_mgr_dropfile }}'
       dest: '{{ tdh_tmp_path }}'
       remote_src: 'yes'
+      owner: '{{ tdh_user }}'
+      group: '{{ tdh_group }}'
       creates: '{{ tdh_mgr_path }}'
   - name: Install TDH Mgr
     shell: 'cd {{ tdh_mgr_path }} && make install'
@@ -114,6 +122,9 @@
       src: '{{ tdh_python3_dropfile }}'
       dest: '{{ tdh_python3_install_path }}'
       remote_src: 'yes'
+      owner: 'root'
+      group: 'root'
+      mode: 0755
       creates: '{{ tdh_python3_path }}'
   - name: Cleanup Anaconda package
     file:
