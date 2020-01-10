@@ -10,6 +10,7 @@
     priv: '*.*:ALL,GRANT'
     state: present
   with_items: '{{ tdh_mysql_master_hosts }}'
+  when: inventory_hostname in groups['mysql_master'] or inventory_hostname in groups['mysql_slave']
 
 - name: Mysql DB Setup
   block:

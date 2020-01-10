@@ -26,6 +26,7 @@
   - name: TDH Provisioning Step 3 - Spark
     shell: '{{ tdh_install_path }}/sbin/05-spark-provision.sh'
   - name: Increase Host Entropy
+    become: true
     shell: 'rngd -r /dev/urandom'
 
   - name: Configure HDFS Namenode...

@@ -11,15 +11,8 @@
   roles:
     - 'tdh_worker'
 
-- name: Deploy TDH First Master
-  hosts: master01
-  gather_facts: False
-  tags: [ 'tdh_master' ]
-  roles:
-    - 'tdh_master'
-
-- name: Deploy TDH Second Master
-  hosts: master02
+- name: Deploy TDH Masters
+  hosts: masters
   gather_facts: False
   tags: [ 'tdh_master' ]
   roles:
