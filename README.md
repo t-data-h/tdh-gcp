@@ -6,8 +6,8 @@ TDH-GCP
 A framework for building compute instances and deploying TDH (Hadoop).
 
 The compute instances are managed by a set of scripts for initializing the
-master and worker node instances. The scripts primarily wrap the GCP API via  
-*gcloud* CLI tool and accordingly, the Google Cloud SDK should be installed
+master and worker node instances. The scripts primarily wrap the GCP API via
+the *gcloud* CLI tool and accordingly, the Google Cloud SDK should be installed
 for creating GCP-based instances, though GCP is not a strict requirement for
 many of the bootstrapping scripts provided.
 
