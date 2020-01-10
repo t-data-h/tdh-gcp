@@ -9,7 +9,7 @@ export PS1="$(whoami){$(hostname -s)}$ "
 export JAVA_HOME="/usr/lib/jvm/java"
 export HADOOP_CONF_DIR="/etc/hadoop/conf"
 
-export TDH_ECOSYSTEM_INITS="hadoop-init.sh hbase-init.sh hive-init.sh kafka-init.sh spark-history-init.sh"
+export TDH_ECOSYSTEM_INITS="hadoop-init.sh zookeeper-init.sh hbase-init.sh hive-init.sh kafka-init.sh spark-history-init.sh"
 # skipping mysqld-tdh-init.sh zeppelin-init.sh
 
 if [ -f "/etc/hadoop/tdh-env-user.sh" ]; then
