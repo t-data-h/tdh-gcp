@@ -99,7 +99,7 @@ usage()
     echo "  Default Image is        '$image'"
     echo "  Default Boot Disk size  '$bootsize'"
     echo "  Default GCP Zone is     '$GCP_DEFAULT_ZONE'"
-    echo "  Default tags are set to '$prefix' or --prefix"
+    echo "  Default tags are set to '$prefix'"
     echo ""
     echo " The following environment variables are honored for overrides:"
     echo "  GCP_MACHINE_TYPE, GCP_MACHINE_IMAGE, GCP_IMAGE_PROJECT, GCP_ZONE"
