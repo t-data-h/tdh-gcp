@@ -281,7 +281,7 @@ while [ $# -gt 0 ]; do
             exit $rt
             ;;
         *)
-            action="$1"
+            action="${1,,}"
             shift
             names="$@"
             shift $#
