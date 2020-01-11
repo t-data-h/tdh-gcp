@@ -1,7 +1,6 @@
 #!/bin/bash
 #
-#  gcp-compute.sh
-#    Manages GCP Compute Instances
+#  gcp-compute.sh -  Manage GCP Compute Instances
 #
 #  @author Timothy C. Arland <tcarland@gmail.com>
 #

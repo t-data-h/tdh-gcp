@@ -1,6 +1,7 @@
 #!/bin/bash
 #
-#  Bootstrap mysqld for a compute instance.
+#  Bootstrap mysqld for a host by installing mysql-server
+#  and setting the configuration and root password.
 #
 tdh_path=$(dirname "$(readlink -f "$0")")
 

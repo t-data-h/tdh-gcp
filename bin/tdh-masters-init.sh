@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#  Initialize master GCP instances.
+#  Initialize Master GCP instances.
 #
 tdh_path=$(dirname "$(readlink -f "$0")")
 
