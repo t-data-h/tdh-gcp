@@ -25,6 +25,7 @@ usexfs=0
 
 usage()
 {
+    echo "Format a local block device."
     echo ""
     echo "Usage: $PNAME [options] <device> <mountpoint>"
     echo "  -f|--force   : Set force option on mkfs"

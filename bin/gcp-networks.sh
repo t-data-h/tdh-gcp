@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#  Manage Google Cloud Platform VPC Networks
+#  gcp-networks.sh - Manage GCP VPC Networks
 #
 #  @author Timothy C. Arland <tcarland@gmail.com>
 #
@@ -32,7 +32,7 @@ fi
 usage()
 {
     echo ""
-    echo " Manage GCP Subnets: "
+    echo " Manage GCP VPC Networks and Subnets: "
     echo ""
     echo "Usage: $TDH_PNAME [-a iprange] {options} [action] "
     echo "  -a|--addr  <ipaddr/mb> :  Ip Address range of the subnet (required)"

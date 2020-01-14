@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#  Initialize master GCP instances.
+#  Initialize Master GCP instances.
 #
 tdh_path=$(dirname "$(readlink -f "$0")")
 
@@ -50,15 +50,15 @@ if [ -n "$GCP_NETWORK" ]; then
     network="$GCP_NETWORK"
 fi
 
-if [ -n "$GCP_SUBNET" ]; then 
-    subnet="$GCP_SUBNET" 
+if [ -n "$GCP_SUBNET" ]; then
+    subnet="$GCP_SUBNET"
 fi
 
 # -----------------------------------
 
 usage() {
     echo ""
-    echo "Usage: $TDH_PNAME [options] <run>  host1 host2 ..."
+    echo "Usage: $TDH_PNAME [options] <action>  host1 host2 ..."
     echo "  -A|--attach           : Create an attached volume"
     echo "  -b|--bootsize <xxGB>  : Size of boot disk, Default is $bootsize"
     echo "  -d|--disksize <xxGB>  : Size of attached disk, Default is $disksize"
@@ -74,7 +74,7 @@ usage() {
     echo "  -S|--ssd              : Use SSD as attached disk type"
     echo "  -t|--type             : Machine type to use for instances"
     echo "                          Default is '$mtype'"
-    echo "  -T|--tags <tag1,..>   : List of tags to use for instances" 
+    echo "  -T|--tags <tag1,..>   : List of tags to use for instances"
     echo "  -y|--noprompt         : Will not prompt for password"
     echo "                          --pwfile must be provided for mysqld"
     echo "  -z|--zone <name>      : Set GCP zone to use if not gcloud default."
@@ -173,7 +173,7 @@ while [ $# -gt 0 ]; do
             noprompt=1
             ;;
         *)
-            action="$1"
+            action="${1,,}"
             shift
             namelist="$@"
             shift $#
@@ -241,8 +241,8 @@ echo ""
 for name in $names; do
     host="${prefix}-${name}"
     cmd="${tdh_path}/gcp-compute.sh --prefix $prefix --type $mtype --bootsize $bootsize"
-    
-    if [ -n "$network" ]; then 
+
+    if [ -n "$network" ]; then
         cmd="$cmd --network $network --subnet $subnet"
     fi
     if [ -n "$zone" ]; then
@@ -299,7 +299,7 @@ fi
 for name in $names; do
     host="${prefix}-${name}"
 
-    echo "" 
+    echo ""
     echo " => Bootstrapping host '$host'"
     #
     # Device format and mount
@@ -354,7 +354,7 @@ for name in $names; do
         ( $GSSH $host --command "ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa; \
           cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys" )
     fi
-        
+
     if [ -e "$master_id_file" ]; then
         echo "( $GSCP ${master_id_file} ${host}:.ssh/ )"
         echo "( $GSSH $host --command \"cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys\" )"
@@ -389,7 +389,7 @@ for name in $names; do
         cmd="$cmd --zone $zone"
     fi
 
-    echo " -> Mysqld install" 
+    echo " -> Mysqld install"
     echo "( $cmd -s $myid -P $pwfile $host $role )"
 
     if [ $dryrun -eq 0 ]; then
