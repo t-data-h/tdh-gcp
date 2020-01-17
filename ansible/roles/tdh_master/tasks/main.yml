@@ -7,6 +7,7 @@
 - name: Check for existing TDH
   stat:
     path: '{{ tdh_install_path }}'
+  tags: [ tdh-config ]
   register: tdhstat
 
 - name: Master specific packages
@@ -65,6 +66,7 @@
 
   - name: Provision Kafka Broker Id
     shell: '{{ tdh_install_path }}/sbin/07-kafka-provision.sh'
+    tags: [ tdh-config ]
 
   - name: Configure Metastore password
     replace:
