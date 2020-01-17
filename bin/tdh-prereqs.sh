@@ -4,7 +4,8 @@
 #
 #  Most prereqs are handled during the ansible install playbook, but
 #  this hook still allows for installing items needed prior to ansible
-#  bootstrappping.
+#  bootstrappping. We don't install ansible itself as we often need a
+#  newer version than provided by some os repos.
 #
 PNAME=${0##*\/}
 rt=0

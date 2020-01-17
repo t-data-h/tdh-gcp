@@ -23,21 +23,24 @@ are idempotent and are also not GCP specific.
 
   This is the base script for creating a new GCP Compute Instance. It will
   create an instance and optionally attach data disks to the instance. It is
-  used by the master and worker init script for creating custom instances.
+  used by the master and worker init scripts for creating GCP instances.
 
 * tdh-masters-init.sh:
 
   Wraps `gcp-copmpute.sh` with defaults for initializing master hosts.
-  This will bootstrap master hosts with Mysqld and Ansible as we use Ansible
-  from the master host(s) to deploy and manage the cluster. The first master
-  is considered as the primary management node for running Ansible.
+  This will also bootstrap master hosts with Mysqld. Ansible from the master
+  host(s) is used to deploy and manage the cluster. The first master
+  is considered as the primary management node for running Ansible. Ansible
+  itself is not installed as there currently can be a disparity in versions
+  provided in base OS repositories. The Ansible provided here needs versions
+  2.8 or higher.
 
 * tdh-workers-init.sh:  
 
   Builds TDH worker nodes in similarly to the masters init, but generally
   of a different machine type. Installs a few prerequisites such as the
   mysql client library and tools like wget that may be needed prior to
-  ansible bootstrapping.
+  Ansible bootstrapping.
 
 
 ## Support scripts:
@@ -46,25 +49,25 @@ Support scripts utilized by the initialization scripts, but are not GCP specific
 and can be used for any environment where the compute instances have already
 been created.
 
+* tdh-prereqs.sh:
+
+  Installs host prerequisites that may be needed prior to ansible (eg. wget,
+  ansible itself).
+
 * tdh-format.sh:
 
   Script for formatting and mounting a new data drive for a given instance. This
-  is used by the master/worker init scripts when using an attached data drive and
-  is generally not used directly. The init process copies this to the host to
-  locally format and add the drive(s) to the system.
+  is used by the master/worker init scripts when using an attached data drive.
+  The init script copies this to the remote host to locally format and add the
+  drive(s) to the system.
 
 * tdh-mysql-install.sh:
 
   Bootstraps a Mysql 5.7 Server instance (on given master hosts). It takes
   care of an initial install of mysql server and client, setting the root password
   as well as ensuring `server-id` is set in accordance to the number of masters.
-  Actual slave configuration and accounts are provisioned later by ansible
+  Actual slave configuration and accounts are provisioned later by Ansible
   playbooks.
-
-* tdh-prereqs.sh:
-
-  Installs host prerequisites that may be needed prior to ansible (eg. wget,
-  ansible itself).
 
 
 ## Utility Scripts:
@@ -74,23 +77,24 @@ Additional support scripts used in addition to the init scripts.
 * gcp-networks.sh:
 
   Provides a wrapper for creating custom GCP Networks and Subnets. If not specified,
-  GCP will revert to using the default network and subnet. If the intention is to
-  deploy on given network, this script is first run to define the subnet and
+  GCP will revert to using the `default` network and subnet. If the intention is to
+  deploy on a specific network, this script is first run to define the subnet and
   associated address range in CIDR Format.
 
 * tdh-push.sh
 
-  For pushing a directory of assets to a host. The script will automatically
-  archive a directory, ensuring the directory to be archived remains as the root
-  directory and any soft links within are honored. It creates a tarball to be
-  transferred to a given host.
+  A simple script for pushing a directory of assets to a host. The script will
+  automatically archive a directory, ensuring the directory to be archived
+  remains as the root directory and any soft links within are honored. It
+  creates a tarball to be transferred to a given host.
 
   The environment variable TDH_PUSH_HOST is used as the default target host when
   not provided directly to the script. In the context of TDH, this script is used
-  to push updates, such as this repository, TDH Manager (tdh-mgr), cluster
-  configs from 'tdh-config', and a python distribution. The script also uses a
-  common distribution path for pushing the binaries. By default, this is set to
-  *~/tmp/dist*, but can be provided by setting TDH_DIST_PATH in the environment.
+  to push updates, such as this repository (tdh-gcp), TDH Manager (tdh-mgr),
+  cluster configs from `tdh-config`, and a python3 distribution. The script
+  also uses a common distribution path for pushing files. By default, this is
+  set to `/tmp/dist`, but can be changed by setting TDH_DIST_PATH in the
+  environment.
   ```
   $ export TDH_PUSH_HOST="tdh-m01"
   $ ./bin/tdh-push.sh -G .

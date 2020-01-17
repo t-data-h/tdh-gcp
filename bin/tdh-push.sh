@@ -50,7 +50,7 @@ usage()
     echo "root directory. Typical for any tarball package of assets."
     echo ""
     echo " The environment variable 'TDH_PUSH_HOST' is honored as the "
-    echo "default 'gcphost' to use. If not set, all three parameters are"
+    echo "default 'host' to use. If not set, all three parameters are"
     echo "required."
     echo ""
     echo " The script uses a 'tmp' path for both creating the archive locally"

@@ -2,6 +2,7 @@
 - name: Check for existing TDH
   stat:
     path: '{{ tdh_install_path }}'
+  tags: [ tdh-config ]
   register: tdhstat
 
 - name: TDH Provisioning...

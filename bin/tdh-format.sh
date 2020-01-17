@@ -1,8 +1,9 @@
 #!/bin/bash
 #
 #  Format an attached data disk. Intended to be ran directly on a remote
-#  host. By default this will format the device as a full singleton block
-#  device with no partitions.
+#  host. By default this will format the device as a full block device
+#  with no partition table.
+#
 #  eg.
 #  scp $PNAME remote_host:
 #  ssh $remote_host $PNAME /dev/sdb /data1
@@ -25,12 +26,12 @@ usexfs=0
 
 usage()
 {
-    echo "Format a local block device."
+    echo "Format a block device."
     echo ""
     echo "Usage: $PNAME [options] <device> <mountpoint>"
     echo "  -f|--force   : Set force option on mkfs"
     echo "  -h|--help    : Show usage info and exit"
-    echo "  -x|--use-xfs : Use XFS Filesytem instead of default ext4"
+    echo "  -x|--use-xfs : Use XFS Filesytem instead of default 'ext4'"
     echo ""
     echo " eg. $PNAME -x /dev/sdb /data1"
     echo ""
