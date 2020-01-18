@@ -1,0 +1,6 @@
+---
+mysql_root_password: 'TDHsql11b!'
+mysql_repl_password: 'TDHrepl11b!'
+
+mysql_hive_password: 'TDHhive11b!'
+mysql_hue_password: 'TDHhue11b!'

@@ -1,0 +1,26 @@
+---
+tdh_env: 'aws-west1'
+
+tdh_user: 'centos'
+tdh_group: 'centos'
+
+mysql_master_hostname: 'tdh-m01'
+mysql_slave_hostname: 'tdh-m02'
+mysql_hostname: '{{ mysql_master_hostname }}'
+mysql_port: 3306
+
+mysql_repl_user: 'tdhrepl'
+mysql_hive_user: 'hive'
+mysql_hive_db: 'metastore'
+mysql_hive_schemafile: '/opt/TDH/hive/scripts/metastore/upgrade/mysql/hive-schema-1.2.0.mysql.sql'
+
+tdh_mysql_master_hosts:
+  - '{{ mysql_master_hostname }}'
+  - '{{ mysql_slave_hostname }}'
+
+tdh_mysql_client_hosts:
+  - 'tdh-m01'
+  - 'tdh-m02'
+  - 'tdh-d01'
+  - 'tdh-d02'
+  - 'tdh-d03'
