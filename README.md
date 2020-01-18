@@ -52,7 +52,8 @@ been created.
 * tdh-prereqs.sh:
 
   Installs host prerequisites that may be needed prior to ansible (eg. wget,
-  ansible itself).
+  ansible itself). Note this is not set executable intentionally until it is
+  to be ran on a target host to avoid running this accidentally.
 
 * tdh-format.sh:
 
