@@ -24,4 +24,3 @@ tdh_mysql_client_hosts:
   - 'tdh-d01.c.alderberry-22.internal'
   - 'tdh-d02.c.alderberry-22.internal'
   - 'tdh-d03.c.alderberry-22.internal'
-  

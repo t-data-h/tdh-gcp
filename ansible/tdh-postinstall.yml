@@ -16,3 +16,5 @@
     shell: 'hdfs dfs -mkdir -p /tmp/spark'
   - name: mkdir /tmp/spark2
     shell: 'hdfs dfs -mkdir -p /tmp/spark2'
+  - name: mkdir users home
+    shell: 'hdfs dfs -mkdir /user/{{ lookup("env", "USER") }}'
