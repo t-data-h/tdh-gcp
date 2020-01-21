@@ -14,6 +14,7 @@ fi
 host=
 role="master"
 zone=
+ident=
 pw=
 rt=
 id=1
@@ -28,6 +29,7 @@ usage()
     echo "Usage: $TDH_PNAME [options]  [host] [ROLE]"
     echo "  -h|--help             : Display help and exit"
     echo "  -G|--use-gcp          : Run commands using the GCP API."
+    echo "  -i|--identity <file>  : SSH Identity file."
     echo "  -p|--password <pw>    : The root mysql password."
     echo "  -P|--pwfile <file>    : File containing root mysql password."
     echo "  -s|--server-id <n>    : Server ID to use for mysql instance."
@@ -38,9 +40,9 @@ usage()
     echo ""
 }
 
+
 # Main
 #
-
 while [ $# -gt 0 ]; do
     case "$1" in
         -h|--help)
@@ -49,6 +51,10 @@ while [ $# -gt 0 ]; do
             ;;
         -G|--use-gcp)
             usegcp=1
+            ;;
+        -i|--identity)
+            ident="$2"
+            shift
             ;;
         -p|--password)
             pw="$2"
@@ -99,8 +105,8 @@ if [ -z "$pw" ] && [ "$role" != "client" ]; then
     exit 1
 fi
 
-ssh="ssh "
-scp="scp "
+ssh="ssh"
+scp="scp"
 
 if [ $usegcp -gt 0 ]; then
     ssh="$GSSH"
@@ -111,6 +117,9 @@ if [ $usegcp -gt 0 ]; then
     fi
     ssh="$ssh $user@$host --command"
 else
+    if [ -n "$ident" ]; then
+        ssh="$ssh -i $ident"
+    fi
     ssh="$ssh $user@$host"
 fi
 
