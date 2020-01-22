@@ -139,7 +139,8 @@ sudo mkdir -p /usr/share/java; \
 sudo cp mysql-connector-java-5.1.46/mysql-connector-java-5.1.46-bin.jar /usr/share/java/; \
 sudo chmod 644 /usr/share/java/mysql-connector-java-5.1.46-bin.jar; \
 sudo ln -s /usr/share/java/mysql-connector-java-5.1.46-bin.jar /usr/share/java/mysql-connector-java.jar; \
-rm -rf mysql-connector-java-5.1.46 mysql-connector-java-5.1.46.tar.gz')
+rm -rf mysql-connector-java-5.1.46 mysql-connector-java-5.1.46.tar.gz' )
+( $ssh 'rm mysql-community.repo RPM-GPG-KEY-mysql' )
 
 
 if [ "$role" == "client" ]; then
@@ -170,6 +171,7 @@ if [ "$role" == "master" ] || [ "$role" == "slave" ]; then
     ( $ssh 'sudo mysqld --initialize-insecure --user=mysql' )
     ( $ssh 'sudo systemctl start mysqld' )
     ( $ssh 'sudo systemctl enable mysqld' )
+    ( $ssh 'rm my.cnf' )
 
     rt=$?
     if [ $rt -gt 0 ]; then
