@@ -29,9 +29,7 @@ TDH_FORMAT="tdh-format.sh"
 TDH_PUSH="tdh-push.sh"
 TDH_PREREQS="tdh-prereqs.sh"
 
-
 # -----------------------------------
-
 
 function tdh_version() {
     printf "$TDH_PNAME: (tdh-gcp) v$TDH_GCP_VERSION\n"
