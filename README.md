@@ -128,7 +128,7 @@ Create four worker nodes, with 256G boot drive as SSD.
 ## Resource considerations:
 
 All of this varies, of course, on data sizes and workloads and is
-intended as a starting point.
+intended purely as a starting point.
 
 Minimum memory values for a production-like cluster:
 *  NN/SN = 4 Gb ea.

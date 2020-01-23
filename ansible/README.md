@@ -61,7 +61,7 @@ There are 4 packages that are expected by the deploy playbook:
 * **tdh-mgr.tar.gz**  
   The TDH Manager package consisting of the framework of scripts used to support
   cluster operations.
-* **tdh-conf.tar.gz**  
+* **tdh-cluster-conf.tar.gz**  
   The configuration overlay package that is the cluster configuration.
 * **tdh-anaconda3.tar.gz**  
   The Anaconda Python distribution for utilizing Python3 on the cluster.
@@ -103,20 +103,21 @@ the related ecosystem configurations.
                 \__ kafka
                 \__ spark
   ```
-  The [ *tdh-config/envname* ] path would make up the root of the tdh-conf package. As
-  shown above, the configuration for the central1 cluster would be pushed as the
-  *tdh-conf* package with the following command:
+  The [ *tdh-config/envname* ] path would make up the root of the tdh-cluster-conf
+  package. As shown above, the configuration for the central1 cluster would be
+  pushed as the *tdh-cluster-conf* package with the following command:
   ```
   ./bin/gcp-push.sh --zone us-central1-b ../tdh-config/gcp-central1 \
-  tdh-conf $GCP_PUSH_HOST`
+  tdh-cluster-conf $TDH_PUSH_HOST`
   ```
 
   **NOTE** that the path name under ***tdh-config*** must match the value
-  described by the `tdh_env` variable defined in the inventory ***vars*** yaml. The
-  resulting ***tdh-conf.tar.gz*** archive created will extract to a pre-defined
-  distribution path with that name, */tmp/TDH/tdh_env*.  With the example above,
-  this would be ***/tmp/TDH/gcp-central1***. This name should match the *tdh_env*
-  value in `ansible/inventory/gcp-central1/group_vars/all/vars`.
+  described by the `tdh_env` variable defined in the inventory ***vars*** yaml.
+  The resulting ***tdh-cluster-conf.tar.gz*** archive created will extract to
+  the pre-defined distribution path with that name, */tmp/TDH/tdh_env*.  With
+  the example above, this would be ***/tmp/TDH/gcp-central1***. This name
+  should match the *tdh_env* value in
+  `ansible/inventory/gcp-central1/group_vars/all/vars`.
 
 * **TDH-ANACONDA3** is an optional package for pushing a python3 environment to
   the cluster. As an example, we can push a locally maintained anaconda distribution
@@ -140,15 +141,15 @@ playbook.
 The various install scripts provided are to run portions of the install playbook
 via ansible tags:
 
-|    Script/Command      |    Tag     |        Asset            |
-| ---------------------- | ---------- | ----------------------- |
-| *tdh-gcp-install.sh*   |  All Tags  | *TDH.tar.gz* (and below)|
-| *tdh-mgr-update.sh*    | tdh-mgr    | *tdh-mgr.tar.gz*        |
-| *tdh-config-update.sh* | tdh-conf   | *tdh-conf.tar.gz*       |
-| *tdh-python-update.sh* | tdh-python | *tdh-anaconda3.tar.gz*  |
+|    Script/Command      |    Tag     |        Asset             |
+| ---------------------- | ---------- | ------------------------ |
+| *tdh-gcp-install.sh*   |  All Tags  | *TDH.tar.gz* (and below) |
+| *tdh-mgr-update.sh*    | tdh-mgr    | *tdh-mgr.tar.gz*         |
+| *tdh-config-update.sh* | tdh-conf   |*tdh-cluster-conf.tar.gz* |
+| *tdh-python-update.sh* | tdh-python | *tdh-anaconda3.tar.gz*   |
 
 Note that running the install playbook with no files would result in running
-through just the prerequisites, which in of itself can be handy for GCP host
+through just the prerequisites, which in of itself can be handy for host
 bootstrapping.
 
 
