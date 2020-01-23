@@ -8,7 +8,7 @@ export TDH_GCP_CONFIG=1
 
 TDH_PNAME=${0##*\/}
 
-TDH_GCP_VERSION="1.2.8"
+TDH_GCP_VERSION="1.2.9"
 TDH_GCP_PREFIX="tdh"
 
 GCP_DEFAULT_MACHINETYPE="n1-standard-4"
@@ -29,9 +29,7 @@ TDH_FORMAT="tdh-format.sh"
 TDH_PUSH="tdh-push.sh"
 TDH_PREREQS="tdh-prereqs.sh"
 
-
 # -----------------------------------
-
 
 function tdh_version() {
     printf "$TDH_PNAME: (tdh-gcp) v$TDH_GCP_VERSION\n"

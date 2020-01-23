@@ -14,6 +14,7 @@ fi
 host=
 role="master"
 zone=
+ident=
 pw=
 rt=
 id=1
@@ -28,6 +29,7 @@ usage()
     echo "Usage: $TDH_PNAME [options]  [host] [ROLE]"
     echo "  -h|--help             : Display help and exit"
     echo "  -G|--use-gcp          : Run commands using the GCP API."
+    echo "  -i|--identity <file>  : SSH Identity file."
     echo "  -p|--password <pw>    : The root mysql password."
     echo "  -P|--pwfile <file>    : File containing root mysql password."
     echo "  -s|--server-id <n>    : Server ID to use for mysql instance."
@@ -38,9 +40,9 @@ usage()
     echo ""
 }
 
+
 # Main
 #
-
 while [ $# -gt 0 ]; do
     case "$1" in
         -h|--help)
@@ -49,6 +51,10 @@ while [ $# -gt 0 ]; do
             ;;
         -G|--use-gcp)
             usegcp=1
+            ;;
+        -i|--identity)
+            ident="$2"
+            shift
             ;;
         -p|--password)
             pw="$2"
@@ -99,8 +105,8 @@ if [ -z "$pw" ] && [ "$role" != "client" ]; then
     exit 1
 fi
 
-ssh="ssh "
-scp="scp "
+ssh="ssh"
+scp="scp"
 
 if [ $usegcp -gt 0 ]; then
     ssh="$GSSH"
@@ -111,6 +117,9 @@ if [ $usegcp -gt 0 ]; then
     fi
     ssh="$ssh $user@$host --command"
 else
+    if [ -n "$ident" ]; then
+        ssh="$ssh -i $ident"
+    fi
     ssh="$ssh $user@$host"
 fi
 
@@ -130,7 +139,8 @@ sudo mkdir -p /usr/share/java; \
 sudo cp mysql-connector-java-5.1.46/mysql-connector-java-5.1.46-bin.jar /usr/share/java/; \
 sudo chmod 644 /usr/share/java/mysql-connector-java-5.1.46-bin.jar; \
 sudo ln -s /usr/share/java/mysql-connector-java-5.1.46-bin.jar /usr/share/java/mysql-connector-java.jar; \
-rm -rf mysql-connector-java-5.1.46 mysql-connector-java-5.1.46.tar.gz')
+rm -rf mysql-connector-java-5.1.46 mysql-connector-java-5.1.46.tar.gz' )
+( $ssh 'rm mysql-community.repo RPM-GPG-KEY-mysql' )
 
 
 if [ "$role" == "client" ]; then
@@ -161,6 +171,7 @@ if [ "$role" == "master" ] || [ "$role" == "slave" ]; then
     ( $ssh 'sudo mysqld --initialize-insecure --user=mysql' )
     ( $ssh 'sudo systemctl start mysqld' )
     ( $ssh 'sudo systemctl enable mysqld' )
+    ( $ssh 'rm my.cnf' )
 
     rt=$?
     if [ $rt -gt 0 ]; then

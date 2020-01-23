@@ -9,6 +9,7 @@ TDH_ANSIBLE_HOME=$(dirname $tdh_path)
 action=
 env=
 dryrun=1
+verbose=
 
 # -------
 
@@ -39,6 +40,9 @@ while [ $# -gt 0 ]; do
         -T|--tags)
             tags="$2"
             shift
+            ;;
+        -v|--verbose)
+            verbose=1
             ;;
         -V|--version)
             tdh_version
@@ -93,6 +97,10 @@ fi
 # ------- Install
 
 cmd="ansible-playbook -i inventory/$env/hosts"
+
+if [ $verbose -eq 1 ]; then
+    cmd="$cmd -vvv"
+fi
 
 if [ -n "$tags" ]; then
     cmd="$cmd --tags $tags"

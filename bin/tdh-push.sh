@@ -23,6 +23,7 @@ apath=
 aname=
 host=
 user="$USER"
+ident=
 usegcp=0
 nocopy=0
 
@@ -34,6 +35,7 @@ usage()
     echo "$TDH_PNAME [options] [path] <archive_name> <host>"
     echo "  -G|--use-gcp     : Use the GCloud API to scp the archive."
     echo "  -h|--help        : Show usage info and exit."
+    echo "  -i  <identity>   : ssh identity file."
     echo "  -u|--user        : Username for scp action if not '$USER'."
     echo "  -z|--zone <zone> : GCP Zone if not default (used with -G)."
     echo "  -V|--version     : Show version info and exit."
@@ -77,6 +79,10 @@ while [ $# -gt 0 ]; do
             ;;
         -G|--use-gcp)
             usegcp=1
+            ;;
+        -i|--identity)
+            ident="$2"
+            shift
             ;;
         -u|--user)
             user="$2"
@@ -128,6 +134,9 @@ if [ $usegcp -gt 0 ]; then
     fi
     ssh="$ssh ${user}@${host} --command"
 else
+    if [ -n "$ident" ]; then
+        ssh="$ssh -i $ident"
+    fi
     ssh="$ssh ${user}@${host}"
 fi
 
