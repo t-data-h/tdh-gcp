@@ -3,16 +3,17 @@ TDH-GCP
 
 ## Overview
 
-A framework for building compute instances and deploying TDH (Hadoop).
+A framework for building compute instances and deploying the TDH distribution
+of Hadoop.
 
 The compute instances are managed by a set of scripts for initializing the
-master and worker node instances. The scripts primarily wrap the GCP API via
+master and worker node instances. The scripts wrap the Google Cloud API via
 the *gcloud* CLI tool and accordingly, the Google Cloud SDK should be installed
 for creating GCP-based instances, though GCP is not a strict requirement for
-many of the bootstrapping scripts provided.
+some of the bootstrapping scripts provided.
 
 Ansible playbooks are used for installing or updating/upgrading a TDH
-cluster. The playbook is currently OS focused for RHEL or CentOS flavors
+cluster. The playbook is currently OS focused on RHEL or CentOS flavors
 of Linux. Refer to the `README.md` located in *./ansible*. The playbooks
 are idempotent and are also not GCP specific.
 
@@ -130,13 +131,13 @@ Create four worker nodes, with 256G boot drive as SSD.
 All of this varies, of course, on data sizes and workloads and is
 intended purely as a starting point.
 
-Minimum memory values for a production-like cluster:
+Minimum memory values for a small, usable cluster:
 *  NN/SN = 4 Gb ea.
 *  DN/NM (worker) = 1 Gb ea
 *  Hive Meta|S2  = 12 Gb ea
 *  Hbase Master = 4 Gb
 *  Zookeeper  = 1 Gb
-*  HBase RegionServers = 8 to 20 Gb
+*  HBase RegionServers = 8 to 20 Gb depending
 
 Possible dev layout:
 ```
@@ -180,12 +181,9 @@ M03:
 
 
 ## Changing GCP Machine Type:
+  Shut down the instance first.
 ```
 $ gcloud compute instances set-machine-type tdh-d01 \
-  --machine-type n1-highmem-16
-$ gcloud compute instances set-machine-type tdh-d02 \
-  --machine-type n1-highmem-16
-$ gcloud compute instances set-machine-type tdh-d03 \
   --machine-type n1-highmem-16
 ```
 
@@ -193,11 +191,12 @@ $ gcloud compute instances set-machine-type tdh-d03 \
 
 ## Environment Variables
 
-Most of the various scripts support overriding  various defaults via commandline
-or environment variable.  Some defaults, such as GCP region and zone are taken
+ Most of the various scripts support overriding defaults via the command-line
+or by environment variable.  Some defaults, such as GCP region and zone are taken
 from the active GCloud API configuration. Note that options provided at script
 run-time take precedence over environment variables.
-Essentially the precedence order is:   `default < envvar < cmdline`.
+
+ The precedence order is:   `default < env-var < cmd-line`.
 
 | Environment Variable |  Description  |
 | -------------------- | ------------- |
