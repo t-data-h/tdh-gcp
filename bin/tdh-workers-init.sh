@@ -276,13 +276,13 @@ for name in $names; do
 
     #
     # prereq's
-    echo "( $GSSH $host --command ./tdh-prereqs.sh )"
+    echo "( $GSSH $host --command  sudo ./tdh-prereqs.sh )"
 
     if [ $dryrun -eq 0 ]; then
         ( $GSCP ${tdh_path}/../etc/bashrc ${host}:.bashrc )
         ( $GSCP ${tdh_path}/tdh-prereqs.sh ${host}: )
         ( $GSSH $host --command 'chmod +x tdh-prereqs.sh' )
-        ( $GSSH $host --command ./tdh-prereqs.sh )
+        ( $GSSH $host --command './tdh-prereqs.sh' )
     fi
 
     rt=$?
