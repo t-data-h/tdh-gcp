@@ -89,12 +89,12 @@ if [ $usexfs -eq 1 ]; then
     fstype="$xfstype"
     cmd="${cmd}.${xfstype}"
     if [ $force -eq 1 ]; then
-        cmd="$cmd -F"
+        cmd="$cmd -f"
     fi
 else
     cmd="${cmd}.${fstype}"
     if [ $force -eq 1 ]; then
-        cmd="$cmd -f"
+        cmd="$cmd -F"
     fi
 fi
 
