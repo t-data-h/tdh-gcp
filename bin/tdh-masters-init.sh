@@ -161,6 +161,10 @@ while [ $# -gt 0 ]; do
             mtype="$2"
             shift
             ;;
+        -T|--tags)
+            tags="$2"
+            shift
+            ;;
         -z|--zone)
             zone="$2"
             shift
