@@ -161,6 +161,10 @@ while [ $# -gt 0 ]; do
             mtype="$2"
             shift
             ;;
+        -T|--tags)
+            tags="$2"
+            shift
+            ;;
         -z|--zone)
             zone="$2"
             shift
@@ -329,12 +333,12 @@ for name in $names; do
         ( $GSSH $host --command "sudo systemctl stop firewalld; sudo systemctl disable firewalld" )
     fi
 
-    echo "( $GSSH $host --command ./tdh-prereqs.sh )"
+    echo "( $GSSH $host --command sudo ./tdh-prereqs.sh )"
     if [ $dryrun -eq 0 ]; then
         ( $GSCP ${tdh_path}/../etc/bashrc ${host}:.bashrc )
         ( $GSCP ${tdh_path}/tdh-prereqs.sh ${host}: )
         ( $GSSH $host --command 'chmod +x tdh-prereqs.sh' )
-        ( $GSSH $host --command ./tdh-prereqs.sh )
+        ( $GSSH $host --command './tdh-prereqs.sh' )
         ( $GSSH $host --command 'sudo yum install -y ansible ansible-lint' )
     fi
 
@@ -390,10 +394,10 @@ for name in $names; do
     fi
 
     echo " -> Mysqld install"
-    echo "( $cmd -s $myid -P $pwfile $host $role )"
+    echo "( $cmd -G -s $myid -P $pwfile $host $role )"
 
     if [ $dryrun -eq 0 ]; then
-        ( $cmd -s $myid -P $pwfile $host $role )
+        ( $cmd -G -s $myid -P $pwfile $host $role )
     fi
     ((++myid))
 

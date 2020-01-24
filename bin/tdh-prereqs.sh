@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#  Install host prerequisites
+#  Install host prerequisites (requires sudo access)
 #
 #  Most prereqs are handled during the ansible install playbook, but
 #  this hook still allows for installing items needed prior to ansible
@@ -19,7 +19,7 @@ fi
 
 # -----------------------------------
 
-cmd="yum install"
+cmd="sudo yum install"
 
 # Disable cloud sdk repo check
 if [ $gcp -eq 1 ]; then

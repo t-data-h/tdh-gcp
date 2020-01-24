@@ -8,7 +8,7 @@ export TDH_GCP_CONFIG=1
 
 TDH_PNAME=${0##*\/}
 
-TDH_GCP_VERSION="1.3.0"
+TDH_GCP_VERSION="1.3.1"
 TDH_GCP_PREFIX="tdh"
 
 GCP_DEFAULT_MACHINETYPE="n1-standard-4"
@@ -54,8 +54,8 @@ function wait_for_gcphost() {
 
     ( sleep 3 )
 
-    for x in {1..3}; do
-        yf=$( $cmd --command 'uname -n' )
+    for x in {1..5}; do
+        yf=$( $cmd --command 'uname -n' 2>/dev/null )
         if [[ $yf == $host ]]; then
             #echo " It's ALIIIIVE!!!"
             rt=0

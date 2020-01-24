@@ -143,6 +143,7 @@ stop_instance()
 
     cmd="$cmd $name"
     echo ""
+    echo "-> stop_instance() "
     echo "( $cmd )"
 
     ( $cmd )
