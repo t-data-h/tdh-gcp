@@ -250,12 +250,12 @@ for name in $names; do
         device="/dev/sdb"
         mountpoint="/data1"
 
-        echo "( $GSSH ${host} --command './${format} $device $mountpoint' )"
+        echo "( $GSSH ${host} --command './${format} -f $device $mountpoint' )"
 
         if [ $dryrun -eq 0 ]; then
             ( $GSCP ${tdh_path}/${format} ${host}: )
             ( $GSSH $host --command "chmod +x $format" )
-            ( $GSSH $host --command "./${format} $device $mountpoint" )
+            ( $GSSH $host --command "./${format} -f $device $mountpoint" )
         fi
 
         rt=$?
@@ -304,7 +304,7 @@ for name in $names; do
 
     # mysql client
     role="client"
-    cmd="${tdh_path}/tdh-mysql-install.sh"
+    cmd="${tdh_path}/tdh-mysql-install.sh -G"
 
     if [ -n "$zone" ]; then
         cmd="$cmd --zone $zone"
