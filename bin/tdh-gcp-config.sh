@@ -54,7 +54,7 @@ function wait_for_gcphost() {
 
     ( sleep 3 )
 
-    for x in {1..3}; do
+    for x in {1..5}; do
         yf=$( $cmd --command 'uname -n' )
         if [[ $yf == $host ]]; then
             #echo " It's ALIIIIVE!!!"
