@@ -28,6 +28,7 @@ master_id_file="${tdh_path}/../ansible/.ansible/${master_id}"
 attach=0
 dryrun=0
 ssd=0
+xfs=0
 tags=
 action=
 
@@ -68,6 +69,7 @@ usage() {
     echo "  -t|--type             : Machine type to use for instances"
     echo "                          Default is '$mtype'"
     echo "  -T|--tags <tag1,..>   : List of tags to use for instances"
+    echo "  -x|--use-xfs          : Uses XFS as the data drive filesystem"
     echo "  -z|--zone <name>      : Set GCP zone to use, if not gcloud default."
     echo ""
     echo " Where <action> is 'run' (any other action enables '--dryrun') "
@@ -125,6 +127,9 @@ while [ $# -gt 0 ]; do
         -T|--tags)
             tags="$2"
             shift
+            ;;
+        -x|--use-xfs)
+            xfs=1
             ;;
         -z|--zone)
             zone="$2"
@@ -249,13 +254,20 @@ for name in $names; do
     if [ $attach -gt 0 ]; then
         device="/dev/sdb"
         mountpoint="/data1"
+        cmd="./${format}"
 
-        echo "( $GSSH ${host} --command './${format} -f $device $mountpoint' )"
+        if [ $xfs -eq 1 ]; then
+            cmd="$cmd --use-xfs"
+        fi
+        cmd="$cmd -f $device $mountpoint"
+
+        echo " -> Attaching disk"
+        echo "( $GSSH $host --command '$cmd' )"
 
         if [ $dryrun -eq 0 ]; then
             ( $GSCP ${tdh_path}/${format} ${host}: )
             ( $GSSH $host --command "chmod +x $format" )
-            ( $GSSH $host --command "./${format} -f $device $mountpoint" )
+            ( $GSSH $host --command "$cmd" )
         fi
 
         rt=$?
@@ -265,8 +277,9 @@ for name in $names; do
         fi
     fi
 
-    #
+    # prereqs
     # disable  iptables and cups
+    echo " -> Prereqs"
     echo "( $GSSH $host --command 'sudo systemctl stop firewalld; sudo systemctl disable firewalld; sudo service cups stop; sudo chkconfig cups off' )"
 
     if [ $dryrun -eq 0 ]; then

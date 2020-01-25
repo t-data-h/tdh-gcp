@@ -75,6 +75,7 @@ usage() {
     echo "  -t|--type             : Machine type to use for instances"
     echo "                          Default is '$mtype'"
     echo "  -T|--tags <tag1,..>   : List of tags to use for instances"
+    echo "  -x|--use-xfs          : Use the XFS filesystem for attached disks"
     echo "  -y|--noprompt         : Will not prompt for password"
     echo "                          --pwfile must be provided for mysqld"
     echo "  -z|--zone <name>      : Set GCP zone to use if not gcloud default."
@@ -165,6 +166,12 @@ while [ $# -gt 0 ]; do
             tags="$2"
             shift
             ;;
+        -x|--use-xfs)
+            xfs=1
+            ;;
+        -y|--no-prompt)
+            noprompt=1
+            ;;
         -z|--zone)
             zone="$2"
             shift
@@ -172,9 +179,6 @@ while [ $# -gt 0 ]; do
         -V|--version)
             tdh_version
             exit 0
-            ;;
-        -y|--no-prompt)
-            noprompt=1
             ;;
         *)
             action="${1,,}"
@@ -204,7 +208,7 @@ if [ "$action" == "run" ] && [ $dryrun -eq 0 ]; then
     dryrun=0
 else
     echo "Action provided is: '$action'. Use 'run' to execute"
-    dryrun=1  # action -ne run
+    dryrun=1
     echo "  <DRYRUN> enabled"
 fi
 
@@ -310,12 +314,19 @@ for name in $names; do
     if [ $attach -gt 0 ]; then
         device="/dev/sdb"
         mountpoint="/data"
+        cmd="./${format}"
+
+        if [ $xfs -eq 1 ]; then
+            cmd="$cmd --use-xfs"
+        fi
+        cmd="$cmd -f $device $mountpoint"
+
         echo " -> Attaching disk"
-        echo "( $GSSH $host --command './${format} -f $device $mountpoint' )"
+        echo "( $GSSH $host --command '$cmd' )"
         if [ $dryrun -eq 0 ]; then
             ( $GSCP ${tdh_path}/${format} ${host}: )
             ( $GSSH $host --command "chmod +x $format" )
-            ( $GSSH $host --command "./$format -f $device $mountpoint" )
+            ( $GSSH $host --command "$cmd" )
         fi
 
         rt=$?
@@ -339,6 +350,7 @@ for name in $names; do
         ( $GSCP ${tdh_path}/tdh-prereqs.sh ${host}: )
         ( $GSSH $host --command 'chmod +x tdh-prereqs.sh' )
         ( $GSSH $host --command './tdh-prereqs.sh' )
+        ( $GSSH $host --command 'sudo yum install -y epel-release' )
         ( $GSSH $host --command 'sudo yum install -y ansible ansible-lint' )
     fi
 

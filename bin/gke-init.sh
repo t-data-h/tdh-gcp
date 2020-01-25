@@ -50,7 +50,7 @@ usage() {
     echo " -c|--count <cnt>      : Number of nodes to deploy, Default is $nodes"
     echo " -h|--help             : Display usage info and exit"
     echo " -d|--disksize <xxGB>  : Size of boot disk. Default is $dsize"
-    echo " --dryrun              : Enable dryrun"
+    echo "    --dryrun           : Enable dryrun"
     echo " -N|--network <name>   : Name of GCP Network if not default"
     echo " -n|--subnet <name>    : Name of GCP Subnet if not default"
     echo " -t|--type <type>      : GCP Instance machine-type"
