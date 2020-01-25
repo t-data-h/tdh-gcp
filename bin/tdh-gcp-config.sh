@@ -2,13 +2,13 @@
 #
 #  TDH-GCP Configuration sourced by bash scripts
 #
-#  @author Timothy C. Arland <tcarland@gamil.com>
+#  @author Timothy C. Arland <tcarland@gmail.com>
 #
 export TDH_GCP_CONFIG=1
 
 TDH_PNAME=${0##*\/}
 
-TDH_GCP_VERSION="1.3.1"
+TDH_GCP_VERSION="1.3.2"
 TDH_GCP_PREFIX="tdh"
 
 GCP_DEFAULT_MACHINETYPE="n1-standard-4"
