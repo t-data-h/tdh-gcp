@@ -15,7 +15,7 @@ are provided to run the various stages:
 - **tdh-python-update.sh**: Runs distribute and pushes the Ananconda distribution.
 
 
-## Setting environment passwords
+## Setting environment inventory and passwords
 
 Create the following yaml file as *inventory/ENV/group_vars/all/vault*:
 ```
@@ -35,6 +35,42 @@ file given that the .ansible directory is untracked via *.gitignore*.
 ```
 echo 'myvaultpw' > .ansible/.ansible_vault
 chmod 400 !$
+```
+
+The group vars for all hosts has additional environment specific variables,
+that should be set accordingly. This includes hostnames as defined in the
+inventory. Of important note, while the hosts file can be defined using short
+names, mysql needs fully-qualifed domain names to function properly.
+
+*inventory/$env/group_vars/all/vars*:
+```
+---
+tdh_env: 'env-name'
+
+# set to user running tdh
+tdh_user: 'username'
+tdh_group: 'username'
+
+mysql_master_hostname: 'tdh-m01.gcp-projectname.internal'
+mysql_slave_hostname: 'tdh-m02.gcp-projectname.internal'
+mysql_hostname: '{{ mysql_master_hostname }}'
+mysql_port: 3306
+
+mysql_repl_user: 'tdhrepl'
+mysql_hive_user: 'hive'
+mysql_hive_db: 'metastore'
+mysql_hive_schemafile: '/opt/TDH/hive/scripts/metastore/upgrade/mysql/hive-schema-1.2.0.mysql.sql'
+
+tdh_mysql_master_hosts:
+  - '{{ mysql_master_hostname }}'
+  - '{{ mysql_slave_hostname }}'
+
+tdh_mysql_client_hosts:
+  - 'tdh-m01.gcp-projectname.internal'
+  - 'tdh-m02.gcp-projectname.internal'
+  - 'tdh-d01.gcp-projectname.internal'
+  - 'tdh-d02.gcp-projectname.internal'
+  - 'tdh-d03.gcp-projectname.internal'
 ```
 
 ---
