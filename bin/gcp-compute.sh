@@ -30,6 +30,7 @@ tags=
 attach=0
 ssd=0
 vga=0
+async=0
 dryrun=0
 keep=0
 serial=1
@@ -69,6 +70,7 @@ usage()
     echo " Manage GCP Compute Engine instances: "
     echo ""
     echo "Usage: $TDH_PNAME [options] <action> <instance-name>"
+    echo "  -a|--async           : Use 'async' option with gcloud commands"
     echo "  -A|--attach          : Init and attach a data disk on 'create'"
     echo "  -b|--bootsize <xxGB> : Size of instance boot disk"
     echo "  -d|--disksize <xxGB> : Size of attached disk"
@@ -127,7 +129,9 @@ is_running()
 
     status=$( $cmd $name | grep status: | awk -F: '{ print $2 }' )
 
-    echo $status
+    echo ""
+    echo "-> status: $name = $status"
+
     if [ "$status" == "RUNNING" ]; then
         rt=0
     fi
@@ -135,18 +139,50 @@ is_running()
     return $rt
 }
 
+start_instance()
+{
+    local name="$1"
+    local zone="$2"
+    local async=$3
+    local dryrun=$4
+
+    local cmd="gcloud compute instances start $name --zone $zone"
+
+    if [ $async -eq 1 ]; then
+        cmd="$cmd --async"
+    fi
+
+    echo ""
+    echo "-> start_instance() "
+    echo "( $cmd )"
+
+    if [ $dryrun -eq 0 ]; then
+        ( $cmd )
+    fi
+
+    return $?
+}
 
 stop_instance()
 {
     local name="$1"
-    local cmd="gcloud compute instances stop --zone $zone"
+    local zone="$2"
+    local async=$3
+    local dryrun=$4
 
-    cmd="$cmd $name"
+    local cmd="gcloud compute instances stop $name --zone $zone"
+
+    if [ $async -eq 1 ]; then
+        cmd="$cmd --async"
+    fi
+
     echo ""
     echo "-> stop_instance() "
     echo "( $cmd )"
 
-    ( $cmd )
+    if [ $dryrun -eq 0 ]; then
+        ( $cmd )
+    fi
 
     return $?
 }
@@ -210,6 +246,9 @@ ipre='([0-9]{1,3}[\.]){3}[0-9]{1,3}'
 
 while [ $# -gt 0 ]; do
     case "$1" in
+        -a|--async)
+            async=1
+            ;;
         -A|--attach)
             attach=1
             ;;
@@ -409,18 +448,11 @@ for name in $names; do
         ;;
 
     start)
-        cmd="gcloud compute instances start --zone $zone"
-
-        echo "( $cmd $name )"
-        if [ $dryrun -eq 0 ]; then
-            ( $cmd $name )
-        fi
+        start_instance $name $zone $async $dryrun
         ;;
 
     stop)
-        if [ $dryrun -eq 0 ]; then
-            stop_instance $name
-        fi
+        stop_instance $name $zone $async $dryrun
         ;;
 
     delete)
@@ -430,6 +462,10 @@ for name in $names; do
             cmd="$cmd --keep-disks=data"
         else
             cmd="$cmd --delete-disks=all"
+        fi
+
+        if [ $async -eq 1 ]; then
+            cmd="$cmd --async"
         fi
 
         echo "( $cmd )"

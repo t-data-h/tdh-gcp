@@ -1,5 +1,6 @@
 TDH-GCP
 =========
+Timothy C. Arland  ( tcarland@gmail.com  |  tarland@trace3.com  )
 
 ## Overview
 
@@ -18,29 +19,27 @@ of Linux. Refer to the `README.md` located in *./ansible*. The playbooks
 are idempotent and are also not GCP specific.
 
 
-## Instance initialization scripts:
+## Instance scripts:
 
 * gcp-compute.sh:
 
-  This is the base script for creating a new GCP Compute Instance. It will
-  create an instance and optionally attach data disks to the instance. It is
-  used by the master and worker init scripts for creating GCP instances.
+  This is the base script for creating or managing a GCP Compute Instance. It
+  will create an instance and optionally attach data disks to the instance as
+  well as stopping, deleting, or checking an instance. It is used by the
+  tdh master and worker init scripts for creating GCP instances.
 
 * tdh-masters-init.sh:
 
-  Wraps `gcp-copmpute.sh` with defaults for initializing master hosts.
-  This will also bootstrap master hosts with Mysqld. Ansible from the master
-  host(s) is used to deploy and manage the cluster. The first master
-  is considered as the primary management node for running Ansible. Ansible
-  itself is not installed as there currently can be a disparity in versions
-  provided in base OS repositories. The Ansible provided here needs versions
-  2.8 or higher.
+  Wraps `gcp-copmpute.sh` with defaults for initializing TDH master hosts.
+  This will also bootstrap master hosts with Mysqld. Ansible is then used to
+  deploy and configure the cluster. The first master is commonly used as the
+  primary management node for running Ansible.
 
 * tdh-workers-init.sh:  
 
   Builds TDH worker nodes in similarly to the masters init, but generally
   of a different machine type. Installs a few prerequisites such as the
-  mysql client library and tools like wget that may be needed prior to
+  mysql client library and tools like `wget` that may be needed prior to
   Ansible bootstrapping.
 
 
@@ -52,8 +51,8 @@ been created.
 
 * tdh-prereqs.sh:
 
-  Installs host prerequisites that may be needed prior to ansible (eg. wget,
-  ansible itself). Note this is not set executable intentionally until it is
+  Installs host prerequisites that may be needed prior to Ansible (eg. wget,
+  bind-tools). Note this is not set executable intentionally until it is
   to be ran on a target host to avoid running this accidentally.
 
 * tdh-format.sh:
@@ -61,7 +60,7 @@ been created.
   Script for formatting and mounting a new data drive for a given instance. This
   is used by the master/worker init scripts when using an attached data drive.
   The init script copies this to the remote host to locally format and add the
-  drive(s) to the system.
+  drive(s) to the system, supporting either Ext4 or XFS filesystems.
 
 * tdh-mysql-install.sh:
 
@@ -111,17 +110,38 @@ Additional support scripts used in addition to the init scripts.
 
 ---
 
-## Examples:
+## Running the scripts:
 
-Create three master nodes, first with a test run:
+The scripts rely on relative path to each other and should be run from
+the parent `tdh-gcp` directory. Below are some examples of creating master
+and worker nodes.
+
+
+Create three master nodes, first with a test run, using the default network:
 ```
 ./bin/tdh-masters-init.sh -t 'n1-standard-2' test m01 m02 m03
 ./bin/tdh-masters-init.sh -t 'n1-standard-4' run m01 m02 m03
 ```
 
-Create four worker nodes, with 256G boot drive as SSD.
+Create four worker nodes, with 256G boot drive as SSD and default machine-type.
 ```
 ./bin/tdh-workers-init.sh -b 256GB -S run d01 d02 d03 d04
+```
+
+This example first creates a new GCP Network and Subnet for the cluster,
+attaches a data disk formatted as XFS instead of Ext4.
+```
+./bin/gcp-networks.sh --addr 172.16.200.0/24 create tdh-net tdh-subnet-200
+
+./bin/tdh-masters-init.sh --network tdh-net --subnet tdh-subnet-200 \
+  --pwfile mysqlpw.txt --tags tdh --type n1-standard-4 \
+  run m01 m02 m03
+
+./bin/tdh-workers-init.sh --network tdh-net --subnet tdh-subnet-200 \
+  --tags tdh --type n1-highmem-4 --attach --disksize 256GB --use-xfs \
+  run d01 d02 d03 d04
+
+
 ```
 
 ---
@@ -131,7 +151,7 @@ Create four worker nodes, with 256G boot drive as SSD.
 All of this varies, of course, on data sizes and workloads and is
 intended purely as a starting point.
 
-Minimum memory values for a small, usable cluster:
+Memory values for a small, usable cluster:
 *  NN/SN = 4 Gb ea.
 *  DN/NM (worker) = 1 Gb ea
 *  Hive Meta|S2  = 12 Gb ea
