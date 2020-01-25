@@ -465,7 +465,6 @@ for name in $names; do
         fi
 
         echo "( $cmd )"
-
         if [ $dryrun -eq 0 ]; then
             ( $cmd )
         fi
