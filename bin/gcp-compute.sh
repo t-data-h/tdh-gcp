@@ -464,10 +464,6 @@ for name in $names; do
             cmd="$cmd --delete-disks=all"
         fi
 
-        if [ $async -eq 1 ]; then
-            cmd="$cmd --async"
-        fi
-
         echo "( $cmd )"
 
         if [ $dryrun -eq 0 ]; then
