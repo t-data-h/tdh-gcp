@@ -30,6 +30,7 @@ tags=
 attach=0
 ssd=0
 vga=0
+ipf=0
 async=0
 dryrun=0
 keep=0
@@ -74,6 +75,8 @@ usage()
     echo "  -A|--attach          : Init and attach a data disk on 'create'"
     echo "  -b|--bootsize <xxGB> : Size of instance boot disk"
     echo "  -d|--disksize <xxGB> : Size of attached disk"
+    echo "  -D|--diskname <name> : Name for the attached disk (optional)"
+    echo "  -F|--ip-forward      : Enables IP Forwarding for the instance"
     echo "  -h|--help            : Display usage and exit"
     echo "  -k|--keep            : Sets --keep-disks=data on delete action"
     echo "  -l|--list-types      : List available machine-types for a zone"
@@ -268,6 +271,9 @@ while [ $# -gt 0 ]; do
             diskname="$2"
             shift
             ;;
+        -F|--ip-forward)
+            ipf=1
+            ;;
         -k|--keep)
             keep=1
             ;;
@@ -395,11 +401,17 @@ for name in $names; do
         if [ $ssd -eq 1 ]; then
             cmd="$cmd --boot-disk-type=pd-ssd"
         fi
+
         if [ -n "$network" ]; then
             cmd="$cmd --network ${network} --subnet ${subnet}"
         fi
+
         if [ $vga -eq 1 ]; then
             cmd="$cmd $GCP_ENABLE_VGA"
+        fi
+
+        if [ $ipf -eq 1 ]; then
+            cmd="$cmd --can-ip-forward"
         fi
 
         cmd="$cmd --tags ${tags} ${name}"

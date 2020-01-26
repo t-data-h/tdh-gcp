@@ -229,3 +229,9 @@ run-time take precedence over environment variables.
 | `GCP_SUBNET`         | Provide the Network Subnet to use for create operations. Note this should match the correct network. Same as the command-line parameter `--subnet`.
 | `TDH_PUSH_HOST`      | Host to use for push operations used by *tdh-push.sh*.
 | `TDH_DIST_PATH`      | The distribution path to drop binary packages. Utilized by *tdh-push.sh*.
+
+### TODO
+
+Add support for GCP Ubuntu images:
+--image-family ubuntu-1804-lts --image-project ubuntu-os-cloud
+
