@@ -164,6 +164,10 @@ elif [ "$action" == "delete" ]; then
     if [ $dryrun -eq 0 ]; then
         ( $cmd )
     fi
+elif [ "$action" == "list" ]; then
+    ( $cmd clusters list )
+elif [ "$action" == "describe" ]; then
+    ( $cmd clusters describe $cluster )
 fi
 
 rt=$?
