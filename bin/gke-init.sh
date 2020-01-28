@@ -168,6 +168,9 @@ elif [ "$action" == "list" ]; then
     ( $cmd clusters list )
 elif [ "$action" == "describe" ]; then
     ( $cmd clusters describe $cluster )
+else
+    echo "Action not recognized."
+    echo ""
 fi
 
 rt=$?
