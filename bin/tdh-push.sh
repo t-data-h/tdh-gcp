@@ -136,6 +136,7 @@ if [ $usegcp -gt 0 ]; then
 else
     if [ -n "$ident" ]; then
         ssh="$ssh -i $ident"
+        scp="$scp -i $ident"
     fi
     ssh="$ssh ${user}@${host}"
 fi
@@ -165,7 +166,7 @@ fi
 
 ( gzip ${DISTPATH}/${aname}.tar )
 
-echo "scp ${DISTPATH}/${aname}.tar.gz ${host}:${DISTPATH}"
+echo "scp ${DISTPATH}/${aname}.tar.gz ${user}@${host}:${DISTPATH}"
 
 if [ $nocopy -eq 0 ]; then
     ( $ssh "mkdir -p ${DISTPATH}" )
