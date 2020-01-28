@@ -35,7 +35,7 @@ usage()
     echo "$TDH_PNAME [options] [path] <archive_name> <host>"
     echo "  -G|--use-gcp     : Use the GCloud API to scp the archive."
     echo "  -h|--help        : Show usage info and exit."
-    echo "  -i  <identity>   : ssh identity file."
+    echo "  -i  <identity>   : SSH identity (PEM) file."
     echo "  -u|--user        : Username for scp action if not '$USER'."
     echo "  -z|--zone <zone> : GCP Zone if not default (used with -G)."
     echo "  -V|--version     : Show version info and exit."
