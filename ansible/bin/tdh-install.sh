@@ -9,7 +9,7 @@ TDH_ANSIBLE_HOME=$(dirname $tdh_path)
 action=
 env=
 dryrun=1
-verbose=
+verbose=0
 
 # -------
 
@@ -66,7 +66,7 @@ if [ -z "$action" ] || [ -z "$env" ]; then
     exit 1
 fi
 
-if [[ $action == "run" ]]; then
+if [ "$action" == "run" ]; then
     dryrun=0
 fi
 
