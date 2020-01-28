@@ -12,13 +12,14 @@ fi
 
 gke="gcloud container"
 cluster=
-nodes=3
+nodecnt=3
 mtype="n1-standard-2"  # e2-medium = 2 x 4G
 dsize="20GB"
 ssd=0
 network=
 subnet=
 zone="$GCP_ZONE"
+async=0
 ipalias=0
 dryrun=0
 
@@ -46,15 +47,16 @@ fi
 usage() {
     echo ""
     echo "Usage: $TDH_PNAME [options] <action> <cluster_name>"
-    echo " -a|--ipalias          : Enables ip-alias during cluster creation"
-    echo " -c|--count <cnt>      : Number of nodes to deploy, Default is $nodes"
+    echo " -a|--async            : Run actions asynchronously"
+    echo " -A|--ipalias          : Enables ip-alias during cluster creation"
+    echo " -c|--count <cnt>      : Number of nodes to deploy, Default is $nodecnt"
     echo " -h|--help             : Display usage info and exit"
     echo " -d|--disksize <xxGB>  : Size of boot disk. Default is $dsize"
     echo "    --dryrun           : Enable dryrun"
     echo " -N|--network <name>   : Name of GCP Network if not default"
     echo " -n|--subnet <name>    : Name of GCP Subnet if not default"
-    echo " -t|--type <type>      : GCP Instance machine-type"
     echo " -S|--ssd              : Use 'pd-ssd' as GCP disk type"
+    echo " -t|--type <type>      : GCP Instance machine-type"
     echo " -z|--zone <name>      : Sets an alternate GCP Zone"
     echo " -V|--version          : Show Version Info and exit"
     echo ""
@@ -75,19 +77,19 @@ usage() {
 
 action=
 rt=0
-cmd="$gke"
+cmd=
 
 while [ $# -gt 0 ]; do
     case "$1" in
-        -a|--ip-alias)
+        -a|--async)
+            async=1
+            ;;
+        -A|--ip-alias)
             ipalias=1
             ;;
         -c|--count)
-            nodes=$2
+            nodecnt=$2
             shift
-            ;;
-        -S|--ssd)
-            ssd=1
             ;;
         -d|--disksize)
             dsize="$2"
@@ -109,6 +111,17 @@ while [ $# -gt 0 ]; do
             subnet="$2"
             shift
             ;;
+        -S|--ssd)
+            ssd=1
+            ;;
+        -t|--type)
+            mtype="$2"
+            shift
+            ;;
+        -z|--zone)
+            zone="$2"
+            shift
+            ;;
         -V|--version)
             tdh_version
             exit $rt
@@ -122,16 +135,16 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-
-if [ -z "$cluster" ]; then
-    echo "Name of cluster is required."
-    usage
-    exit 1
-fi
-
 if [ "$action" == "create" ]; then
 
-    cmd="$cmd clusters create $cluster --machine-type=$type --disk-size=$dsize --num-nodes=$nodes"
+    if [ -z "$cluster" ]; then
+        echo "Name of cluster is required."
+        usage
+        exit 1
+    fi
+
+    cmd="$gke"
+    cmd="$cmd clusters create $cluster --machine-type=$mtype --disk-size=$dsize --num-nodes=$nodecnt"
 
     if [ $ssd -eq 1 ]; then
         cmd="$cmd --disk-type=pd-ssd"
@@ -145,7 +158,7 @@ if [ "$action" == "create" ]; then
         cmd="$cmd --network $network --subnetwork $subnet"
     fi
 
-    if [ ipalias -eq 1 ]; then
+    if [ $ipalias -eq 1 ]; then
         cmd="$cmd --enable-ip-alias"
     else
         cmd="$cmd --no-enable-ip-alias"
@@ -157,17 +170,16 @@ if [ "$action" == "create" ]; then
     fi
 
 elif [ "$action" == "delete" ]; then
-
-    cmd = "$cmd clusters delete $cluster"
+    cmd="$gke clusters delete $cluster"
 
     echo "( $cmd )"
     if [ $dryrun -eq 0 ]; then
         ( $cmd )
     fi
 elif [ "$action" == "list" ]; then
-    ( $cmd clusters list )
+    ( $gke clusters list )
 elif [ "$action" == "describe" ]; then
-    ( $cmd clusters describe $cluster )
+    ( $gke clusters describe $cluster )
 else
     echo "Action not recognized."
     echo ""
