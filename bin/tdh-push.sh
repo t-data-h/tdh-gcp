@@ -173,7 +173,7 @@ if [ $nocopy -eq 0 ]; then
 
     rt=$?
     if [ $rt -gt 0 ]; then
-        echo "Error in gcp"
+        echo "Error in scp attempt."
     fi
 
     ( rm ${DISTPATH}/${aname}.tar.gz )
