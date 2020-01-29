@@ -10,8 +10,15 @@
 PNAME=${0##*\/}
 rt=0
 
+prereqs="wget yum-utils rng-tools bind-utils net-tools"
+
+if [ -n "$TDH_PREREQS" ]; then
+    prereqs="$TDH_PREREQS"
+fi
+
 cloudsdk="/etc/yum.repos.d/google-cloud.repo"
 gcp=0
+
 
 if [ -e "$cloudsdk" ]; then
     gcp=1
@@ -26,7 +33,7 @@ if [ $gcp -eq 1 ]; then
     cmd="$cmd --disablerepo=google-cloud-sdk"
 fi
 
-cmd="$cmd -y wget yum-utils rng-tools bind-utils net-tools"
+cmd="$cmd -y $prereqs"
 
 ( $cmd )
 
