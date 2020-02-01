@@ -17,3 +17,10 @@
   tags: [ 'tdh_master' ]
   roles:
     - 'tdh_master'
+
+- name: Deploy TDH clients
+  hosts: clients
+  gather_facts: False
+  tags: [ "tdh_clients" ]
+  roles:
+    - "tdh_client"

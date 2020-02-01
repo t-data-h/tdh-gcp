@@ -1,23 +1,30 @@
 
 [master01]
-tdh-m01
+itc-m01
 
 [master02]
-tdh-m02
+itc-m02
+
+[master03]
+itc-m03
 
 [masters:children]
 master01
 master02
+master03
 
 [workers]
-tdh-d[01:03]
+itc-d[01:04]
 
 [mysql_master]
-tdh-m01
+itc-m01
 
 [mysql_slave]
-tdh-m02
+itc-m02
 
 [mysql:children]
 mysql_master
 mysql_slave
+
+[clients]
+itc-m[04:09]
