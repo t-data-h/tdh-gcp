@@ -166,7 +166,7 @@ fi
 
 ( gzip ${DISTPATH}/${aname}.tar )
 
-echo "scp ${DISTPATH}/${aname}.tar.gz ${user}@${host}:${DISTPATH}"
+echo "$scp ${DISTPATH}/${aname}.tar.gz ${user}@${host}:${DISTPATH}"
 
 if [ $nocopy -eq 0 ]; then
     ( $ssh "mkdir -p ${DISTPATH}" )
