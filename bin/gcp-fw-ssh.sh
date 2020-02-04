@@ -112,7 +112,7 @@ if [ "$action" == "create" ]; then
         exit 1
     fi
     name="${network}-allow-${name}"
-    cmd="$gfw create $name --allow 'tcp:22' --direction INGRESS --source-ranges $cidr"
+    cmd="$gfw create $name --allow tcp:22 --direction INGRESS --source-ranges $cidr"
 
     echo "Creating fw-rule '$name'"
     echo "$cmd"
