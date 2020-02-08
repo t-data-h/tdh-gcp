@@ -8,6 +8,7 @@ TDH_ANSIBLE_HOME=$(dirname $tdh_path)
 
 action=
 env=
+playbook="tdh-install.yml"
 dryrun=1
 verbose=0
 
@@ -105,7 +106,7 @@ fi
 if [ -n "$tags" ]; then
     cmd="$cmd --tags $tags"
 fi
-cmd="$cmd tdh-install.yml"
+cmd="$cmd $playbook"
 
 echo "( $cmd )"
 if [ $dryrun -eq 0 ]; then

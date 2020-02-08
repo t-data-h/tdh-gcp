@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #  Format an attached data disk. Intended to be ran directly on a remote
-#  host. By default this will format the device as a full block device
+#  host. Note that this will format the device as a full block device
 #  with no partition table.
 #
 #  eg.
@@ -33,7 +33,9 @@ usage()
     echo "  -h|--help    : Show usage info and exit"
     echo "  -x|--use-xfs : Use XFS Filesytem instead of default 'ext4'"
     echo ""
-    echo " eg. $PNAME -x /dev/sdb /data1"
+    echo " eg. $PNAME -f -x /dev/sdb /data01"
+    echo " Note --force is often needed to avoid being prompted"
+    echo " which generally occurs when mkfs detects no partition table"
     echo ""
 }
 
@@ -104,6 +106,7 @@ echo "$PNAME Formatting device '$device' as $fstype..."
 cmd="$cmd $device"
 
 echo "( $cmd )"
+echo ""
 ( sudo $cmd )
 
 rt=$?
@@ -114,19 +117,20 @@ fi
 
 sleep 3  # allow for kernel to settle on new device
 
+echo ""
+echo " -> Format complete"
+
 # Get UUID
 uuid=$( ls -l /dev/disk/by-uuid/ | grep $devname | awk '{ print $9 }' )
-
 if [ -z "$uuid" ]; then
     echo "Error obtaining disk UUID from '/dev/disk/by-uuid'"
     exit 1
 fi
-
-echo " $device UUID='$uuid'"
+echo "$device UUID='$uuid'"
 
 # add mount to fstab
 fstab=$(mktemp /tmp/tdh-fstab.XXXXXXXX)
-echo "Created fstab tmp file: '$fstab'"
+echo "  Created fstab tmp file: '$fstab'"
 
 ( cp /etc/fstab $fstab )
 ( echo "UUID=$uuid  $mount                  $fstype     defaults,noatime      1 2" >> $fstab )
@@ -136,6 +140,8 @@ echo "Created fstab tmp file: '$fstab'"
 rt=$?
 if [ $rt -gt 0 ]; then
     echo "Error mounting device $device"
+else
+    echo "Device '$device' mounted to '$mount'"
 fi
 
 echo "$PNAME finished."

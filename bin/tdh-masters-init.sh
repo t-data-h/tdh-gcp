@@ -313,7 +313,7 @@ for name in $names; do
     # Device format and mount
     if [ $attach -gt 0 ]; then
         device="/dev/sdb"
-        mountpoint="/data"
+        mountpoint="/data01"
         cmd="./${format}"
 
         if [ $xfs -eq 1 ]; then
@@ -321,7 +321,7 @@ for name in $names; do
         fi
         cmd="$cmd -f $device $mountpoint"
 
-        echo " -> Attaching disk"
+        echo " -> Formatting and Mount of attached disk"
         echo "( $GSSH $host --command '$cmd' )"
         if [ $dryrun -eq 0 ]; then
             ( $GSCP ${tdh_path}/${format} ${host}: )
@@ -422,7 +422,7 @@ for name in $names; do
 
     #
     # push self for ansible playbooks
-    cmd="${tdh_path}/gcp-push.sh"
+    cmd="${tdh_path}/${TDH_PUSH}"
 
     if [ -n "$zone" ]; then
         cmd="$cmd --zone $zone"
