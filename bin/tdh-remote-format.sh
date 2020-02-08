@@ -11,16 +11,18 @@ fi
 # -----------------------------------
 
 devtypes=( "sd" "xvd" )
-devtype="$devtypes[0]"
+devtype="${devtypes[0]}"
 format="$TDH_FORMAT"
 
-volprefix=
+pathpfx=
 volnum=1
 usexfs=0
 dryrun=0
 usegcp=0
 ident=
 force=
+zone=
+user="$USER"
 
 
 usage()
@@ -36,7 +38,9 @@ usage()
     echo "  -i|--indentity <file> : SSH Identity file to use for hosts"
     echo "  -n|--dryrun           : Enable dryrun (no actions are taken)"
     echo "  -p|--prefix  <path>   : Pathname prefix (default is /data)"
+    echo "  -u|--user    <name>   : Name of remote user if not '$user'"
     echo "  -x|--use-xfs          : Use XFS instead of default EXT4"
+    echo "  -z|--zone   <zoneid>  : GCP zone of target, if GCP and not default"
     echo "  -V|--version          : Show version info and exit"
     echo ""
     echo "  eg. $TDH_PNAME -n 5 -x host1"
@@ -45,7 +49,7 @@ usage()
     echo ""
 }
 
-
+rt=0
 chars=( {b..z} )
 maxvols=${#chars[@]}
 ssh="ssh"
@@ -75,11 +79,19 @@ while [ $# -gt 0 ]; do
             dryrun=1
             ;;
         -p|--prefix)
-            pathprefix="$2"
+            pathpfx="$2"
+            shift
+            ;;
+        -u|--user)
+            user="$2"
             shift
             ;;
         -x|--use-xfs)
             usexfs=1
+            ;;
+        -z|--zone)
+            zone="$2"
+            shift
             ;;
         -V|--version)
             tdh_version
@@ -99,23 +111,70 @@ if [ -z "$hosts" ]; then
 fi
 
 if [ $usegcp -eq 1 ]; then
-    ssh="$SSH"
+    ssh="$GSSH"
+    scp="$GSCP"
+    if [ -n "$zone" ]; then
+        ssh="$ssh --zone $zone"
+        scp="$scp --zone $zone"
+    fi
+else
+    if [ -n "$ident" ]; then
+        ssh="$ssh -i $ident"
+    fi
+fi
 
-for (( i=0; i<$volnum; )); do
-    device="/dev/${devtype}${chars[i++]}"
-    dnum=$( printf "%02d" $i )
-    mnt="/${volprefix}${dnum}"
+hostssh=
 
-    cmd="$format"
+for host in $hosts; do
+    hostssh="$ssh"
 
-    if [ $force -eq 1 ]; then
-        cmd="$cmd --force"
+    if [ $usegcp -eq 1 ]; then
+        hostssh="$hssh $user@$host --command"
+    else
+        hostssh="$hostssh $user@$host"
     fi
 
-    if [ $usexfs -eq 1 ]; then
-        cmd="$cmd --use-xfs"
+    echo "( $scp ${tdh_path}/${format} ${user}@${host}: )"
+    echo "( $hostssh 'chmod +x ./$format' )"
+    if [ $dryrun -eq 0 ]; then
+        ( $scp ${tdh_path}/${format} ${user}@${host}: )
+        ( $hostssh 'chmod +x ./$format' )
     fi
 
-    cmd="$cmd $device $mnt"
+    for (( i=0; i<$volnum; )); do
+        device="/dev/${devtype}${chars[i++]}"
+        dnum=$( printf "%02d" $i )
+        mnt="/${pathpfx}${dnum}"
 
-    echo "( $cmd )"
+        cmd="$hostssh './$format"
+
+        if [ $force -eq 1 ]; then
+            cmd="$cmd --force"
+        fi
+
+        if [ $usexfs -eq 1 ]; then
+            cmd="$cmd --use-xfs"
+        fi
+
+        cmd="$cmd $device $mnt'"
+
+        echo "( $cmd )"
+        if [ $dryrun -eq 0 ]; then
+            ( $cmd )
+            rt=$?
+        fi
+
+        if [ $rt -gt 0 ]; then
+            echo "Error in $format"
+            break
+        fi
+    done
+
+    if [ $rt -gt 0 ]; then
+        break
+    fi
+done
+
+echo "$TDH_PNAME Finished."
+
+exit $rt
