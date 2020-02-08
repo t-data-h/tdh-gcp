@@ -26,6 +26,7 @@ master_id="master-id_rsa.pub"
 master_id_file="${tdh_path}/../ansible/.ansible/${master_id}"
 
 attach=0
+disknum=1
 dryrun=0
 ssd=0
 xfs=0
@@ -56,21 +57,22 @@ fi
 usage() {
     echo ""
     echo "Usage: $TDH_PNAME [options] <action>  host1 host2 ..."
-    echo "  -A|--attach           : Create an attached volume"
+    echo "  -A|--attach           : Create attached volumes"
     echo "  -b|--bootsize <xxGB>  : Size of boot disk in GB, Default is $bootsize"
-    echo "  -d|--disksize <xxGB>  : Size of attached disk, Default is $disksize"
+    echo "  -d|--disksize <xxGB>  : Size of attached volume(s), Default is $disksize"
+    echo "  -D|--disknum   <n>    : Number of attached DataNode volumes"
     echo "  -h|--help             : Display usage and exit"
     echo "     --dryrun           : Enable dryrun, no action is taken"
     echo "  -N|--network <name>   : GCP Network name. Default is $network"
-    echo "  -n|--subnet <name>    : GCP Network subnet name. Default is $subnet"
-    echo "  -p|--prefix <name>    : Prefix name to use for instances"
+    echo "  -n|--subnet  <name>   : GCP Network subnet name. Default is $subnet"
+    echo "  -p|--prefix  <name>   : Prefix name to use for instances"
     echo "                          Default prefix is '$prefix'"
     echo "  -S|--ssd              : Use SSD as attached disk type"
     echo "  -t|--type             : Machine type to use for instances"
     echo "                          Default is '$mtype'"
-    echo "  -T|--tags <tag1,..>   : List of tags to use for instances"
+    echo "  -T|--tags  <tag1,..>  : List of tags to use for instances"
     echo "  -x|--use-xfs          : Uses XFS as the data drive filesystem"
-    echo "  -z|--zone <name>      : Set GCP zone to use, if not gcloud default."
+    echo "  -z|--zone  <name>     : Set GCP zone to use, if not gcloud default."
     echo ""
     echo " Where <action> is 'run' (any other action enables '--dryrun') "
     echo " followed by a list of names that become '\$prefix-\$name'."
@@ -84,6 +86,7 @@ usage() {
 # Main
 #
 rt=0
+chars=( {b..z} )
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -100,6 +103,10 @@ while [ $# -gt 0 ]; do
             ;;
         -d|--disksize)
             disksize="$2"
+            shift
+            ;;
+        -D|--disknum)
+            disknum=$2
             shift
             ;;
         -p|--prefix)
@@ -202,7 +209,7 @@ for name in $names; do
         cmd="${cmd} --dryrun"
     fi
     if [ $attach -gt 0 ]; then
-        cmd="${cmd} --attach --disksize $disksize"
+        cmd="${cmd} --attach --disksize $disksize --disknum $disknum"
     fi
     if [ $ssd -gt 0 ]; then
         cmd="${cmd} --ssd"
@@ -249,46 +256,51 @@ fi
 for name in $names; do
     host="${prefix}-${name}"
 
-    #
     # Device format and mount
     if [ $attach -gt 0 ]; then
-        device="/dev/sdb"
-        mountpoint="/data1"
-        cmd="./${format}"
-
-        if [ $xfs -eq 1 ]; then
-            cmd="$cmd --use-xfs"
-        fi
-        cmd="$cmd -f $device $mountpoint"
-
-        echo " -> Attaching disk"
-        echo "( $GSSH $host --command '$cmd' )"
-
+        echo " -> Formatting additional volume(s)"
         if [ $dryrun -eq 0 ]; then
             ( $GSCP ${tdh_path}/${format} ${host}: )
             ( $GSSH $host --command "chmod +x $format" )
-            ( $GSSH $host --command "$cmd" )
         fi
 
-        rt=$?
-        if [ $rt -gt 0 ]; then
-            echo "Error in $format for $host"
-            break
-        fi
+        for (( i=0; i<$disknum; )); do
+            device="/dev/sd${chars[i++]}"
+            volnum=$(printf "%02d" $i)
+            mountpt="/data${volnum}"
+
+            cmd="./${format}"
+
+            if [ $xfs -eq 1 ]; then
+                cmd="$cmd --use-xfs"
+            fi
+            cmd="$cmd -f $device $mountpt"
+
+            echo "( $GSSH $host --command '$cmd' )"
+
+            if [ $dryrun -eq 0 ]; then
+                ( $GSSH $host --command "$cmd" )
+            fi
+
+            rt=$?
+            if [ $rt -gt 0 ]; then
+                echo "Error in $format for $host"
+                break
+            fi
+        done
     fi
 
     # prereqs
     # disable  iptables and cups
-    echo " -> Prereqs"
-    echo "( $GSSH $host --command 'sudo systemctl stop firewalld; sudo systemctl disable firewalld; sudo service cups stop; sudo chkconfig cups off' )"
+    echo " -> Install Prereqs"
+    echo "( $GSSH $host --command 'sudo systemctl stop firewalld; sudo systemctl disable firewalld; \
+        sudo service cups stop; sudo chkconfig cups off' )"
 
     if [ $dryrun -eq 0 ]; then
-        ( $GSSH $host --command "sudo systemctl stop firewalld; sudo systemctl disable firewalld; sudo service cups stop; sudo chkconfig cups off" )
+        ( $GSSH $host --command "sudo systemctl stop firewalld; sudo systemctl disable firewalld; \
+        sudo service cups stop; sudo chkconfig cups off" )
     fi
 
-
-    #
-    # prereq's
     echo "( $GSSH $host --command  sudo ./tdh-prereqs.sh )"
 
     if [ $dryrun -eq 0 ]; then
@@ -304,10 +316,9 @@ for name in $names; do
         break
     fi
 
-
     #
     # ssh
-    echo "( $GSCP ${master_id_file} ${host}:.ssh"
+    echo "( $GSCP ${master_id_file} ${host}:.ssh/"
     echo "( $GSSH $host --command \"cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys\" )"
 
     if [ $dryrun -eq 0 ]; then

@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #  Format an attached data disk. Intended to be ran directly on a remote
-#  host. By default this will format the device as a full block device
+#  host. Note that this will format the device as a full block device
 #  with no partition table.
 #
 #  eg.
@@ -33,7 +33,9 @@ usage()
     echo "  -h|--help    : Show usage info and exit"
     echo "  -x|--use-xfs : Use XFS Filesytem instead of default 'ext4'"
     echo ""
-    echo " eg. $PNAME -x /dev/sdb /data1"
+    echo " eg. $PNAME -f -x /dev/sdb /data01"
+    echo " Note --force is often needed to avoid being prompted"
+    echo " which generally occurs when mkfs detects no partition table"
     echo ""
 }
 

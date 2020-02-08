@@ -17,16 +17,17 @@ zone="$GCP_ZONE"
 
 mtype="$GCP_DEFAULT_MACHINETYPE"
 bootsize="$GCP_DEFAULT_BOOTSIZE"
-disksize="$GCP_DEFAULT_DISKSIZE"
+volsize="$GCP_DEFAULT_DISKSIZE"
 image="$GCP_DEFAULT_IMAGE"
 image_project="$GCP_DEFAULT_IMAGEPROJECT"
 
 name=
 action=
-diskname=
 network=
 subnet=
 tags=
+volname=
+volnum=1
 attach=0
 ssd=0
 vga=0
@@ -72,10 +73,10 @@ usage()
     echo ""
     echo "Usage: $TDH_PNAME [options] <action> <instance-name>"
     echo "  -a|--async           : Use 'async' option with gcloud commands"
-    echo "  -A|--attach          : Init and attach a data disk on 'create'"
+    echo "  -A|--attach          : Init and attach data disk(s) on 'create'"
     echo "  -b|--bootsize <xxGB> : Size of instance boot disk"
-    echo "  -d|--disksize <xxGB> : Size of attached disk"
-    echo "  -D|--diskname <name> : Name for the attached disk (optional)"
+    echo "  -d|--disksize <xxGB> : Size of attached volume(s)"
+    echo "  -D|--disknum   <n>   : Number of attached volumes, if more than 1"
     echo "  -F|--ip-forward      : Enables IP Forwarding for the instance"
     echo "  -h|--help            : Display usage and exit"
     echo "  -k|--keep            : Sets --keep-disks=data on delete action"
@@ -83,12 +84,12 @@ usage()
     echo "     --disk-types      : List available disk types for a zone"
     echo "     --dryrun          : Enable dryrun, no action is taken"
     echo "  -N|--network <name>  : GCP Network name when not using default"
-    echo "  -n|--subnet <name>   : Used with --network to define the subnet"
-    echo "  -p|--prefix <name>   : Prefix name to use for instances"
+    echo "  -n|--subnet  <name>  : Used with --network to define the subnet"
+    echo "  -p|--prefix  <name>  : Prefix name to use for instances"
     echo "  -S|--ssd             : Use SSD as attached disk type"
     echo "  -t|--type            : Machine type to use for instances"
-    echo "  -T|--tags <tag1,..>  : A set of tags to use for instances"
-    echo "  -z|--zone <name>     : Set GCP zone "
+    echo "  -T|--tags  <tag1,..> : A set of tags to use for instances"
+    echo "  -z|--zone  <name>    : Set GCP zone "
     echo "  -v|--vga             : Attach a display device at create"
     echo "  -X|--no-serial       : Don't enable logging to serial by default"
     echo "  -V|--version         : Show version info and exit"
@@ -193,17 +194,17 @@ stop_instance()
 
 attach_disk()
 {
-    local diskname="$1"
-    local name="$2"
+    local volname="$1"
+    local gcpname="$2"
     local dryrun=$3
     local rt=0
 
     echo ""
     echo "-> attach_disk() "
-    echo "( gcloud compute instances attach-disk --disk ${diskname} ${name} --zone $zone )"
+    echo "( gcloud compute instances attach-disk --disk ${volname} ${gcpname} --zone $zone )"
 
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute instances attach-disk --disk ${diskname} ${name} --zone $zone )
+        ( gcloud compute instances attach-disk --disk ${volname} ${gcpname} --zone $zone )
         rt=$?
     fi
 
@@ -213,8 +214,8 @@ attach_disk()
 
 create_disk()
 {
-    local diskname="$1"
-    local disksize="$2"
+    local volname="$1"
+    local volsize="$2"
     local ssd=$3
     local dryrun=$4
     local rt=0
@@ -225,7 +226,7 @@ create_disk()
         cmd="$cmd --type=pd-ssd"
     fi
 
-    cmd="$cmd --size=${disksize} ${diskname}"
+    cmd="$cmd --size=${volsize} ${volname}"
 
     echo ""
     echo "-> create_disk() "
@@ -245,7 +246,8 @@ create_disk()
 rt=0
 names=
 ipre='([0-9]{1,3}[\.]){3}[0-9]{1,3}'
-
+chars=( {b..z} )
+maxvols=${#chars[@]}
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -264,11 +266,11 @@ while [ $# -gt 0 ]; do
             exit $rt
             ;;
         -d|--disksize)
-            disksize="$2"
+            volsize="$2"
             shift
             ;;
-        -D|--diskname)
-            diskname="$2"
+        -D|--disknum)
+            volnum=$2
             shift
             ;;
         -F|--ip-forward)
@@ -351,7 +353,6 @@ if [ -z "$network" ]; then
         echo "Error, subnet defined without network"
         exit 1
     fi
-    echo "Network not defined, using 'default'"
     network="default"
     subnet="default"
 fi
@@ -364,7 +365,11 @@ fi
 if [ -z "$zone" ]; then
     zone="$GCP_DEFAULT_ZONE"
 fi
+
+echo ""
 echo "  GCP Zone = '$zone'"
+echo "  Network  = '$network'"
+echo "  Subnet   = '$subnet'"
 
 zone_is_valid $zone
 rt=$?
@@ -373,10 +378,15 @@ if [ $rt -ne 0 ]; then
     exit $rt
 fi
 
-if [ -n "$subnet" ]; then
-    subnet_is_valid $subnet
-    if [ $? -ne 0 ]; then
-        echo "Error, subnet '$subnet' not found. Has it been creaated?"
+subnet_is_valid $subnet
+if [ $? -ne 0 ]; then
+    echo "Error, subnet '$subnet' not found. Has it been creaated?"
+    exit 1
+fi
+
+if [ $attach -eq 1 ] && [ $volnum -gt 1 ]; then
+    if [ $volnum -gt $maxvols ]; then
+        echo "Script supports a maximum of $maxvols attached volumes"
         exit 1
     fi
 fi
@@ -387,10 +397,6 @@ for name in $names; do
         if [ $? -ne 0 ]; then
             name="${prefix}-${name}"
         fi
-    fi
-
-    if [ -z "$diskname" ]; then
-        diskname="${name}-disk1"
     fi
 
     case "$action" in
@@ -431,27 +437,35 @@ for name in $names; do
 
         # Attach disks
         if [ $attach -gt 0 ]; then
-            ( gcloud compute disks list --filter="name=($diskname)" 2>/dev/null | grep $diskname > /dev/null )
-            if [ $? -gt 0 ]; then
-                create_disk "$diskname" "$disksize" $ssd $dryrun
+            i=0
+            for (( i=1; i<=$volnum; i++)); do
+                voln=$(printf "%02d" $i)
+                volname="${name}-disk${voln}"
+
+                ( gcloud compute disks list --filter="name=($volname)" 2>/dev/null | grep $volname > /dev/null )
+
+                if [ $? -gt 0 ]; then
+                    create_disk "$volname" "$volsize" $ssd $dryrun
+                    rt=$?
+
+                    if [ $rt -ne 0 ]; then
+                        echo "Error in create_disk() for '$volname', aborting..."
+                        exit $rt
+                    fi
+                fi
+
+                attach_disk "$volname" "$name" $dryrun
                 rt=$?
 
                 if [ $rt -ne 0 ]; then
-                    echo "Error in create_disk(), aborting..."
+                    echo "Error in attach_disk() for '$volname', rt=$rt, aborting..."
                     exit $rt
                 fi
-            fi
-
-            attach_disk "$diskname" "$name" $dryrun
-            rt=$?
-
-            if [ $rt -ne 0 ]; then
-                echo "Error in attach_disk() rt=$rt"
-                exit $rt
-            fi
+            done
         fi
 
         if [ $serial -gt 0 ]; then
+            echo ""
             echo "( gcloud compute instances add-metadata $name --zone $zone --metadata serial-port-enable=true )"
             if [ $dryrun -eq 0 ]; then
                 ( gcloud compute instances add-metadata $name --zone $zone --metadata serial-port-enable=true )
