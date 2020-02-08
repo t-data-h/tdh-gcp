@@ -129,7 +129,7 @@ for host in $hosts; do
     hostssh="$ssh"
 
     if [ $usegcp -eq 1 ]; then
-        hostssh="$hssh $user@$host --command"
+        hostssh="$hostssh $user@$host --command"
     else
         hostssh="$hostssh $user@$host"
     fi
