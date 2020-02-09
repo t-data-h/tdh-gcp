@@ -33,14 +33,24 @@
 
   - name: Configure HDFS Namenode...
     block:
-    - name: Create NameNode path
+    - name: Create NameNode path(s)
       become: true
       file:
-        path: '{{ tdh_namenode_dir }}'
+        path: '{{ tdh_datadir_prefix }}{{ item }}/{{ tdh_nn_dir }}'
         owner: '{{ tdh_user }}'
         group: '{{ tdh_group }}'
         mode: 0750
         state: directory
+      with_items: '{{ tdh_master_volumes }}'
+    - name: Create JournalNode path(s)
+      become: true 
+      file: 
+        path: '{{ tdh_datadir_prefix }}{{ item }}/{{ tdh_jn_dir }}'
+        owner: '{{ tdh_user }}'
+        group: '{{ tdh_group }}'
+        mode: 0750
+        state: directory
+      with_items: '{{ tdh_master_volumes }}'
     - name: Format namenode
       shell: '{{ tdh_install_path }}/hadoop/bin/hadoop namenode -format'
       when: inventory_hostname in groups['master01']

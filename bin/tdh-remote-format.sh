@@ -134,10 +134,10 @@ for host in $hosts; do
         hostssh="$hostssh $user@$host"
     fi
 
-    echo "( $scp ${tdh_path}/${format} ${user}@${host}: )"
+    echo "( $scp ${tdh_path}/../tools/${format} ${user}@${host}: )"
     echo "( $hostssh 'chmod +x ./$format' )"
     if [ $dryrun -eq 0 ]; then
-        ( $scp ${tdh_path}/${format} ${user}@${host}: )
+        ( $scp ${tdh_path}/../tools/${format} ${user}@${host}: )
         ( $hostssh 'chmod +x ./$format' )
     fi
 
@@ -173,6 +173,8 @@ for host in $hosts; do
     if [ $rt -gt 0 ]; then
         break
     fi
+
+    ( $hostssh 'rm $format' )
 done
 
 echo "$TDH_PNAME Finished."
