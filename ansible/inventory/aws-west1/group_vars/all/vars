@@ -4,6 +4,24 @@ tdh_env: 'aws-west1'
 tdh_user: 'centos'
 tdh_group: 'centos'
 
+tdh_datadir_prefix: '/data'
+
+tdh_master_volumes:
+ - '01'
+
+tdh_slave_volumes:
+ - '01'
+ - '02'
+
+tdh_data_dir: '{{ tdh_datadir_prefix }}01'
+
+tdh_nn_dir: 'hdfs/nn'
+tdh_jn_dir: 'hdfs/jn'
+tdh_dn_dir: 'hdfs/dn'
+tdh_nm_dir: 'hdfs/nm'
+tdh_zk_dir: 'zk'
+
+# note that mysql settings should use fqdn
 mysql_master_hostname: 'tdh-m01'
 mysql_slave_hostname: 'tdh-m02'
 mysql_hostname: '{{ mysql_master_hostname }}'

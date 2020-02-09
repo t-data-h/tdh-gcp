@@ -25,3 +25,5 @@ ta-dil00009
 [mysql:children]
 mysql_master
 mysql_slave
+
+[clients]

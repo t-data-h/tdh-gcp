@@ -16,20 +16,31 @@
   tags: [ tdh-config ]
   when: tdhstat.stat.exists
 
-- name: Create HDFS DataNode path
+- name: Create HDFS DataNode path(s)
   become: true
   file:
-    path: '{{ tdh_datanode_dir }}'
+    path: '{{ tdh_datadir_prefix }}{{ item }}/{{ tdh_dn_dir }}'
+    owner: '{{ tdh_user }}'
+    group: '{{ tdh_user }}'
+    mode: 0750
+    state: directory
+  with_items: '{{ tdh_slave_volumes }}'
+
+- name: Create HDFA DomainSocket path
+  become: true 
+  file:
+    path: '{{ tdh_hdfs_ds_dir }}'
     owner: '{{ tdh_user }}'
     group: '{{ tdh_user }}'
     mode: 0750
     state: directory
 
-- name: Create YARN NodeManager path
+- name: Create YARN NodeManager path(s)
   become: true
   file:
-    path: '{{ tdh_nodemanager_dir }}'
+    path: '{{ tdh_datadir_prefix }}{{ item }}/{{ tdh_nm_dir }}'
     owner: '{{ tdh_user }}'
     group: '{{ tdh_user }}'
     mode: 0750
     state: directory
+  with_items: '{{ tdh_slave_volumes }}'

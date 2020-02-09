@@ -25,3 +25,5 @@ tdh-m02
 [mysql:children]
 mysql_master
 mysql_slave
+
+[clients]

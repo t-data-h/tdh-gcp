@@ -324,7 +324,7 @@ for name in $names; do
         echo " -> Formatting and Mount of attached disk"
         echo "( $GSSH $host --command '$cmd' )"
         if [ $dryrun -eq 0 ]; then
-            ( $GSCP ${tdh_path}/${format} ${host}: )
+            ( $GSCP ${tdh_path}/../tools/${format} ${host}: )
             ( $GSSH $host --command "chmod +x $format" )
             ( $GSSH $host --command "$cmd" )
         fi
@@ -347,7 +347,7 @@ for name in $names; do
     echo "( $GSSH $host --command sudo ./tdh-prereqs.sh )"
     if [ $dryrun -eq 0 ]; then
         ( $GSCP ${tdh_path}/../etc/bashrc ${host}:.bashrc )
-        ( $GSCP ${tdh_path}/tdh-prereqs.sh ${host}: )
+        ( $GSCP ${tdh_path}/../tools/tdh-prereqs.sh ${host}: )
         ( $GSSH $host --command 'chmod +x tdh-prereqs.sh' )
         ( $GSSH $host --command './tdh-prereqs.sh' )
         ( $GSSH $host --command 'sudo yum install -y epel-release' )

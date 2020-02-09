@@ -117,7 +117,7 @@ fi
 echo ""
 echo "If this is a new install don't forget to run the "
 echo "post-install playbook 'tdh-postinstall.yml'"
-echo "eg. $ ansible-playbook -i inventory/$env/hosts tdh-postinstall.yml"
+echo "eg. $ hadoop-init.sh start && ansible-playbook -i inventory/$env/hosts tdh-postinstall.yml"
 echo "Note this requires the cluster to have been started first."
 echo ""
 

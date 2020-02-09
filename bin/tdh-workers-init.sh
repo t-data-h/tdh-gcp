@@ -260,7 +260,7 @@ for name in $names; do
     if [ $attach -gt 0 ]; then
         echo " -> Formatting additional volume(s)"
         if [ $dryrun -eq 0 ]; then
-            ( $GSCP ${tdh_path}/${format} ${host}: )
+            ( $GSCP ${tdh_path}/../tools/${format} ${host}: )
             ( $GSSH $host --command "chmod +x $format" )
         fi
 
@@ -305,7 +305,7 @@ for name in $names; do
 
     if [ $dryrun -eq 0 ]; then
         ( $GSCP ${tdh_path}/../etc/bashrc ${host}:.bashrc )
-        ( $GSCP ${tdh_path}/tdh-prereqs.sh ${host}: )
+        ( $GSCP ${tdh_path}/../tools/tdh-prereqs.sh ${host}: )
         ( $GSSH $host --command 'chmod +x tdh-prereqs.sh' )
         ( $GSSH $host --command './tdh-prereqs.sh' )
     fi
