@@ -15,14 +15,14 @@ fi
 glist=$( $cmd | tail -n+2 | awk '{ print $1, $5 }' )
 
 i=0
-for ln in $glist; do 
+for ln in $glist; do
     gary[i++]="$ln"
 done
 
 for (( i=0; i<${#gary[@]}; i++ )); do
     name="${gary[i]}"
     ip="${gary[++i]}"
-    ( echo "$ip     $name " | grep -v 'TERM' )
+    ( printf '%-15s       %s\n' $ip $name )
 done
 
 exit 0
