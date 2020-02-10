@@ -1,5 +1,5 @@
 ---
-- name: Namenode Directory exists?
+- name: Check for existing Namenode Directory
   stat:
     path: '{{ tdh_namenode_dir }}'
   tags: [ tdh-config ]
@@ -16,7 +16,7 @@
     path: '{{ tdh_dropfile }}'
   register: tdhdropstat
 
-- name: Fail if both TDH dropfile or TDH Install are missing.
+- name: Fail if both TDH dropfile AND TDH Install are missing.
   fail:
     msg: "Both TDH Install and TDH dropfile not found"
   when: tdhdropstat.stat.exists == false and tdhstat.stat.exists == false
@@ -33,14 +33,9 @@
   - name: TDH Provisioning Step 1 - Mysql
     shell: '{{ tdh_install_path }}/sbin/01-tdh-mysql-provision.sh'
     when: inventory_hostname in groups['master01'] and nndir.stat.exists == false
-  - name: TDH Provisioning Step 2 - TDH
-    shell: '{{ tdh_install_path }}/sbin/03-tdh-provision.sh'
-  - name: TDH Provisioning Step 3 - Spark
-    shell: '{{ tdh_install_path }}/sbin/05-spark-provision.sh'
   - name: Increase Host Entropy
     become: true
     shell: 'rngd -r /dev/urandom'
-
   - name: Configure HDFS Namenode...
     block:
     - name: Create NameNode path(s)
@@ -81,15 +76,16 @@
         mode: 0750
         state: directory
     when: nndir.stat.exists == false
-
+  - name: TDH Provisioning Step 2 - TDH
+    shell: '{{ tdh_install_path }}/sbin/03-tdh-provision.sh'
+  - name: TDH Provisioning Step 3 - Spark
+    shell: '{{ tdh_install_path }}/sbin/05-spark-provision.sh'
   - name: Provision ZooKeeper Id
     shell: '{{ tdh_install_path }}/sbin/06-zk-provision.sh'
     tags: [ tdh-config ]
-
   - name: Provision Kafka Broker Id
     shell: '{{ tdh_install_path }}/sbin/07-kafka-provision.sh'
     tags: [ tdh-config ]
-
   - name: Configure Metastore password
     replace:
       path: '{{ tdh_install_path }}/hive/conf/hive-site.xml'

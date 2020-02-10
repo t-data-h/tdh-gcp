@@ -18,11 +18,6 @@
   tags: [ tdh-mgr ]
   register: tdhmgrstat
 
-- name: Check for existing TDH Install
-  stat:
-    path: '{{ tdh_install_path }}'
-  register: tdhstat
-
 - name: Check for Anaconda Drop
   stat:
     path: '{{ tdh_python3_dropfile }}'
@@ -57,6 +52,11 @@
       dest: '/opt/hadoop'
       state: link
   when: tdhdropstat.stat.exists
+
+- name: Check for existing TDH Install
+  stat:
+    path: '{{ tdh_install_path }}'
+  register: tdhstat
 
 - name: TDH Config Deploy...
   block:
