@@ -71,6 +71,8 @@ if [ "$action" == "run" ]; then
     dryrun=0
 fi
 
+tdh_version
+
 cd $TDH_ANSIBLE_HOME
 
 echo ""
@@ -115,11 +117,20 @@ if [ $dryrun -eq 0 ]; then
 fi
 
 echo ""
-echo "If this is a new install don't forget to run the "
-echo "post-install playbook 'tdh-postinstall.yml'"
-echo "eg. $ hadoop-init.sh start && ansible-playbook -i inventory/$env/hosts tdh-postinstall.yml"
-echo "Note this requires the cluster to have been started first."
-echo ""
-
 echo "$TDH_PNAME finished. "
+echo ""
+if [ $dryrun -eq 0 ]; then
+    echo " ------------ "
+    echo ""
+    echo "If this is a new install don't forget to run the post-install "
+    echo "playbook 'tdh-postinstall.yml'. The environment should be sourced"
+    echo "and HDFS should be started."
+    echo ""
+    echo " For example:"
+    echo " \$ . ~/.bashrc &&  hadoop-init.sh start"
+    echo " \$ hadoop-init.sh status   # ensure things start normally"
+    echo " \$ ansible-playbook -i inventory/$env/hosts tdh-postinstall.yml"
+    echo ""
+fi
+
 exit $rt

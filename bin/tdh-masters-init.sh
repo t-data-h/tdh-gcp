@@ -419,17 +419,15 @@ for name in $names; do
         break
     fi
 
-
     #
-    # push self for ansible playbooks
-    cmd="${tdh_path}/${TDH_PUSH}"
+    # push self for ansible
+    cmd="${tdh_path}/${TDH_PUSH} -G"
 
     if [ -n "$zone" ]; then
         cmd="$cmd --zone $zone"
     fi
 
     echo "( ${cmd} ${tdh_path}/.. tdh-gcp $host )"
-
     if [ $dryrun -eq 0 ]; then
         ( $cmd ${tdh_path}/.. tdh-gcp $host )
     fi
