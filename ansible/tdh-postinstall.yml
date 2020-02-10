@@ -12,9 +12,11 @@
     shell: 'hdfs dfs -mkdir -p /hbase'
   - name: mkdir /tmp/logs
     shell: 'hdfs dfs -mkdir -p /tmp/logs'
+  - name: mkdir /user/spark
+    shell: 'hdfs dfs -mkdir -p /user/spark/jars'
   - name: mkdir /tmp/spark
-    shell: 'hdfs dfs -mkdir -p /tmp/spark'
+    shell: 'hdfs dfs -mkdir -p /tmp/spark/applicationHistory'
   - name: mkdir /tmp/spark2
-    shell: 'hdfs dfs -mkdir -p /tmp/spark2'
+    shell: 'hdfs dfs -mkdir -p /tmp/spark2/applicationHistory'
   - name: mkdir users home
     shell: 'hdfs dfs -mkdir /user/{{ lookup("env", "USER") }}'
