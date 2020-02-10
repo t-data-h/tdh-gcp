@@ -71,6 +71,8 @@ if [ "$action" == "run" ]; then
     dryrun=0
 fi
 
+tdh_version
+
 cd $TDH_ANSIBLE_HOME
 
 echo ""
