@@ -1,7 +1,6 @@
 ---
 # TDH Ansible Common Role
 #
-
 - name: Check for TDH tarball drop
   stat:
     path: '{{ tdh_dropfile }}'
@@ -81,7 +80,7 @@
       path: '{{ tdh_config_dropfile }}'
       state: absent
   tags: [ tdh-config ]
-  when: tdhconfigstat.stat.exists
+  when: tdhconfigstat.stat.exists and tdhstat.stat.exists
 
 - name: TDH Mgr Deploy...
   block:
@@ -104,7 +103,7 @@
       path: '{{ tdh_mgr_dropfile }}'
       state: absent
   tags: [ tdh-mgr ]
-  when: tdhmgrstat.stat.exists
+  when: tdhmgrstat.stat.exists and tdhstat.stat.exists
 
 - name: Python3 Deploy...
   block:

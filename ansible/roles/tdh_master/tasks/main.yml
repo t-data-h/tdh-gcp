@@ -11,6 +11,16 @@
   tags: [ tdh-config ]
   register: tdhstat
 
+- name: Check for TDH tarball drop
+  stat:
+    path: '{{ tdh_dropfile }}'
+  register: tdhdropstat
+
+- name: Fail if both TDH dropfile or TDH Install are missing.
+  fail:
+    msg: "Both TDH Install and TDH dropfile not found"
+  when: tdhdropstat.stat.exists == false and tdhstat.stat.exists == false
+
 - name: Master specific packages
   become: true
   yum:
@@ -43,8 +53,8 @@
         state: directory
       with_items: '{{ tdh_master_volumes }}'
     - name: Create JournalNode path(s)
-      become: true 
-      file: 
+      become: true
+      file:
         path: '{{ tdh_datadir_prefix }}{{ item }}/{{ tdh_jn_dir }}'
         owner: '{{ tdh_user }}'
         group: '{{ tdh_group }}'

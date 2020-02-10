@@ -5,6 +5,11 @@
   tags: [ tdh-config ]
   register: tdhstat
 
+- name: Check for TDH tarball drop
+  stat:
+    path: '{{ tdh_dropfile }}'
+  register: tdhdropstat
+
 - name: TDH Provisioning...
   block:
   - name: TDH Provisioning Step 1
@@ -27,7 +32,7 @@
   with_items: '{{ tdh_slave_volumes }}'
 
 - name: Create HDFA DomainSocket path
-  become: true 
+  become: true
   file:
     path: '{{ tdh_hdfs_ds_dir }}'
     owner: '{{ tdh_user }}'
