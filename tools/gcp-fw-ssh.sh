@@ -5,8 +5,8 @@
 #
 tdh_path=$(dirname "$(readlink -f "$0")")
 
-if [ -f ${tdh_path}/tdh-gcp-config.sh ]; then
-    . ${tdh_path}/tdh-gcp-config.sh
+if [ -f ${tdh_path}/../bin/tdh-gcp-config.sh ]; then
+    . ${tdh_path}/../bin/tdh-gcp-config.sh
 fi
 
 # -----------------------------------
@@ -31,7 +31,7 @@ fi
 usage()
 {
     echo ""
-    echo " Add GCP rules for SSH Access: "
+    echo " Add GCP fw rules for Inbound SSH Access: "
     echo ""
     echo "Usage: $TDH_NAME [options] <action> <name> <cidr>"
     echo " -h|--help           : Show usage and exit"
