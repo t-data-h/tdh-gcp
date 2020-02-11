@@ -33,6 +33,8 @@
   - name: TDH Provisioning Step 1 - Mysql
     shell: '{{ tdh_install_path }}/sbin/01-tdh-mysql-provision.sh'
     when: inventory_hostname in groups['master01'] and nndir.stat.exists == false
+  - name: TDH Provisioning Step 2 - TDH
+    shell: '{{ tdh_install_path }}/sbin/03-tdh-provision.sh'
   - name: Increase Host Entropy
     become: true
     shell: 'rngd -r /dev/urandom'
@@ -76,8 +78,6 @@
         mode: 0750
         state: directory
     when: nndir.stat.exists == false
-  - name: TDH Provisioning Step 2 - TDH
-    shell: '{{ tdh_install_path }}/sbin/03-tdh-provision.sh'
   - name: TDH Provisioning Step 3 - Spark
     shell: '{{ tdh_install_path }}/sbin/05-spark-provision.sh'
   - name: Provision ZooKeeper Id
