@@ -57,6 +57,7 @@
   stat:
     path: '{{ tdh_install_path }}'
   register: tdhstat
+  tags: [ tdh-config, tdh-mgr ]
 
 - name: TDH Config Deploy...
   block:
