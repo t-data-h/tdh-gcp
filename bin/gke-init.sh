@@ -2,6 +2,8 @@
 #
 # Initialize a GKE cluster
 #
+#  @author Timothy C. Arland <tcarland@gmail.com>
+#
 tdh_path=$(dirname "$(readlink -f "$0")")
 
 if [ -f ${tdh_path}/tdh-gcp-config.sh ]; then
