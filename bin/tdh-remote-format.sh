@@ -138,7 +138,7 @@ for host in $hosts; do
     echo "( $hostssh 'chmod +x ./$format' )"
     if [ $dryrun -eq 0 ]; then
         ( $scp ${tdh_path}/../tools/${format} ${user}@${host}: )
-        ( $hostssh 'chmod +x ./$format' )
+        ( $hostssh "chmod +x ./$format" )
     fi
 
     for (( i=0; i<$volnum; )); do
