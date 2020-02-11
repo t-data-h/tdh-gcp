@@ -67,7 +67,7 @@ if [ -z "$action" ] || [ -z "$env" ]; then
     exit 1
 fi
 
-if [ ! -d $env ]; then
+if [ ! -d ${TDH_ANSIBLE_HOME}/inventory/$env ]; then
     echo "Error, unable to locate inventory '$env'"
     exit 1
 fi
