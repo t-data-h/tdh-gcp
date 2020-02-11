@@ -2,6 +2,8 @@
 #
 #  Initialize Master GCP instances.
 #
+#  @author Timothy C. Arland <tcarland@gmail.com>
+#
 tdh_path=$(dirname "$(readlink -f "$0")")
 
 if [ -f ${tdh_path}/tdh-gcp-config.sh ]; then
@@ -24,6 +26,7 @@ subnet=
 gcpcompute="${tdh_path}/gcp-compute.sh"
 master_id="master-id_rsa.pub"
 master_id_file="${tdh_path}/../ansible/.ansible/${master_id}"
+mysqlinstall="tdh-mysql-install.sh"
 
 myid=1
 dryrun=0
@@ -399,7 +402,7 @@ for name in $names; do
         role="slave"
     fi
 
-    cmd="${tdh_path}/tdh-mysql-install.sh"
+    cmd="${tdh_path}/${mysqlinstall}"
 
     if [ -n "$zone" ]; then
         cmd="$cmd --zone $zone"
@@ -415,14 +418,13 @@ for name in $names; do
 
     rt=$?
     if [ $rt -gt 0 ]; then
-        echo "Error in tdh-mysql-install for $host"
+        echo "Error in '${msyqlinstall}' for $host"
         break
     fi
 
     #
     # push self for ansible
     cmd="${tdh_path}/${TDH_PUSH} -G"
-
     if [ -n "$zone" ]; then
         cmd="$cmd --zone $zone"
     fi

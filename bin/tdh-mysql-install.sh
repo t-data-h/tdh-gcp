@@ -3,6 +3,8 @@
 #  Bootstrap mysqld for a host by installing mysql-server
 #  and setting the configuration and root password.
 #
+#  @author Timothy C. Arland <tcarland@gmail.com>
+#
 tdh_path=$(dirname "$(readlink -f "$0")")
 
 if [ -f ${tdh_path}/tdh-gcp-config.sh ]; then
