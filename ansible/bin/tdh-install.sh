@@ -132,7 +132,7 @@ if [ $dryrun -eq 0 ]; then
     echo "and HDFS should be started."
     echo ""
     echo " For example:"
-    echo " \$ . ~/.bashrc &&  hadoop-init.sh start"
+    echo " \$ source ~/.bashrc &&  hadoop-init.sh start"
     echo " \$ hadoop-init.sh status   # ensure things start normally"
     echo " \$ ansible-playbook -i inventory/$env/hosts tdh-postinstall.yml"
     echo ""
