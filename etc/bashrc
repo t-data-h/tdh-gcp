@@ -9,14 +9,18 @@ export PS1="$(whoami){$(hostname -s)}$ "
 export JAVA_HOME="/usr/lib/jvm/java"
 export HADOOP_CONF_DIR="/etc/hadoop/conf"
 
-export TDH_ECOSYSTEM_INITS="hadoop-init.sh zookeeper-init.sh hbase-init.sh hive-init.sh kafka-init.sh spark-history-init.sh"
-# skipping mysqld-tdh-init.sh zeppelin-init.sh
-#export KAFKA_BROKERS="broker1:9092,broker2:9092,broker3:9092"
+export TDH_ECOSYSTEM_INITS="hadoop-init.sh zookeeper-init.sh hbase-init.sh \
+hive-init.sh kafka-init.sh spark-history-init.sh"
 
 if [ -f "/etc/hadoop/tdh-env-user.sh" ]; then
     . "/etc/hadoop/tdh-env-user.sh"
 elif [ -f "/opt/TDH/etc/tdh-env-user.sh" ]; then
     . "/opt/TDH/etc/tdh-env-user.sh"
+fi
+
+if [ -n "$TDH_VERSION" ]; then
+    getBrokers
+    getZookeepers
 fi
 
 function hconf()
@@ -38,4 +42,4 @@ alias spark="spark-shell --master yarn"
 alias yarnls="yarn application -list"
 alias hblksz="hdfs dfs -stat 'name=%n blocksize=%o'"
 
-alias kflist="kafka-topics.sh --bootstrap-server ${KAFKA_BROKERS} --list"
+alias kafka-topics="kafka-topics.sh --bootstrap-server ${BROKERS}"
