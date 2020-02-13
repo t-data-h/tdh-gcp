@@ -81,10 +81,10 @@
   - name: TDH Provisioning Step 3 - Spark
     shell: '{{ tdh_install_path }}/sbin/05-spark-provision.sh'
   - name: Provision ZooKeeper Id
-    shell: '{{ tdh_install_path }}/sbin/06-zk-provision.sh'
+    shell: '{{ tdh_install_path }}/sbin/07-zk-provision.sh'
     tags: [ tdh-config ]
   - name: Provision Kafka Broker Id
-    shell: '{{ tdh_install_path }}/sbin/07-kafka-provision.sh'
+    shell: '{{ tdh_install_path }}/sbin/09-kafka-provision.sh'
     tags: [ tdh-config ]
   - name: Configure Metastore password
     replace:
