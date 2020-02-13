@@ -31,7 +31,7 @@
 - name: TDH Provisioning ...
   block:
   - name: TDH Provisioning Step 1 - Mysql
-    shell: '{{ tdh_install_path }}/sbin/01-tdh-mysql-provision.sh'
+    shell: '{{ tdh_install_path }}/sbin/01-tdh-mysql-provision.sh {{ mysql_hive_db }}'
     when: inventory_hostname in groups['master01'] and nndir.stat.exists == false
   - name: TDH Provisioning Step 2 - TDH
     shell: '{{ tdh_install_path }}/sbin/03-tdh-provision.sh'
