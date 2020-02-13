@@ -6,11 +6,15 @@
 declare -a gary
 
 zone="$1"
+
 cmd="gcloud compute instances list"
 
 if [ -n "$zone" ]; then
     cmd="$cmd --zones $zone"
 fi
+
+proj=$( gcloud config configurations list | grep True | awk '{ print $4 }' )
+dom="${proj}.internal"
 
 glist=$( $cmd | tail -n+2 | awk '{ print $1, $5 }' )
 
@@ -22,7 +26,12 @@ done
 for (( i=0; i<${#gary[@]}; i++ )); do
     name="${gary[i]}"
     ip="${gary[++i]}"
-    ( printf '%-15s       %s\n' $ip $name )
+    fqdn="${name}.${dom}"
+
+    if [[ $ip =~ TERMINATED ]]; then
+        continue
+    fi
+    ( printf '%-15s    %-35s    %-15s\n' $ip $fqdn $name )
 done
 
 exit 0
