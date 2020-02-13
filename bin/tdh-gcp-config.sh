@@ -8,7 +8,7 @@ export TDH_GCP_CONFIG=1
 
 TDH_PNAME=${0##*\/}
 
-TDH_GCP_VERSION="1.4.5"
+TDH_GCP_VERSION="1.4.6"
 TDH_GCP_PREFIX="tdh"
 
 GCP_DEFAULT_MACHINETYPE="n1-standard-4"
@@ -24,6 +24,7 @@ HAVEGCP=$( which gcloud 2>/dev/null )
 if [ -n "$HAVEGCP" ]; then
     GCP_DEFAULT_REGION=$( gcloud config list 2>/dev/null | grep region | awk -F"= " '{ print $2 }' )
     GCP_DEFAULT_ZONE=$( gcloud config list 2>/dev/null | grep zone | awk -F"= " '{ print $2 }' )
+    GCP_PROJECT_NAME=$( gcloud config configurations list | grep True | awk '{ print $4 }' )
 fi
 
 GSSH="gcloud compute ssh"
