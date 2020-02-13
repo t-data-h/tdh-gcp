@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #  /etc/hosts style output for gcp external ip's
-#
+#  only correct for project 'global' wide dns not zonal dns
 
 ( which gcloud > /dev/null 2>&1 )
 if [ $? -ne 0 ]; then
@@ -14,7 +14,7 @@ declare -a gary
 
 zone="$1"
 proj=$( gcloud config configurations list | grep True | awk '{ print $4 }' )
-dom="${proj}.internal"
+dom="c.${proj}.internal"
 cmd="gcloud compute instances list"
 
 if [ -n "$zone" ]; then
