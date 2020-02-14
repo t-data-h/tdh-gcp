@@ -6,3 +6,5 @@
 *.jar
 *.zip
 .ansible
+ansible/inventory/*
+!ansible/inventory/tdh-example
