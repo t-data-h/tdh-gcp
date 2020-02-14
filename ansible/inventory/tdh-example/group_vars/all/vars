@@ -1,0 +1,46 @@
+---
+tdh_env: 'tdh-example'
+
+tdh_user: 'tca'
+tdh_group: 'tca'
+
+tdh_datadir_prefix: '/data'
+
+tdh_master_volumes:
+ - '01'
+
+tdh_slave_volumes:
+ - '01'
+ - '02'
+
+tdh_data_dir: '{{ tdh_datadir_prefix }}01'
+
+tdh_nn_dir: 'hdfs/nn'
+tdh_jn_dir: 'hdfs/jn'
+tdh_dn_dir: 'hdfs/dn'
+tdh_nm_dir: 'hdfs/nm'
+tdh_zk_dir: 'zk'
+
+# note that mysql settings should use fqdn
+mysql_master_hostname: 'tdh-m01.c.alderberry-22.internal'
+mysql_slave_hostname: 'tdh-m02.c.alderberry-22.internal'
+mysql_hostname: '{{ mysql_master_hostname }}'
+mysql_port: 3306
+
+mysql_repl_user: 'replpw'
+mysql_hive_user: 'hive'
+mysql_hive_db: 'metastore'
+
+tdh_mysql_master_hosts:
+  - '{{ mysql_master_hostname }}'
+  - '{{ mysql_slave_hostname }}'
+
+tdh_mysql_client_hosts:
+  - 'tdh-m01.c.alderberry-22.internal'
+  - 'tdh-m02.c.alderberry-22.internal'
+  - 'tdh-m03.c.alderberry-22.internal'
+  - 'tdh-d01.c.alderberry-22.internal'
+  - 'tdh-d02.c.alderberry-22.internal'
+  - 'tdh-d03.c.alderberry-22.internal'
+  - 'tdh-d04.c.alderberry-22.internal'
+
