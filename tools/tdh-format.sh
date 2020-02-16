@@ -2,11 +2,10 @@
 #
 #  Format an attached data disk. Intended to be ran directly on a remote
 #  host. Note that this will format the device as a full block device
-#  with no partition table.
+#  with no partition table.  `parted -s $dev mklabel loop`
 #
-#  eg.
 #  scp $PNAME remote_host:
-#  ssh $remote_host $PNAME /dev/sdb /data1
+#  ssh $remote_host $PNAME /dev/sdb /data01
 #
 PNAME=${0##*\/}
 
@@ -26,7 +25,7 @@ usexfs=0
 
 usage()
 {
-    echo "Format a block device."
+    echo "Format a block device as a raw disk."
     echo ""
     echo "Usage: $PNAME [options] <device> <mountpoint>"
     echo "  -f|--force   : Set force option on mkfs"
@@ -34,8 +33,8 @@ usage()
     echo "  -x|--use-xfs : Use XFS Filesytem instead of default 'ext4'"
     echo ""
     echo " eg. $PNAME -f -x /dev/sdb /data01"
-    echo " Note --force is often needed to avoid being prompted"
-    echo " which generally occurs when mkfs detects no partition table"
+    echo ""
+    echo " Note --force is often needed to avoid being prompted."
     echo ""
 }
 
