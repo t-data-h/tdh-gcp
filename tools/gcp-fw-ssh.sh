@@ -64,6 +64,9 @@ while [ $# -gt 0 ]; do
             usage
             exit $rt
             ;;
+        -l|--list)
+            action="list"
+            ;;
         --dryrun)
             dryrun=1
             ;;
