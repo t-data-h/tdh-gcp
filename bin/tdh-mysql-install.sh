@@ -146,7 +146,7 @@ rm -rf mysql-connector-java-5.1.46 mysql-connector-java-5.1.46.tar.gz' )
 
 
 if [ "$role" == "client" ]; then
-    echo "$PNAME client finished."
+    echo "$TDH_PNAME client install finished."
     exit 0
 fi
 
