@@ -438,7 +438,7 @@ for name in $names; do
     echo ""
 done
 
-if [ -e "$pwfile" ]; then
+if [ -e "$pwfile" ] && [ $dryrun -eq 0 ]; then
     ( rm $pwfile )
 fi
 

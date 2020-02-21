@@ -45,7 +45,8 @@ usage()
     echo "                          from the provided IP Range. The rule name"
     echo "                          is generated from the provided name and the"
     echo "                          network. eg. {network}-allowssh-{name}"
-    echo "   delete <name>        : Delete rule by given name"
+    echo "   delete <name>        : Delete rule by given name. "
+    echo "                          Note that network is prefixed to {name}"
     echo "   list                 : List the current rules"
     echo ""
 }
@@ -63,6 +64,9 @@ while [ $# -gt 0 ]; do
         -h|--help)
             usage
             exit $rt
+            ;;
+        -l|--list)
+            action="list"
             ;;
         --dryrun)
             dryrun=1
@@ -113,7 +117,7 @@ if [ "$action" == "create" ]; then
         exit 1
     fi
     name="${network}-allow-${name}"
-    cmd="$gfw create $name --allow tcp:22 --direction INGRESS --source-ranges $cidr"
+    cmd="$gfw create $name --allow tcp:22 --direction INGRESS --source-ranges $cidr --network $network"
 
     if [ -n "$tags" ]; then
         cmd="$cmd --target-tags $tags"
