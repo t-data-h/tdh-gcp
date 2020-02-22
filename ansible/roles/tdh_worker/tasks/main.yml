@@ -19,7 +19,7 @@
     shell: '{{ tdh_install_path }}/sbin/05-spark-provision.sh'
 
   - name: Provision Kafka Broker Id
-    shell: '{{ tdh_install_path }}/sbin/07-kafka-provision.sh'
+    shell: '{{ tdh_install_path }}/sbin/09-kafka-provision.sh'
 
   - name: Create HDFS DataNode path(s)
     become: true
