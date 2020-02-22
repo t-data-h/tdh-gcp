@@ -59,7 +59,7 @@
         state: directory
       with_items: '{{ tdh_master_volumes }}'
     - name: Format namenode
-      shell: '{{ tdh_install_path }}/hadoop/bin/hadoop namenode -format'
+      shell: '{{ tdh_install_path }}/hadoop/sbin/00-hdfs-format.sh'
       when: inventory_hostname in groups['master01']
     - name: Create ZooKeeper 'dataLogDir'
       become: true
