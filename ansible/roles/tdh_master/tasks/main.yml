@@ -58,17 +58,6 @@
         mode: 0750
         state: directory
       with_items: '{{ tdh_master_volumes }}'
-    - name: Format namenode
-      shell: '{{ tdh_install_path }}/sbin/00-hdfs-format.sh'
-      when: inventory_hostname in groups['master01']
-    - name: Create ZooKeeper 'dataLogDir'
-      become: true
-      file:
-        path: '{{ tdh_zk_datalog_dir }}'
-        owner: '{{ tdh_user }}'
-        group: '{{ tdh_group }}'
-        mode: 0750
-        state: directory
     - name: Create ZooKeeper 'dataDir'
       become: true
       file:
@@ -77,12 +66,22 @@
         group: '{{ tdh_group }}'
         mode: 0750
         state: directory
+    - name: Create ZooKeeper 'dataLogDir'
+      become: true
+      file:
+        path: '{{ tdh_zk_datalog_dir }}'
+        owner: '{{ tdh_user }}'
+        group: '{{ tdh_group }}'
+        mode: 0750
+        state: directory
+    - name: Provision ZooKeeper Id
+      shell: '{{ tdh_install_path }}/sbin/07-zk-provision.sh'
+    - name: Format namenode
+      shell: '{{ tdh_install_path }}/sbin/00-hdfs-format.sh'
+      when: inventory_hostname in groups['master01']
     when: nndir.stat.exists == false
   - name: TDH Provisioning Step 3 - Spark
     shell: '{{ tdh_install_path }}/sbin/05-spark-provision.sh'
-  - name: Provision ZooKeeper Id
-    shell: '{{ tdh_install_path }}/sbin/07-zk-provision.sh'
-    tags: [ tdh-config ]
   - name: Provision Kafka Broker Id
     shell: '{{ tdh_install_path }}/sbin/09-kafka-provision.sh'
     tags: [ tdh-config ]
