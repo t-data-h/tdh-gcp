@@ -38,6 +38,7 @@
   - name: Increase Host Entropy
     become: true
     shell: 'rngd -r /dev/urandom'
+
   - name: Configure HDFS Namenode...
     block:
     - name: Create NameNode path(s)
@@ -75,13 +76,14 @@
         mode: 0750
         state: directory
     - name: Provision ZooKeeper Id
-      shell: '{{ tdh_install_path }}/sbin/07-zk-provision.sh'
+      shell: '{{ tdh_install_path }}/sbin/05-zk-provision.sh'
     - name: Format namenode
       shell: '{{ tdh_install_path }}/sbin/00-hdfs-format.sh'
       when: inventory_hostname in groups['master01']
     when: nndir.stat.exists == false
+
   - name: TDH Provisioning Step 3 - Spark
-    shell: '{{ tdh_install_path }}/sbin/05-spark-provision.sh'
+    shell: '{{ tdh_install_path }}/sbin/07-spark-provision.sh'
   - name: Provision Kafka Broker Id
     shell: '{{ tdh_install_path }}/sbin/09-kafka-provision.sh'
     tags: [ tdh-config ]
