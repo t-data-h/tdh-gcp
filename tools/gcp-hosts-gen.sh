@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 #  /etc/hosts style output for gcp external ip's
 #  only correct for project 'global' wide dns not zonal dns

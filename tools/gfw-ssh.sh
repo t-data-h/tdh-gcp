@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 #  Wrapper script for 'gcloud compute firewall-rules'
 #  specifically for easily manipulating ssh only client 
@@ -32,7 +32,7 @@ fi
 usage()
 {
     echo ""
-    echo " Manipulate GCP fw rules for Inbound SSH Access: "
+    echo " Manipulate GCP fw rules for Ingress SSH Access: "
     echo ""
     echo "Usage: $TDH_NAME [options] <action> <name> <cidr>"
     echo " -h|--help           : Show usage and exit"
