@@ -1,7 +1,8 @@
 #!/bin/bash
 #
-#  Simple wrapper script for adding a firewall rule for an external
-#  host (for ssh)
+#  Wrapper script for 'gcloud compute firewall-rules'
+#  specifically for easily manipulating ssh only client 
+#  fw rules. 
 #
 tdh_path=$(dirname "$(readlink -f "$0")")
 
@@ -15,13 +16,13 @@ gfw="gcloud compute firewall-rules"
 
 name=
 action=
-network=
+network="default"
 tags=
 dryrun=0
 noprompt=0
 
 # -----------------------------------
-# default overrides
+# overrides
 
 if [ -n "$GCP_NETWORK" ]; then
     network="$GCP_NETWORK"
@@ -31,7 +32,7 @@ fi
 usage()
 {
     echo ""
-    echo " Add GCP fw rules for Inbound SSH Access: "
+    echo " Manipulate GCP fw rules for Inbound SSH Access: "
     echo ""
     echo "Usage: $TDH_NAME [options] <action> <name> <cidr>"
     echo " -h|--help           : Show usage and exit"
@@ -48,15 +49,18 @@ usage()
     echo "   delete <name>        : Delete rule by given name. "
     echo "                          Note that network is prefixed to {name}"
     echo "   list                 : List the current rules"
+    echo "   enable <name>        : (Re)-Enable a firewall rule"
+    echo "   disable <name>       : Disable a firewall rule"
+    echo "   describe <name>      : Get full definition of a firewall rule"
     echo ""
 }
 
+
 # MAIN
 #
-rt=0
-names=
 ipre='([0-9]{1,3}[\.]){3}[0-9]{1,3}'
-
+names=
+rt=0
 
 
 while [ $# -gt 0 ]; do
@@ -88,10 +92,8 @@ while [ $# -gt 0 ]; do
             ;;
         *)
             action="${1,,}"
-            shift
-            name="$1"
-            shift
-            cidr="$1"
+            name="$2"
+            cidr="$3"
             shift $#
             ;;
     esac
@@ -103,20 +105,24 @@ if [ -z "$action" ]; then
     exit 1
 fi
 
-if [ -z "$network" ]; then
-    network="default"
-fi
+if [ -n "$name" ]; then
+    name="${network}-allow-${name}"
+elif [ "$action" != "list" ]; then
+    echo "Error, missing <name> parameter"
+    usage
+    exit 1
+fi 
 
 
-#CREATE
-if [ "$action" == "create" ]; then
+case "$action" in
+'create') 
 
-    if [ -z "$name" ] || [ -z "$cidr" ]; then
+    if [ -z "$cidr" ]; then
         echo "Error: create action requires name and address"
         usage
         exit 1
     fi
-    name="${network}-allow-${name}"
+
     cmd="$gfw create $name --allow tcp:22 --direction INGRESS --source-ranges $cidr --network $network"
 
     if [ -n "$tags" ]; then
@@ -125,18 +131,15 @@ if [ "$action" == "create" ]; then
 
     echo "Creating fw-rule '$name'"
     echo "$cmd"
+
     if [ $dryrun -eq 0 ]; then
         ( $cmd )
         rt=$?
     fi
-#DELETE
-elif [ "$action" == "delete" ]; then
-    if [ -z "$name" ]; then
-        echo "Error: target name required"
-        usage
-        exit 1
-    fi
-    name="${network}-allow-${name}"
+    ;;
+
+'delete')
+
     cmd="$gfw delete $name"
 
     if [ $noprompt -eq 1 ]; then
@@ -148,9 +151,9 @@ elif [ "$action" == "delete" ]; then
         ( $cmd )
         rt=$?
     fi
-#LIST
-elif [ "$action" == "list" ]; then
+    ;;
 
+'list')
     ( $gfw list --format="table(
           name,
           network,
@@ -160,7 +163,23 @@ elif [ "$action" == "list" ]; then
           disabled,
           allowed[].map().firewall_rule().list():label=ALLOW
       )" )
+      ;;
 
-fi
+'enable')
+    ( $gfw update $name --no-disabled )
+    ;;
+
+'disable')
+    ( $gfw update $name --disabled )
+    ;;
+
+'describe')
+    ( $gfw describe $name )
+    ;;
+
+*)
+    echo "Action not recognized"
+    ;;
+esac
 
 exit $rt

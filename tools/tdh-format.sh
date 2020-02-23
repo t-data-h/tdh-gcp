@@ -34,7 +34,7 @@ usage()
     echo ""
     echo " eg. $PNAME -f -x /dev/sdb /data01"
     echo ""
-    echo " Note --force is often needed to avoid being prompted."
+    echo " Note, use --force to avoid being prompted."
     echo ""
 }
 
@@ -82,7 +82,7 @@ fi
 rt=$?
 
 if [ $rt -ne 0 ]; then
-    echo "Error in mkdir of mount path: $mount"
+    echo "$PNAME: Error in mkdir of mount path: $mount"
     exit $rt
 fi
 
@@ -110,7 +110,7 @@ echo ""
 
 rt=$?
 if [ $rt -gt 0 ]; then
-    echo "Error formatting device"
+    echo "$PNAME Error formatting device"
     exit $rt
 fi
 
@@ -122,17 +122,18 @@ echo " -> Format complete"
 # Get UUID
 uuid=$( ls -l /dev/disk/by-uuid/ | grep $devname | awk '{ print $9 }' )
 if [ -z "$uuid" ]; then
-    echo "Error obtaining disk UUID from '/dev/disk/by-uuid'"
+    echo "$PNAME Error obtaining disk UUID from '/dev/disk/by-uuid'"
     exit 1
 fi
 echo "$device UUID='$uuid'"
 
 # add mount to fstab
 fstab=$(mktemp /tmp/tdh-fstab.XXXXXXXX)
-echo "  Created fstab tmp file: '$fstab'"
+echo " -> Created fstab tmp file: '$fstab'"
 
 ( cp /etc/fstab $fstab )
-( echo "UUID=$uuid  $mount                  $fstype     defaults,noatime      1 2" >> $fstab )
+( printf "UUID=$uuid %15s  %10s  defaults,noatime    1 2\n" $mount $fstype >> $fstab )
+# echo "UUID=$uuid    $mount                  $fstype     defaults,noatime      1 2" >> $fstab )
 ( sudo cp $fstab /etc/fstab; sudo chmod 644 /etc/fstab )
 ( sudo mount $mount )
 
@@ -140,7 +141,7 @@ rt=$?
 if [ $rt -gt 0 ]; then
     echo "Error mounting device $device"
 else
-    echo "Device '$device' mounted to '$mount'"
+    echo " -> Device '$device' mounted to '$mount'"
 fi
 
 echo "$PNAME finished."

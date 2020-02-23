@@ -43,7 +43,7 @@ usage()
     echo "  -n|--dryrun           : Enable dryrun (no actions are taken)"
     echo "  -p|--prefix  <path>   : Pathname prefix (default is /data)"
     echo "  -t|--type    <0|1>    : Disk type, 0=Standard, 1=NVME"
-    echo "  -u|--user    <name>   : Name of remote user if not '$user'"
+    echo "  -u|--user    <name>   : Name of remote user, if not '$user'"
     echo "  -x|--use-xfs          : Use XFS instead of default EXT4"
     echo "  -z|--zone   <zoneid>  : GCP zone of target, if applicable."
     echo "  -V|--version          : Show version info and exit"
