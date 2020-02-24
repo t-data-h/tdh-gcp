@@ -21,7 +21,7 @@ tdh_python3_install_path: '/opt/python'
 tdh_python3_path: '{{ tdh_python3_install_path }}/anaconda3'
 
 tdh_namenode_dir: '{{ tdh_data_dir }}/{{ tdh_nn_dir }}'
-tdh_hdfs_ds_dir: '/var/run/hadoop-hdfs'
+tdh_hdfs_ds_dir: '/var/lib/hadoop-hdfs'
 tdh_zk_data_dir: '{{ tdh_data_dir }}/{{ tdh_zk_dir }}'
 tdh_zk_datalog_dir: '/var/lib/zookeeper'
 tdh_log_dir: '/var/log/hadoop'
