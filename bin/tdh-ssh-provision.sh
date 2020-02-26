@@ -92,7 +92,7 @@ if [ -z "$master" ] && [ -z "$master_id" ]; then
     exit 1
 fi
 
-if [ ! -r "$master_id" ]; then
+if [ -n "$master_id" ] && [ ! -r "$master_id" ]; then
     echo "$TDH_PNAME Error reading master_id '$master_id'"
     exit 1
 fi
