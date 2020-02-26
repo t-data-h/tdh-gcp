@@ -19,21 +19,26 @@ ident=
 cert=
 user="$USER"
 master=
+master_id=
 
 
 usage()
 {
     echo ""
-    echo "$TDH_PNAME [options] <hosts_file> <master_host>"
+    echo "$TDH_PNAME [options] <hosts_file> [master_host]"
     echo "  -H|--pvthosts <file> : Set a private hosts file across nodes"
     echo "  -h|--help            : Show usage info and exit"
-    echo "  -i  <identity>       : SSH Identity file if applicable"
+    echo "  -i  <identity>       : SSH Identity file for connecting to hosts"
+    echo "  -M  <master_id>      : SSH public certificate of the master host"
+    echo "                         This overrides the defining of a master"
     echo "  -u|--user   <user>   : Name of remote user"
     echo "   <hosts_file>        : File containing the list of hosts and ip"
-    echo "   <master>            : Master host of cluster"
+    echo "   [master_host]       : Master host of cluster."
     echo ""
     echo "  Note the hosts file is intended to be in the same format as "
-    echo "  a typical '/etc/hosts' file"
+    echo "  a typical '/etc/hosts' file".
+    echo "  If a 'master_host' is provided. ssh-keygen is run to obtain a cert"
+    echo "  else, if a master cert is provided, it is used instead."
     echo ""
 }
 
@@ -52,6 +57,10 @@ while [ $# -gt 0 ]; do
             ;;
         -i|--ident)
             ident="$2"
+            shift
+            ;;
+        -M|--master-id)
+            master_id="$2"
             shift
             ;;
         -u|--user)
@@ -76,8 +85,8 @@ if [ -z "$pubhosts" ]; then
     exit 1
 fi
 
-if [ -z "$master" ]; then
-    echo "Master not defined"
+if [ -z "$master" ] && [ -z "$master_id" ]; then
+    echo "$TDH_PNAME Error: No Master is defined"
     exit 1
 fi
 
@@ -90,27 +99,30 @@ if [-n "$ident" ]; then
 fi
 
 # -------------------
-master_ip=$( cat $pubhosts 2>/dev/null | grep $master | awk '{ print $1 }' )
-master_id="master-id_rsa.pub"
 
-if [ -z "$master_ip" ]; then
-    echo "Error determining master IP, hosts file correct?"
-    exit 1
+if [ -z "$master_id" ]; then
+    master_ip=$( cat $pubhosts 2>/dev/null | grep $master | awk '{ print $1 }' )
+    master_id="master-id_rsa.pub"
+
+    if [ -z "$master_ip" ]; then
+        echo " -> Error determining master IP, hosts file correct?"
+        exit 1
+    fi
+
+    # Remove any existing known_hosts entry for the master
+    ( ssh-keygen -f "${HOME}/.ssh/known_hosts" -R "$master" > /dev/null 2>&1 )
+
+    if [ -n "$pvthosts" ]; then
+        # Copy private hosts file
+        ( $scp -oStrictHostKeyChecking=no $pvthosts ${user}@${master_ip}: )
+        ( $ssh -oStrictHostKeyChecking=no ${user}@${master_ip} "sudo sh -c 'cat $pvthosts >> /etc/hosts'; rm $pvthosts" )
+    fi
+
+    # keygen for master host
+    ( $ssh -oStrictHostKeyChecking=no ${user}@${master_ip} "ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa"  )
+    # acquire our master id
+    ( $scp -oStrictHostKeyChecking=no ${user}@${master_ip}:.ssh/id_rsa.pub ./${master_id} )
 fi
-
-# Remove any existing known_hosts entry for the master
-( ssh-keygen -f "${HOME}/.ssh/known_hosts" -R "$master" > /dev/null 2>&1 )
-
-if [ -n "$pvthosts" ]; then
-# Copy private hosts file
-( $scp -oStrictHostKeyChecking=no $pvthosts ${user}@${master_ip}: )
-( $ssh -oStrictHostKeyChecking=no ${user}@${master_ip} "sudo sh -c 'cat $pvthosts >> /etc/hosts'; rm $pvthosts" )
-
-# keygen for master host
-( $ssh -oStrictHostKeyChecking=no ${user}@${master_ip} "ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa"  )
-# acquire our master id
-( $scp -oStrictHostKeyChecking=no ${user}@${master_ip}:.ssh/id_rsa.pub ./${master_id} )
-
 
 IFS=$'\n'
 for host in $( cat $pubhosts | sort ); do
