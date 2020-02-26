@@ -115,8 +115,8 @@ if [ -z "$master_id" ]; then
     # Remove any existing known_hosts entry for the master
     ( ssh-keygen -f "${HOME}/.ssh/known_hosts" -R "$master" > /dev/null 2>&1 )
 
+    # Copy private hosts file
     if [ -n "$pvthosts" ]; then
-        # Copy private hosts file
         ( scp -oStrictHostKeyChecking=no $pvthosts ${user}@${master_ip}: )
         ( ssh -oStrictHostKeyChecking=no ${user}@${master_ip} "sudo sh -c 'cat $pvtfile >> /etc/hosts'; rm $pvtfile" )
     fi
@@ -125,6 +125,11 @@ if [ -z "$master_id" ]; then
     ( ssh -oStrictHostKeyChecking=no ${user}@${master_ip} "ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa"  )
     # acquire our master id
     ( scp -oStrictHostKeyChecking=no ${user}@${master_ip}:.ssh/id_rsa.pub ./${master_id} )
+else
+    if [ -n "$pvthosts" ]; then
+        ( scp -oStrictHostKeyChecking=no $pvthosts ${user}@${master_ip}: )
+        ( ssh -oStrictHostKeyChecking=no ${user}@${master_ip} "sudo sh -c 'cat $pvtfile >> /etc/hosts'; rm $pvtfile" )
+    fi
 fi
 
 IFS=$'\n'
