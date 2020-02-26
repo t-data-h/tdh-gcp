@@ -15,6 +15,8 @@ fi
 
 pubhosts=
 pvthosts=
+pubfile=
+pvtfile=
 ident=
 cert=
 user="$USER"
@@ -55,7 +57,7 @@ while [ $# -gt 0 ]; do
             pvthosts="$2"
             shift
             ;;
-        -i|--ident)
+        -i|--identity)
             ident="$2"
             shift
             ;;
@@ -90,12 +92,13 @@ if [ -z "$master" ] && [ -z "$master_id" ]; then
     exit 1
 fi
 
-ssh="ssh"
-scp="scp"
 
-if [-n "$ident" ]; then
-    ssh="$ssh -i $ident"
-    scp="$scp -i $ident"
+if [ -n "$ident" ]; then
+    ( ssh-add $ident )
+fi
+
+if [ -n "$pvthosts" ]; then
+    pvtfile=$(basename $pvthosts)
 fi
 
 # -------------------
@@ -114,14 +117,14 @@ if [ -z "$master_id" ]; then
 
     if [ -n "$pvthosts" ]; then
         # Copy private hosts file
-        ( $scp -oStrictHostKeyChecking=no $pvthosts ${user}@${master_ip}: )
-        ( $ssh -oStrictHostKeyChecking=no ${user}@${master_ip} "sudo sh -c 'cat $pvthosts >> /etc/hosts'; rm $pvthosts" )
+        ( scp -oStrictHostKeyChecking=no $pvthosts ${user}@${master_ip}: )
+        ( ssh -oStrictHostKeyChecking=no ${user}@${master_ip} "sudo sh -c 'cat $pvtfile >> /etc/hosts'; rm $pvtfile" )
     fi
 
     # keygen for master host
-    ( $ssh -oStrictHostKeyChecking=no ${user}@${master_ip} "ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa"  )
+    ( ssh -oStrictHostKeyChecking=no ${user}@${master_ip} "ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa"  )
     # acquire our master id
-    ( $scp -oStrictHostKeyChecking=no ${user}@${master_ip}:.ssh/id_rsa.pub ./${master_id} )
+    ( scp -oStrictHostKeyChecking=no ${user}@${master_ip}:.ssh/id_rsa.pub ./${master_id} )
 fi
 
 IFS=$'\n'
@@ -134,11 +137,11 @@ for host in $( cat $pubhosts | sort ); do
 
     echo ""
     echo " -> ssh copy id  $name"
-    ( $scp -oStrictHostKeyChecking=no $master_id ${user}@${name}: )
-    ( $ssh -oStrictHostKeyChecking=no ${user}@${name} "cat $master_id >> .ssh/authorized_keys && chmod 600 .ssh/authorized_keys; rm $master_id" )
+    ( scp -oStrictHostKeyChecking=no $master_id ${user}@${name}: )
+    ( ssh -oStrictHostKeyChecking=no ${user}@${name} "cat $master_id >> .ssh/authorized_keys && chmod 600 .ssh/authorized_keys; rm $master_id" )
 
     echo " -> set hostname $name"
-    ( $ssh -oStrictHostKeyChecking=no ${user}@${name} "sudo hostname $name; sudo sh -c 'echo $name > /etc/hostname'" )
+    ( ssh -oStrictHostKeyChecking=no ${user}@${name} "sudo hostname $name; sudo sh -c 'echo $name > /etc/hostname'" )
 
     # copy pvt hosts file but not to our master again
     if [ "$ip" == "$master_ip" ]; then
@@ -146,16 +149,9 @@ for host in $( cat $pubhosts | sort ); do
     fi
 
     if [ -n "$pvthosts" ]; then
-        ( $scp -oStrictHostKeyChecking=no $pvthosts ${user}@${name}: )
-        ( $ssh -oStrictHostKeyChecking=no ${user}@${name} "sudo sh -c 'cat $pvthosts >> /etc/hosts'; rm $pvthosts" )
+        ( scp -oStrictHostKeyChecking=no $pvthosts ${user}@${name}: )
+        ( ssh -oStrictHostKeyChecking=no ${user}@${name} "sudo sh -c 'cat $pvtfile >> /etc/hosts'; rm $pvtfile" )
     fi
 done
 
 exit 0
-
-
-
-
-
-
-# usage: $PNAME  -H <pvt_hosts> -i <ident> -u <user>  <hostsfile> <master>
