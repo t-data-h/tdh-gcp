@@ -129,6 +129,7 @@ if [ -z "$master_id" ]; then
     ( ssh -oStrictHostKeyChecking=no ${user}@${master_ip} "ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa"  )
     # acquire our master id
     ( scp -oStrictHostKeyChecking=no ${user}@${master_ip}:.ssh/id_rsa.pub ./${master_id} )
+    ( ssh -oStrictHostKeyChecking=no ${user}@${master_ip} "ssh-keyscan -t rsa -H $master >> .ssh/known_hosts" )
 else
     if [ -n "$pvthosts" ]; then
         ( scp -oStrictHostKeyChecking=no $pvthosts ${user}@${master_ip}: )
@@ -161,6 +162,10 @@ for host in $( cat $pubhosts | sort ); do
         ( scp -oStrictHostKeyChecking=no $pvthosts ${user}@${name}: )
         ( ssh -oStrictHostKeyChecking=no ${user}@${name} "sudo sh -c 'cat $pvtfile >> /etc/hosts'; rm $pvtfile" )
     fi
+
+    # add known_hosts entry
+    echo " -> add to known_hosts"
+    ( ssh -oStrictHostKeyChecking=no ${user}@${master} "ssh-keyscan -t rsa -H $name >> .ssh/known_hosts" 2>/dev/null )
 done
 
 exit 0
