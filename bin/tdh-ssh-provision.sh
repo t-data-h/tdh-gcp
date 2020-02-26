@@ -33,7 +33,7 @@ usage()
     echo "  -i  <identity>       : SSH Identity file for connecting to hosts"
     echo "  -M  <master_id>      : SSH public certificate of the master host"
     echo "                         This overrides the defining of a master"
-    echo "  -u|--user   <user>   : Name of remote user"
+    echo "  -u|--user   <user>   : Name of remote user, if not '$user'"
     echo "   <hosts_file>        : File containing the list of hosts and ip"
     echo "   [master_host]       : Master host of cluster."
     echo ""
