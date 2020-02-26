@@ -42,25 +42,21 @@ are idempotent and are also not GCP specific.
   mysql client library and tools like `wget` that may be needed prior to
   Ansible bootstrapping.
 
+* gke-init.sh:
 
-## Support scripts:
+  Script for initializing a GCP Kubernetes Cluster
 
-Support scripts utilized by the initialization scripts, but are not GCP specific
-and can be used for any environment where the compute instances have already
-been created.
 
-* tdh-prereqs.sh:
+## Utility Scripts:
 
-  Installs host prerequisites that may be needed prior to Ansible (eg. wget,
-  bind-tools). Note this is not set executable intentionally until it is
-  to be ran on a target host to avoid running this accidentally.
+Additional support scripts used for various environment bootstrapping.
 
-* tdh-format.sh:
+* gcp-networks.sh:
 
-  Script for formatting and mounting a new data drive for a given instance. This
-  is used by the master/worker init scripts when using an attached data drive.
-  The init script copies this to the remote host to locally format and add the
-  drive(s) to the system, supporting either Ext4 or XFS filesystems.
+  Provides a wrapper for creating custom GCP Networks and Subnets. If not specified,
+  GCP will revert to using the `default` network and subnet. If the intention is to
+  deploy on a specific network, this script is first run to define the subnet and
+  associated address range in CIDR Format.
 
 * tdh-mysql-install.sh:
 
@@ -69,18 +65,6 @@ been created.
   as well as ensuring `server-id` is set in accordance to the number of masters.
   Actual slave configuration and accounts are provisioned later by Ansible
   playbooks.
-
-
-## Utility Scripts:
-
-Additional support scripts used in addition to the init scripts.
-
-* gcp-networks.sh:
-
-  Provides a wrapper for creating custom GCP Networks and Subnets. If not specified,
-  GCP will revert to using the `default` network and subnet. If the intention is to
-  deploy on a specific network, this script is first run to define the subnet and
-  associated address range in CIDR Format.
 
 * tdh-push.sh
 
@@ -108,9 +92,49 @@ Additional support scripts used in addition to the init scripts.
     => result: gcloud compute scp tdh-anaconda3.tar.gz tdh-m01:tmp/dist/
   ```
 
+* tdh-remote-format.sh:
+
+  The GCP instance scripts already format attached drives at create, however
+  for situations where the instances are not created by those scripts (like
+  non-GCP hosts), this script will format and mount a sequential set of
+  attached storage via ssh. This makes use of the format support script.
+
+* tdh-ssh-provision.sh:
+
+  Script for remotely configuring a cluster of hosts for passwordless login
+  via a master host.
+
+## Support scripts:
+
+Support scripts are utilized by the initialization scripts in some cases, but
+are not GCP specific and can be used for any environment where the compute
+instances have already been created.
+
+* tdh-prereqs.sh:
+
+  Installs host prerequisites that may be needed prior to Ansible (eg. wget,
+  bind-tools). Note this is not set executable intentionally until it is
+  to be ran on a target host to avoid running this accidentally.
+
+* tdh-format.sh:
+
+  Script for formatting and mounting a new data drive for a given instance. This
+  is used by the master/worker init scripts when using an attached data drive.
+  The Init scripts copy this to the remote host to locally format and add the
+  drive(s) to the system, supporting either Ext4 or XFS filesystems. This is
+  not set executable until placed on the host in question.
+
+* gcp-hosts-gen.sh
+
+  Script for building a hosts file of GCP Instances.
+
+* gfw-ssh.sh:
+
+  Handy script for easily adding ssh only access for remote networks.
+
 ---
 
-## Running the scripts:
+## Running the instance scripts:
 
 The scripts rely on relative path to each other and should be run from
 the parent `tdh-gcp` directory. Below are some examples of creating master
@@ -234,4 +258,3 @@ run-time take precedence over environment variables.
 
 Add support for GCP Ubuntu images:
 --image-family ubuntu-1804-lts --image-project ubuntu-os-cloud
-
