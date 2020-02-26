@@ -22,6 +22,7 @@ cert=
 user="$USER"
 master=
 master_id=
+idfile=
 
 
 usage()
@@ -39,8 +40,11 @@ usage()
     echo ""
     echo "  Note the hosts file is intended to be in the same format as "
     echo "  a typical '/etc/hosts' file".
-    echo "  If a 'master_host' is provided. ssh-keygen is run to obtain a cert"
-    echo "  else, if a master cert is provided, it is used instead."
+    echo ""
+    echo "  If a 'master_host' is provided without an id file (-M), "
+    echo "  ssh-keygen is run on the target host to obtain a certificate, "
+    echo "  else, if a master certificate is provided, it is used instead "
+    echo "  and keygen is not run."
     echo ""
 }
 
@@ -87,8 +91,8 @@ if [ -z "$pubhosts" ]; then
     exit 1
 fi
 
-if [ -z "$master" ] && [ -z "$master_id" ]; then
-    echo "$TDH_PNAME Error: No Master is defined"
+if [ -z "$master" ]; then
+    echo "$PNAME Error: No Master is defined"
     exit 1
 fi
 
@@ -116,11 +120,13 @@ if [ -z "$master_id" ]; then
         exit 1
     fi
 
+    echo" -> Configure master host as primary"
     # Remove any existing known_hosts entry for the master
     ( ssh-keygen -f "${HOME}/.ssh/known_hosts" -R "$master" > /dev/null 2>&1 )
 
     # Copy private hosts file
     if [ -n "$pvthosts" ]; then
+        echo " -> Copy private hosts to master"
         ( scp -oStrictHostKeyChecking=no $pvthosts ${user}@${master_ip}: )
         ( ssh -oStrictHostKeyChecking=no ${user}@${master_ip} "sudo sh -c 'cat $pvtfile >> /etc/hosts'; rm $pvtfile" )
     fi
@@ -132,12 +138,15 @@ if [ -z "$master_id" ]; then
     ( ssh -oStrictHostKeyChecking=no ${user}@${master_ip} "ssh-keyscan -t rsa -H $master >> .ssh/known_hosts" )
 else
     if [ -n "$pvthosts" ]; then
-        ( scp -oStrictHostKeyChecking=no $pvthosts ${user}@${master_ip}: )
-        ( ssh -oStrictHostKeyChecking=no ${user}@${master_ip} "sudo sh -c 'cat $pvtfile >> /etc/hosts'; rm $pvtfile" )
+        echo " -> Copy private hosts to master"
+        ( scp -oStrictHostKeyChecking=no $pvthosts ${user}@${master}: )
+        ( ssh -oStrictHostKeyChecking=no ${user}@${master} "sudo sh -c 'cat $pvtfile >> /etc/hosts'; rm $pvtfile" )
     fi
 fi
 
 IFS=$'\n'
+idfile=$(basename $master_id)
+
 for host in $( cat $pubhosts | sort ); do
     ip=$( echo $host | awk '{ print $1 }' )
     name=$( echo $host | awk '{ print $2 }' )
@@ -146,11 +155,11 @@ for host in $( cat $pubhosts | sort ); do
     ( ssh-keygen -f "${HOME}/.ssh/known_hosts" -R "$name" > /dev/null 2>&1 )
 
     echo ""
-    echo " -> ssh copy id  $name"
+    echo " -> Copy ssh id:  $name"
     ( scp -oStrictHostKeyChecking=no $master_id ${user}@${name}: )
-    ( ssh -oStrictHostKeyChecking=no ${user}@${name} "cat $master_id >> .ssh/authorized_keys && chmod 600 .ssh/authorized_keys; rm $master_id" )
+    ( ssh -oStrictHostKeyChecking=no ${user}@${name} "cat $idfile >> .ssh/authorized_keys && chmod 600 .ssh/authorized_keys; rm $idfile" )
 
-    echo " -> set hostname $name"
+    echo " -> Set hostname $name"
     ( ssh -oStrictHostKeyChecking=no ${user}@${name} "sudo hostname $name; sudo sh -c 'echo $name > /etc/hostname'" )
 
     # copy pvt hosts file but not to our master again
@@ -164,7 +173,7 @@ for host in $( cat $pubhosts | sort ); do
     fi
 
     # add known_hosts entry
-    echo " -> add to known_hosts"
+    echo " -> Add to known_hosts"
     ( ssh -oStrictHostKeyChecking=no ${user}@${master} "ssh-keyscan -t rsa -H $name >> .ssh/known_hosts" 2>/dev/null )
 done
 
