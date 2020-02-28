@@ -9,8 +9,8 @@
 #
 tdh_path=$(dirname "$(readlink -f "$0")")
 
-if [ -f ${tdh_path}/tdh-gcp-config.sh ]; then
-    . ${tdh_path}/tdh-gcp-config.sh
+if [ -f ${tdh_path}/../bin/tdh-gcp-config.sh ]; then
+    . ${tdh_path}/../bin/tdh-gcp-config.sh
 fi
 
 pubhosts=
@@ -28,13 +28,13 @@ idfile=
 usage()
 {
     echo ""
-    echo "$TDH_PNAME [options] <hosts_file> [master_host]"
-    echo "  -H|--pvthosts <file> : Set a private hosts file across nodes"
-    echo "  -h|--help            : Show usage info and exit"
-    echo "  -i  <identity>       : SSH Identity file for connecting to hosts"
-    echo "  -M  <master_id>      : SSH public certificate of the master host"
-    echo "                         This overrides the defining of a master"
-    echo "  -u|--user   <user>   : Name of remote user, if not '$user'"
+    echo "$TDH_PNAME [options] <hosts_file> <master_host>"
+    echo " -H|--pvthosts <file> : Add contents of a private hosts file to hosts"
+    echo " -h|--help            : Show usage info and exit"
+    echo " -i  <identity>       : SSH Identity file for connecting to hosts"
+    echo " -M  <master_id>      : SSH public certificate of the master host"
+    echo "                        This overrides the defining of a master"
+    echo " -u|--user   <user>   : Name of remote user, if not '$user'"
     echo "   <hosts_file>        : File containing the list of hosts and ip"
     echo "   [master_host]       : Master host of cluster."
     echo ""
@@ -168,6 +168,7 @@ for host in $( cat $pubhosts | sort ); do
     fi
 
     if [ -n "$pvthosts" ]; then
+        echo " -> Add private hosts file"
         ( scp -oStrictHostKeyChecking=no $pvthosts ${user}@${name}: )
         ( ssh -oStrictHostKeyChecking=no ${user}@${name} "sudo sh -c 'cat $pvtfile >> /etc/hosts'; rm $pvtfile" )
     fi
@@ -176,5 +177,7 @@ for host in $( cat $pubhosts | sort ); do
     echo " -> Add to known_hosts"
     ( ssh -oStrictHostKeyChecking=no ${user}@${master} "ssh-keyscan -t rsa -H $name >> .ssh/known_hosts" 2>/dev/null )
 done
+
+echo "$PNAME Finished."
 
 exit 0

@@ -12,7 +12,7 @@ fi
 
 # -----------------------------------
 
-devtypes=( "sd" "nvme" )
+devtypes=( "sd" "nvme" "xvd" )
 devtype="${devtypes[0]}"
 format="$TDH_FORMAT"
 
@@ -42,7 +42,7 @@ usage()
     echo "  -i|--identity <file>  : SSH Identity file."
     echo "  -n|--dryrun           : Enable dryrun (no actions are taken)"
     echo "  -p|--prefix  <path>   : Pathname prefix (default is /data)"
-    echo "  -t|--type    <0|1>    : Disk type, 0=Standard, 1=NVME"
+    echo "  -t|--type     <n>     : Disk type, 0=Standard, 1=NVME, 2=XVD"
     echo "  -u|--user    <name>   : Name of remote user, if not '$user'"
     echo "  -x|--use-xfs          : Use XFS instead of default EXT4"
     echo "  -z|--zone   <zoneid>  : GCP zone of target, if applicable."
@@ -127,11 +127,11 @@ if [ -z "$hosts" ]; then
     exit 1
 fi
 
-if [ $dtype -gt 1 ]; then
+if [ $dtype -gt 2 ]; then
     echo "Error in DiskType.."
     exit 1
-fi 
-if [ $dtype -eq 1 ]; then
+fi
+if [ $dtype -gt 0 ]; then
     devtype="${devtypes[$dtype]}"
 fi
 
