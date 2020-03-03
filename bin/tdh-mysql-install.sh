@@ -120,7 +120,7 @@ if [ $usegcp -gt 0 ]; then
     ssh="$ssh $user@$host --command"
 else
     if [ -n "$ident" ]; then
-        ssh="$ssh -i $ident"
+        ( ssh-add $ident )
     fi
     ssh="$ssh $user@$host"
 fi
@@ -191,5 +191,5 @@ if [ "$role" == "master" ] || [ "$role" == "slave" ]; then
     fi
 fi
 
-echo "$TDH_PNAME finished."
+echo "$TDH_PNAME Finished."
 exit $rt

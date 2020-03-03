@@ -46,20 +46,17 @@ usage()
     echo "                     By default, the target directory name is used."
     echo "  host             : Name of target host. Override with TDH_PUSH_HOST"
     echo ""
-    echo " The script assumes that the archive will contain the final"
-    echo "directory target, so a path of a '/a/b/c/target' will create the "
-    echo "archive from 'c' with the archive containing './target/' as the "
-    echo "root directory. Typical for any tarball package of assets."
+    echo " The script intends that the archive will contain only the last"
+    echo "directory target. A path of a '/a/b/c' will create the archive "
+    echo "from 'b' with containing './c/' as the root directory."
     echo ""
     echo " The environment variable 'TDH_PUSH_HOST' is honored as the "
-    echo "default 'host' to use. If not set, all three parameters are"
-    echo "required."
+    echo "default target to use. Otherwise, all three parameters are required. "
     echo ""
     echo " The script uses a 'tmp' path for both creating the archive locally"
-    echo "and for pushing to the target host.  This is defined by the "
-    echo "variable 'TDH_DIST_PATH'. The default is '/tmp/dist' if not set and"
-    echo "will be created on the remote host automatically given appropriate"
-    echo "permissions."
+    echo "and landing on the target host.  This is defined by the environment "
+    echo "variable 'TDH_DIST_PATH'. The default is '/tmp/dist'. "
+    echo "The target path will be auto-created on the remote host."
     echo ""
 }
 
@@ -135,8 +132,7 @@ if [ $usegcp -gt 0 ]; then
     ssh="$ssh ${user}@${host} --command"
 else
     if [ -n "$ident" ]; then
-        ssh="$ssh -i $ident"
-        scp="$scp -i $ident"
+        ( ssh-add $ident )
     fi
     ssh="$ssh ${user}@${host}"
 fi
