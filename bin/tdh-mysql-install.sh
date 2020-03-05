@@ -187,6 +187,8 @@ fi
 
 # Install Server
 if [ "$role" == "master" ] || [ "$role" == "slave" ]; then
+    echo " -> Installing MySQL Server role"
+
     ( $ssh 'sudo yum install -y mysql-community-server' )
     ( $ssh 'sudo cp my.cnf /etc/my.cnf && sudo chmod 644 /etc/my.cnf' )
     ( $ssh 'sudo mysqld --initialize-insecure --user=mysql' )
