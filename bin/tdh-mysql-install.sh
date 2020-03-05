@@ -13,8 +13,8 @@ fi
 
 # -----------------------------------
 
-host=
-role="master"
+hosts=
+role=
 zone=
 ident=
 pw=
@@ -28,7 +28,7 @@ user="$USER"
 usage()
 {
     echo ""
-    echo "Usage: $TDH_PNAME [options]  [host] [ROLE]"
+    echo "Usage: $TDH_PNAME [options] [ROLE] [host] {host2 host3 ..}"
     echo "  -h|--help             : Display help and exit"
     echo "  -G|--use-gcp          : Run commands using the GCP API."
     echo "  -i|--identity <file>  : SSH Identity file."
@@ -38,7 +38,9 @@ usage()
     echo "  -u|--user <name>      : SSH Username to use for target host."
     echo "  -z|--zone <zoneid>    : GCP Zone of target host, if needed."
     echo "  -V|--version          : Show version info and exit."
+    echo ""
     echo " Where ROLE is 'master', 'slave', or 'client'"
+    echo " Host list only supported for client role."
     echo ""
 }
 
@@ -86,8 +88,9 @@ while [ $# -gt 0 ]; do
             exit 0
             ;;
         *)
-            host="$1"
-            role="$2"
+            role="$1"
+            shift
+            hosts="$@"
             shift $#
             ;;
     esac
@@ -95,7 +98,7 @@ while [ $# -gt 0 ]; do
 done
 
 
-if [ -z "$host" ]; then
+if [ -z "$hosts" ] || [ -z "$role" ]; then
     tdh_version
     usage
     exit 1
@@ -117,37 +120,53 @@ if [ $usegcp -gt 0 ]; then
         ssh="$ssh --zone $zone"
         scp="$scp --zone $zone"
     fi
-    ssh="$ssh $user@$host --command"
 else
     if [ -n "$ident" ]; then
         ( ssh-add $ident )
     fi
-    ssh="$ssh $user@$host"
 fi
 
-# copy repo, repo key, and server config
-( $scp ${tdh_path}/../etc/mysql-community.repo ${user}@${host}: )
-( $scp ${tdh_path}/../etc/RPM-GPG-KEY-mysql ${user}@${host}: )
+IFS=$' '
 
-# Install Client
-( $ssh 'sudo cp mysql-community.repo /etc/yum.repos.d' )
-( $ssh 'sudo cp RPM-GPG-KEY-mysql /etc/pki/rpm-gpg/')
-( $ssh 'sudo yum install -y mysql-community-libs mysql-community-client' )
+for host in $hosts; do
+    echo " -> Installing client for '$host'"
 
-# Install specific 5.1.46 JDBC Driver
-( $ssh 'wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.46.tar.gz' )
-( $ssh 'tar zxf mysql-connector-java-5.1.46.tar.gz; \
-sudo mkdir -p /usr/share/java; \
-sudo cp mysql-connector-java-5.1.46/mysql-connector-java-5.1.46-bin.jar /usr/share/java/; \
-sudo chmod 644 /usr/share/java/mysql-connector-java-5.1.46-bin.jar; \
-sudo ln -s /usr/share/java/mysql-connector-java-5.1.46-bin.jar /usr/share/java/mysql-connector-java.jar; \
-rm -rf mysql-connector-java-5.1.46 mysql-connector-java-5.1.46.tar.gz' )
-( $ssh 'rm mysql-community.repo RPM-GPG-KEY-mysql' )
+    if [ $usegcp -gt 0 ]; then
+        hostssh="$ssh $user@$host --command"
+    else
+        hostssh="$ssh $user@$host"
+    fi
 
+    # copy repo, repo key, and server config
+    ( $scp ${tdh_path}/../etc/mysql-community.repo ${user}@${host}: )
+    ( $scp ${tdh_path}/../etc/RPM-GPG-KEY-mysql ${user}@${host}: )
+
+    # Install Client
+    ( $hostssh 'sudo cp mysql-community.repo /etc/yum.repos.d' )
+    ( $hostssh 'sudo cp RPM-GPG-KEY-mysql /etc/pki/rpm-gpg/')
+    ( $hostssh 'sudo yum install -y mysql-community-libs mysql-community-client' )
+
+    # Install specific 5.1.46 JDBC Driver
+    ( $hostssh 'wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.46.tar.gz' )
+    ( $hostssh 'tar zxf mysql-connector-java-5.1.46.tar.gz; \
+    sudo mkdir -p /usr/share/java; \
+    sudo cp mysql-connector-java-5.1.46/mysql-connector-java-5.1.46-bin.jar /usr/share/java/; \
+    sudo chmod 644 /usr/share/java/mysql-connector-java-5.1.46-bin.jar; \
+    sudo ln -s /usr/share/java/mysql-connector-java-5.1.46-bin.jar /usr/share/java/mysql-connector-java.jar; \
+    rm -rf mysql-connector-java-5.1.46 mysql-connector-java-5.1.46.tar.gz' )
+    ( $hostssh 'rm mysql-community.repo RPM-GPG-KEY-mysql' )
+done
 
 if [ "$role" == "client" ]; then
     echo "$TDH_PNAME client install finished."
     exit 0
+fi
+
+host="$hosts"
+if [ $usegcp -gt 0 ]; then
+    ssh="$ssh $user@$host --command"
+else
+    ssh="$ssh $user@$host"
 fi
 
 ( $scp ${tdh_path}/../etc/tdh-mysql.cnf ${user}@${host}:my.cnf )
