@@ -105,7 +105,7 @@ if [ -z "$hosts" ] || [ -z "$role" ]; then
 fi
 
 if [ -z "$pw" ] && [ "$role" != "client" ]; then
-    echo "Error, password was not provided."
+    echo "$TDH_PNAME Error! Password was not provided."
     usage
     exit 1
 fi
@@ -140,6 +140,11 @@ for host in $hosts; do
     # copy repo, repo key, and server config
     ( $scp ${tdh_path}/../etc/mysql-community.repo ${user}@${host}: )
     ( $scp ${tdh_path}/../etc/RPM-GPG-KEY-mysql ${user}@${host}: )
+
+    if [ $? -gt 0 ]; then
+        echo "$TDH_PNAME Error in initial 'scp'. Bad host? Aborting.."
+        exit 1
+    fi
 
     # Install Client
     ( $hostssh 'sudo cp mysql-community.repo /etc/yum.repos.d' )
