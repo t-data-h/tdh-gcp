@@ -2,10 +2,11 @@
 #
 #  /etc/hosts style output for gcp external ip's
 #  only correct for project 'global' wide dns not zonal dns
+PNAME=${0##\/.*}
 
 ( which gcloud > /dev/null 2>&1 )
 if [ $? -ne 0 ]; then
-    echo "Error 'gcloud' not found."
+    echo "Error 'gcloud' cli not found."
     exit 1
 fi
 
@@ -13,8 +14,8 @@ fi
 declare -a gary
 
 zone="$1"
-proj=$( gcloud config configurations list | grep True | awk '{ print $4 }' )
-dom="c.${proj}.internal"
+project=$( gcloud config configurations list | grep True | awk '{ print $4 }' )
+dom="c.${project}.internal"
 cmd="gcloud compute instances list"
 
 if [ -n "$zone" ]; then

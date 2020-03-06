@@ -149,8 +149,7 @@ if [ $usegcp -eq 1 ]; then
     fi
 else
     if [ -n "$ident" ]; then
-        ssh="$ssh -i $ident"
-        scp="$scp -i $ident"
+        ( ssh-add $ident )
     fi
 fi
 
