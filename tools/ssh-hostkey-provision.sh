@@ -119,7 +119,7 @@ if [ -z "$master_id" ]; then
         exit 1
     fi
 
-    echo" -> Configure master host as primary"
+    echo " -> Configure master host as primary"
     # Remove any existing known_hosts entry for the master
     ( ssh-keygen -f "${HOME}/.ssh/known_hosts" -R "$master" > /dev/null 2>&1 )
 
