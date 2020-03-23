@@ -403,7 +403,7 @@ for name in $names; do
     create)
         cmd="gcloud compute instances create --image-family=${image} --image-project=${image_project}"
         cmd="$cmd --zone ${zone} --machine-type=${mtype} --boot-disk-size=${bootsize} --verbosity error"
-        
+
         if [ $ssd -eq 1 ]; then
             cmd="$cmd --boot-disk-type=pd-ssd"
         fi
@@ -481,7 +481,7 @@ for name in $names; do
         stop_instance $name $zone $async $dryrun
         ;;
 
-    delete)
+    delete|destroy)
         cmd="gcloud compute instances delete $name --zone $zone --quiet"
 
         if [ $keep -eq 1 ]; then
