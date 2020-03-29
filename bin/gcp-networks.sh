@@ -308,6 +308,9 @@ describe-subnet)
         ( gcloud compute networks subnets describe $network )
     fi
     ;;
+help)
+    usage
+    ;;
 *)
     echo "Action Not Recognized! '$action'"
     usage

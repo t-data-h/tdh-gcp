@@ -504,6 +504,9 @@ for name in $names; do
         is_running $name
         rt=$?
         ;;
+    help)
+        usage
+        ;;
     *)
         echo "Action Not Recognized! '$action'"
         usage

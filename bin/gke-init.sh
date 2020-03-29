@@ -137,8 +137,8 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-if [ "$action" == "create" ]; then
-
+case "$action" in
+create)
     if [ -z "$cluster" ]; then
         echo "Name of cluster is required."
         usage
@@ -170,22 +170,30 @@ if [ "$action" == "create" ]; then
     if [ $dryrun -eq 0 ]; then
         ( $cmd )
     fi
+    ;;
 
-elif [ "$action" == "delete" ]; then
+del|delete|destroy)
     cmd="$gke clusters delete $cluster"
 
     echo "( $cmd )"
     if [ $dryrun -eq 0 ]; then
         ( $cmd )
     fi
-elif [ "$action" == "list" ]; then
+    ;;
+list)
     ( $gke clusters list )
-elif [ "$action" == "describe" ]; then
+    ;;
+describe|info)
     ( $gke clusters describe $cluster )
-else
+    ;;
+help)
+    usage
+    ;;
+*)
     echo "Action not recognized."
     echo ""
-fi
+    ;;
+esac
 
 rt=$?
 

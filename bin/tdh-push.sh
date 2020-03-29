@@ -137,7 +137,7 @@ else
     ssh="$ssh ${user}@${host}"
 fi
 
-apath=$(readlink -f "$apath")
+apath=$(realpath "$apath")
 target=$(dirname "$apath")
 name=${apath##*\/}
 
