@@ -29,7 +29,7 @@ usage()
 {
     echo ""
     echo "$TDH_PNAME [options] <hosts_file> <master_host>"
-    echo " -H|--pvthosts <file> : Add contents of a private hosts file to hosts"
+    echo " -H|--pvthosts <file> : Add private hosts file to all hosts"
     echo " -h|--help            : Show usage info and exit"
     echo " -i  <identity>       : SSH Identity file for connecting to hosts"
     echo " -M  <master_id>      : SSH public certificate of the master host"
