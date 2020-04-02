@@ -53,18 +53,18 @@ Additional support scripts used for various environment bootstrapping.
 
 * gcp-networks.sh:
 
-  Provides a wrapper for creating custom GCP Networks and Subnets. If not specified,
-  GCP will revert to using the `default` network and subnet. If the intention is to
-  deploy on a specific network, this script is first run to define the subnet and
-  associated address range in CIDR Format.
+  Provides a wrapper for creating custom GCP Networks and Subnets. If not
+  specified, GCP will revert to using the `default` network and subnet. If the
+  intention is to deploy on a specific network, this script is first run to
+  define the subnet and associated address range in CIDR Format.
 
 * tdh-mysql-install.sh:
 
   Bootstraps a Mysql 5.7 Server instance (on given master hosts). It takes
-  care of an initial install of mysql server and client, setting the root password
-  as well as ensuring `server-id` is set in accordance to the number of masters.
-  Actual slave configuration and accounts are provisioned later by Ansible
-  playbooks.
+  care of an initial install of mysql server and client, setting the root
+  password as well as ensuring `server-id` is set in accordance to the number
+  of masters. Actual slave configuration and accounts are provisioned later by
+  Ansible playbooks.
 
 * tdh-push.sh
 
@@ -73,13 +73,13 @@ Additional support scripts used for various environment bootstrapping.
   remains as the root directory and any soft links within are honored. It
   creates a tarball to be transferred to a given host.
 
-  The environment variable TDH_PUSH_HOST is used as the default target host when
-  not provided directly to the script. In the context of TDH, this script is used
-  to push updates, such as this repository (tdh-gcp), TDH Manager (tdh-mgr),
-  cluster configs from `tdh-config`, and a python3 distribution. The script
-  also uses a common distribution path for pushing files. By default, this is
-  set to `/tmp/dist`, but can be changed by setting TDH_DIST_PATH in the
-  environment.
+  The environment variable TDH_PUSH_HOST is used as the default target host
+  when not provided directly to the script. In the context of TDH, this script
+  is used to push updates, such as this repository (tdh-gcp), TDH Manager
+  (tdh-mgr), cluster configs from `tdh-config`, and a python3 distribution.
+  The script also uses a common distribution path for pushing files. By
+  default, this is set to `/tmp/dist`, but can be changed by setting
+  TDH_DIST_PATH in the environment.
   ```
   $ export TDH_PUSH_HOST="tdh-m01"
   $ ./bin/tdh-push.sh -G .
@@ -175,7 +175,7 @@ attaches a data disk formatted as XFS instead of Ext4.
 All of this varies, of course, on data sizes and workloads and is
 intended purely as a starting point.
 
-Memory values for a small, usable cluster:
+Ideal Memory values for a small, usable cluster:
 *  NN/SN = 4 Gb ea.
 *  DN/NM (worker) = 1 Gb ea
 *  Hive Meta|S2  = 12 Gb ea
@@ -183,31 +183,41 @@ Memory values for a small, usable cluster:
 *  Zookeeper  = 1 Gb
 *  HBase RegionServers = 8 to 20 Gb depending
 
-Possible dev layout:
-```
-------------------------------------
+
+Sample dev layout with minimal values:
+
 M01:
-* NameNode (primary)  | 2 Gb      1
-* ResourceManager     | 2 Gb      1
-* HBase Master        | 2 Gb      1
-* Zookeeper           | 1 Gb      1
-------------------------------------
-                        8-12      4
+
+|     Component          |  HeapSize   |  Cores    |
+| ---------------------- | ----------- | --------- |
+|  NameNode (primary)    |  4 Gb       |  1    |
+|  ResourceManager       |  2 Gb       |  1    |
+|  HBase Master          |  2 Gb       |  1    |
+|  Zookeeper             |  1 Gb       |  1    |
+|  JournalNode           |  1 Gb       |  1    |
+|  **Total**        |  **10Gb**  |  **5** |
+
 M02:
-* NameNode (secondary)  2 Gb      1
-* Hive Metastore        4 Gb      1
-* Hive Server2          4 Gb      1
-* Zookeeper             1 Gb      1
--------------------------------------
-                        8-12      4
+
+|     Component           |  HeapSize   |  Cores    |
+| ----------------------- | ----------- | --------- |
+|  NameNode (secondary)   |  4 Gb       |  1    |
+|  ResourceManager        |  2 Gb       |  1    |
+|  Zookeeper              |  1 Gb       |  1    |
+|  JournalNode            |  1 Gb       |  1    |
+|  **Total**           |  **8Gb**      | **4**   |
+
 M03:
-* Spark2 HistoryServer  1 Gb      1
-* Zookeeper             1 Gb      1
-* Hue                   2 Gb      1
-* Zeppelin              2 Gb      1
-----------------------------------
-                        6-8       4
-```
+
+|     Component           |  HeapSize   |  Cores    |
+| ----------------------- | ----------- | --------- |
+|  Hive Metastore         |  4 Gb       |  1    |
+|  Hive Server2           |  4 Gb       |  1    |
+|  Spark HistoryServer    |  2 Gb       |  1    |
+|  Zookeeper              |  1 Gb       |  1    |
+|  JournalNode            |  1 Gb       |  1    |
+|  **Total**           |  **12Gb**      | **5**   |
+
 
 ---
 
@@ -236,23 +246,24 @@ $ gcloud compute instances set-machine-type tdh-d01 \
 ## Environment Variables
 
  Most of the various scripts support overriding defaults via the command-line
-or by environment variable.  Some defaults, such as GCP region and zone are taken
-from the active GCloud API configuration. Note that options provided at script
-run-time take precedence over environment variables.
+or by environment variable.  Some defaults, such as GCP region and zone are
+taken from the active GCloud API configuration. Note that options provided at
+script run-time take precedence over environment variables.
 
  The precedence order is:   `default < env-var < cmd-line`.
 
 | Environment Variable |  Description  |
 | -------------------- | ------------- |
-| `GCP_REGION`         | Override the default region, generally not needed as most scripts (save for networks) rely on the zone only.
+| `GCP_REGION`         | Override the default region, most scripts (except networks) rely on the zone only.
 | `GCP_ZONE`           | Override the default zone (set in gcloud api).
-| `GCP_MACHINE_TYPE`   | Generally provided via the `--type` cmdline parameter, it can alternatively be provided by the environment.
+| `GCP_MACHINE_TYPE`   | Provided via the `--type` cmdline parameter, it can alternatively be provided by the environment.
 | `GCP_MACHINE_IMAGE`  | Override the default machine image of `centos-7`.
 | `GCP_IMAGE_PROJECT`  | Override the default Image Project of `centos-cloud`.
-| `GCP_NETWORK`        | Provide the network to use for create operations. Otherwise needed at the command-line via the `--network` parameter.
-| `GCP_SUBNET`         | Provide the Network Subnet to use for create operations. Note this should match the correct network. Same as the command-line parameter `--subnet`.
+| `GCP_NETWORK`        | The network to use for create operations.
+| `GCP_SUBNET`         | The Network Subnet to use for create operations.
 | `TDH_PUSH_HOST`      | Host to use for push operations used by *tdh-push.sh*.
-| `TDH_DIST_PATH`      | The distribution path to drop binary packages. Utilized by *tdh-push.sh*.
+| `TDH_DIST_PATH`      | The distribution path for binary packages. Utilized by *tdh-push.sh*.
+
 
 ### TODO
 
