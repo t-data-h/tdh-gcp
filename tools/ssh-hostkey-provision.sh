@@ -119,22 +119,22 @@ if [ -z "$master_id" ]; then
         exit 1
     fi
 
-    echo " -> Configure master host as primary"
+    echo " -> Configuring master host '$master' as primary"
     # Remove any existing known_hosts entry for the master
     ( ssh-keygen -f "${HOME}/.ssh/known_hosts" -R "$master" > /dev/null 2>&1 )
 
     # Copy private hosts file
     if [ -n "$pvthosts" ]; then
         echo " -> Copy private hosts to master"
-        ( scp -oStrictHostKeyChecking=no $pvthosts ${user}@${master_ip}: )
-        ( ssh -oStrictHostKeyChecking=no ${user}@${master_ip} "sudo sh -c 'cat $pvtfile >> /etc/hosts'; rm $pvtfile" )
+        ( scp -oStrictHostKeyChecking=no $pvthosts ${user}@${master}: )
+        ( ssh -oStrictHostKeyChecking=no ${user}@${master} "sudo sh -c 'cat $pvtfile >> /etc/hosts'; rm $pvtfile" )
     fi
 
     # keygen for master host
-    ( ssh -oStrictHostKeyChecking=no ${user}@${master_ip} "ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa"  )
+    ( ssh -oStrictHostKeyChecking=no ${user}@${master} "ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa"  )
     # acquire our master id
-    ( scp -oStrictHostKeyChecking=no ${user}@${master_ip}:.ssh/id_rsa.pub ./${master_id} )
-    ( ssh -oStrictHostKeyChecking=no ${user}@${master_ip} "ssh-keyscan -t rsa -H $master >> .ssh/known_hosts" )
+    ( scp -oStrictHostKeyChecking=no ${user}@${master}:.ssh/id_rsa.pub ./${master_id} )
+    ( ssh -oStrictHostKeyChecking=no ${user}@${master} "ssh-keyscan -t rsa -H $master >> .ssh/known_hosts" )
 else
     if [ -n "$pvthosts" ]; then
         echo " -> Copy private hosts to master"
