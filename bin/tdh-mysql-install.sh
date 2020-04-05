@@ -207,13 +207,15 @@ if [ "$role" == "master" ] || [ "$role" == "slave" ]; then
         exit $rt
     fi
 
+    echo " -> Configuring MySQL root password"
     ( $ssh "printf \"[mysql]\nuser=root\npassword=$pw\n\" > .my.cnf"  )
-    ( $ssh "mysql -u root --skip-password -e \"ALTER USER 'root'@'localhost' IDENTIFIED BY '$pw'\"" )
+    ( $ssh "chmod 600 .my.cnf" )
     ( $ssh "sudo cp .my.cnf /root/" )
+    ( $ssh "mysql -u root --skip-password -e \"ALTER USER 'root'@'localhost' IDENTIFIED BY '$pw'\"" )
 
     rt=$?
     if [ $rt -gt 0 ]; then
-        echo "Error in mysql ALTER USER"
+        echo "Error in Mysql ALTER USER, setting root password."
     fi
 fi
 
