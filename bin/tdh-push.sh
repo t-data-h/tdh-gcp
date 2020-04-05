@@ -6,8 +6,8 @@
 #
 tdh_path=$(dirname "$(readlink -f "$0")")
 
-if [ -f ${tdh_path}/tdh-gcp-config.sh ]; then
-    . ${tdh_path}/tdh-gcp-config.sh
+if [ -f ${tdh_path}/../bin/tdh-gcp-config.sh ]; then
+    . ${tdh_path}/../bin/tdh-gcp-config.sh
 fi
 
 # -----------------------------------
@@ -21,7 +21,7 @@ fi
 zone=
 apath=
 aname=
-host=
+host="$TDH_PUSH_HOST"
 user="$USER"
 ident=
 usegcp=0
