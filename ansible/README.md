@@ -40,9 +40,9 @@ chmod 400 !$
 The group vars for all hosts has additional environment specific variables,
 that should be set accordingly. This includes hostnames as defined in the
 inventory. Of important note, while the hosts file can be defined using short
-names, mysql needs fully-qualified domain names, ie. `hostname -f` to
-function properly. If these don't match, there will be problems with the
-mysql grants resulting in permission issues.
+names, MySQL needs consistent use of fully-qualified domain names,
+ie. `hostname -f` to function properly. If these don't match, there will be
+problems with the MySQL grants resulting in permission issues.
 
 The following table describes the variables that should be defined in the
 file *inventory/$env/group_vars/all/vars*.
@@ -65,14 +65,14 @@ file *inventory/$env/group_vars/all/vars*.
 | tdh_mysql_client_hosts | All nodes in the cluster that we wish to install mysql client libs |
 
 
-The folloing example demonstates the typical vars file in YAML format:
+The following example demonstrates the typical vars file in YAML format:
 ```
 ---
 tdh_env: 'env-name'
 
 # set to user running tdh
-tdh_user: 'username'
-tdh_group: 'username'
+tdh_user: 'myuser'
+tdh_group: 'myuser'
 
 mysql_master_hostname: 'tdh-m01.gcp-projectname.internal'
 mysql_slave_hostname: 'tdh-m02.gcp-projectname.internal'
@@ -177,7 +177,7 @@ the related ecosystem configurations.
   **NOTE** that the path name under ***tdh-config*** must match the value
   described by the `tdh_env` variable defined in the inventory ***vars*** yaml.
   The resulting ***tdh-cluster-conf.tar.gz*** archive created will extract to
-  the pre-defined distribution path with that name, */tmp/TDH/tdh_env*.  With
+  the predefined distribution path with that name, */tmp/TDH/tdh_env*.  With
   the example above, this would be ***/tmp/TDH/gcp-central1***. This name
   must match the *tdh_env* value.
 
@@ -201,7 +201,7 @@ The caveat here being the cluster configurations themselves, pushed by the
 playbook.
 
 The various install scripts provided are to run portions of the install playbook
-via ansible tags:
+via Ansible tags:
 
 |    Script/Command      |    Tag     |        Asset             |
 | ---------------------- | ---------- | ------------------------ |
@@ -221,7 +221,7 @@ Once a full TDH install has run, the final step is to run the post-install playb
 This is a one-time operation that performs some HDFS directory seeding needed for
 the cluster to be fully operational. (eg. hive warehouse directory and permissions,
 log directories, hdfs tmp and user paths, etc.).  To perform these steps, however,
-the cluster should first be started via tdh-mgr. If the ansible steps all worked
+the cluster should first be started via tdh-mgr. If the Ansible steps all worked
 and the cluster configuration deployed, start HDFS via `hadoop-init.sh start`
 command and then run the post-install step.
 
@@ -230,6 +230,7 @@ command and then run the post-install step.
 
 Run the post-install playbook once HDFS is operational.
 ```
+$ source ~/.bashrc
 $ ansible-playbook -i inventory/$GCP_ENV/hosts tdh-postinstall.yml
 ```
 
