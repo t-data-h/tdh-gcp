@@ -44,7 +44,7 @@ are idempotent and are also not GCP specific.
 
 * gke-init.sh:
 
-  Script for initializing a GCP Kubernetes Cluster
+  Script for initializing a GCP Kubernetes Cluster.
 
 
 ## Utility Scripts:
@@ -61,14 +61,14 @@ Additional support scripts used for various environment bootstrapping.
 * tdh-mysql-install.sh:
 
   Bootstraps a Mysql 5.7 Server instance (on given master hosts). It takes
-  care of an initial install of mysql server and client, setting the root
+  care of an initial install of the mysql server and client, setting the root
   password as well as ensuring `server-id` is set in accordance to the number
   of masters. Actual slave configuration and accounts are provisioned later by
   Ansible playbooks.
 
 * tdh-push.sh
 
-  A simple script for pushing a directory of assets to a host. The script will
+  A script for pushing a directory of assets to a host. The script will
   automatically archive a directory, ensuring the directory to be archived
   remains as the root directory and any soft links within are honored. It
   creates a tarball to be transferred to a given host.
@@ -94,12 +94,12 @@ Additional support scripts used for various environment bootstrapping.
 
 * tdh-remote-format.sh:
 
-  The GCP instance scripts already format attached drives at create, however
+  The GCP instance scripts format attached drives at create, however
   for situations where the instances are not created by those scripts (like
   non-GCP hosts), this script will format and mount a sequential set of
   attached storage via ssh. This makes use of the format support script.
 
-* tdh-ssh-provision.sh:
+* ssh-hostkey-provision.sh:
 
   Script for remotely configuring a cluster of hosts for passwordless login
   via a master host.
@@ -114,15 +114,15 @@ instances have already been created.
 
   Installs host prerequisites that may be needed prior to Ansible (eg. wget,
   bind-tools). Note this is not set executable intentionally until it is
-  to be ran on a target host to avoid running this accidentally.
+  to be ran on a target host.
 
 * tdh-format.sh:
 
   Script for formatting and mounting a new data drive for a given instance. This
   is used by the master/worker init scripts when using an attached data drive.
-  The Init scripts copy this to the remote host to locally format and add the
-  drive(s) to the system, supporting either Ext4 or XFS filesystems. This is
-  not set executable until placed on the host in question.
+  The master and worker init scripts copy this to the remote host to locally
+  format and add the drive(s) to the system, supporting either Ext4 or XFS
+  filesystems. This is *not* set executable until placed on the host in question.
 
 * gcp-hosts-gen.sh
 
@@ -164,7 +164,6 @@ attaches a data disk formatted as XFS instead of Ext4.
 ./bin/tdh-workers-init.sh --network tdh-net --subnet tdh-subnet-200 \
   --tags tdh --type n1-highmem-4 --attach --disksize 256GB --use-xfs \
   run d01 d02 d03 d04
-
 
 ```
 
