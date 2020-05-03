@@ -12,8 +12,8 @@ fi
 
 # -----------------------------------
 
-devtypes=( "sd" "nvme" "xvd" )
-devtype="${devtypes[0]}"
+devtypes=( "nvme" "sd" "xvd", "vda" )
+devtype="${devtypes[1]}"
 format="$TDH_FORMAT"
 
 pathpfx="data"
@@ -21,7 +21,7 @@ volnum=1
 usexfs=0
 dryrun=0
 usegcp=0
-dtype=0
+dtype=1
 ident=
 force=
 zone=
@@ -35,22 +35,22 @@ usage()
     echo "on a set of hosts via ssh."
     echo ""
     echo "Usage: $TDH_PNAME [options] [host1] [host2] ..."
-    echo "  -D|--disknum  <n>     : Number of disk volumes to mount (default=1)"
-    echo "  -f|--force            : Set force option on 'mkfs'"
-    echo "  -G|--use-gcp          : Use Google API for connecting to hosts"
-    echo "  -h|--help             : Show usage info and exit"
+    echo "  -D|--disknum  <n>     : Number of disk volumes to mount (default=1)."
+    echo "  -f|--force            : Set force option on 'mkfs'."
+    echo "  -G|--use-gcp          : Use Google API for connecting to hosts."
+    echo "  -h|--help             : Show usage info and exit."
     echo "  -i|--identity <file>  : SSH Identity file."
-    echo "  -n|--dryrun           : Enable dryrun (no actions are taken)"
-    echo "  -p|--prefix  <path>   : Pathname prefix (default is /data)"
-    echo "  -t|--type     <n>     : Disk type, 0=Standard, 1=NVME, 2=XVD"
-    echo "  -u|--user    <name>   : Name of remote user, if not '$user'"
-    echo "  -x|--use-xfs          : Use XFS instead of default EXT4"
+    echo "  -n|--dryrun           : Enable dryrun (no actions are taken)."
+    echo "  -p|--prefix  <path>   : Pathname prefix (default is /data)."
+    echo "  -t|--type     <n>     : Disk type, 0=nvme, 1=sd, 2=xvd, 3=vd"
+    echo "  -u|--user    <name>   : Name of remote user, if not '$user'."
+    echo "  -x|--use-xfs          : Use XFS instead of default EXT4."
     echo "  -z|--zone   <zoneid>  : GCP zone of target, if applicable."
-    echo "  -V|--version          : Show version info and exit"
+    echo "  -V|--version          : Show version info and exit."
     echo ""
-    echo "  eg. $TDH_PNAME -n 5 -x host1"
+    echo "  eg. $TDH_PNAME -n 5 -x host1 host2 host3"
     echo "  Will format and mount 5 drives (sdb through sdf) "
-    echo "  as /data01 through /data05 using XFS"
+    echo "  as /data01 through /data05 using XFS on 3 hosts."
     echo ""
 }
 
@@ -127,11 +127,12 @@ if [ -z "$hosts" ]; then
     exit 1
 fi
 
-if [ $dtype -gt 2 ]; then
-    echo "Error in DiskType.."
+if [ $dtype -gt 3 ]; then
+    echo "$TDH_PNAME Error DiskType out of range"
     exit 1
 fi
-if [ $dtype -gt 0 ]; then
+
+if [ $dtype -ne 1 ]; then
     devtype="${devtypes[$dtype]}"
 fi
 
