@@ -22,8 +22,8 @@ usexfs=0
 dryrun=0
 usegcp=0
 dtype=1
+force=0
 ident=
-force=
 zone=
 user="$USER"
 
@@ -176,9 +176,9 @@ for host in $hosts; do
 
     for (( i=0; i<$volnum; )); do
         if [ $dtype -eq 0 ]; then
-            device="/dev/${devtype}${chars[i++]}"
-        else
             device="/dev/${devtype}${nums[i++]}n1"
+        else
+            device="/dev/${devtype}${chars[i++]}"
         fi
         dnum=$( printf "%02d" $i )
         mnt="/${pathpfx}${dnum}"

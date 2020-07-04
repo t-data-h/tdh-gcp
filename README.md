@@ -47,7 +47,7 @@ are idempotent and are also not GCP specific.
   Script for initializing a GCP Kubernetes Cluster.
 
 
-## Utility Scripts:
+## Utility Scripts (tools):
 
 Additional support scripts used for various environment bootstrapping.
 
@@ -97,7 +97,7 @@ Additional support scripts used for various environment bootstrapping.
   The GCP instance scripts format attached drives at create, however
   for situations where the instances are not created by those scripts (like
   non-GCP hosts), this script will format and mount a sequential set of
-  attached storage via ssh. This makes use of the format support script.
+  attached storage via ssh.
 
 * ssh-hostkey-provision.sh:
 
@@ -119,7 +119,7 @@ instances have already been created.
 * tdh-format.sh:
 
   Script for formatting and mounting a new data drive for a given instance. This
-  is used by the master/worker init scripts when using an attached data drive.
+  is used by the master/worker init scripts for attached data drives.
   The master and worker init scripts copy this to the remote host to locally
   format and add the drive(s) to the system, supporting either Ext4 or XFS
   filesystems. This is *not* set executable until placed on the host in question.
@@ -249,7 +249,7 @@ or by environment variable.  Some defaults, such as GCP region and zone are
 taken from the active GCloud API configuration. Note that options provided at
 script run-time take precedence over environment variables.
 
- The precedence order is:   `default < env-var < cmd-line`.
+The precedence order is:   `default < env-var < cmd-line`.
 
 | Environment Variable |  Description  |
 | -------------------- | ------------- |
