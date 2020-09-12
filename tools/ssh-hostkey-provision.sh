@@ -13,6 +13,8 @@ if [ -f ${tdh_path}/../bin/tdh-gcp-config.sh ]; then
     . ${tdh_path}/../bin/tdh-gcp-config.sh
 fi
 
+# -----------------------------------
+
 pubhosts=
 pvthosts=
 pubfile=
@@ -21,32 +23,35 @@ ident=
 cert=
 user="$USER"
 master=
+master_ip=
 master_id=
 idfile=
 
+# -----------------------------------
 
 usage()
 {
     echo ""
-    echo "$TDH_PNAME [options] <hosts_file> <master_host>"
-    echo " -H|--pvthosts <file> : Add private hosts file to all hosts"
-    echo " -h|--help            : Show usage info and exit"
-    echo " -i  <identity>       : SSH Identity file for connecting to hosts"
-    echo " -M  <master_id>      : SSH public certificate of the master host"
-    echo " -u|--user   <user>   : Name of remote user, if not '$user'"
+    echo "$TDH_PNAME [options] <hosts_file> [master_host]"
+    echo " -H|--pvthosts <file> : Add a private hosts file to all hosts."
+    echo " -h|--help            : Show usage info and exit."
+    echo " -i  <identity>       : SSH Identity file for connecting to hosts."
+    echo " -M  <master_id>      : SSH public certificate of existing master."
+    echo " -u|--user   <user>   : Name of remote user, if not '$user'."
     echo "   <hosts_file>       : File containing the list of hosts and IPs"
-    echo "   [master_host]      : Master host of cluster."
+    echo "   [master_host]      : Defines the master host of cluster."
     echo ""
     echo "  Note the hosts file is intended to be in the same format as "
     echo "  a typical '/etc/hosts' file".
     echo ""
     echo "  If a 'master_host' is provided without an id file (-M), "
-    echo "  ssh-keygen is run on the target host to obtain a certificate, "
-    echo "  else, if a master certificate is provided, it is used instead "
-    echo "  and keygen is not run."
+    echo "  ssh-keygen is run on the target host to obtain a certificate; "
+    echo "  else, if a certificate is provided, it is used as the master "
+    echo "  cert and keygen is not run."
     echo ""
 }
 
+# -----------------------------------
 
 rt=0
 
@@ -90,7 +95,7 @@ if [ -z "$pubhosts" ]; then
     exit 1
 fi
 
-if [ -z "$master" ]; then
+if [[ -z "$master" && -z "$master_id" ]]; then
     echo "$PNAME Error: No Master is defined"
     exit 1
 fi
@@ -112,7 +117,7 @@ fi
 
 if [ -z "$master_id" ]; then
     master_ip=$( cat $pubhosts 2>/dev/null | grep $master | awk '{ print $1 }' )
-    master_id="master-id_rsa.pub"
+    master_id="master-$master-id_rsa.pub"
 
     if [ -z "$master_ip" ]; then
         echo " -> Error determining master IP, hosts file correct?"
@@ -135,12 +140,6 @@ if [ -z "$master_id" ]; then
     # acquire our master id
     ( scp -oStrictHostKeyChecking=no ${user}@${master}:.ssh/id_rsa.pub ./${master_id} )
     ( ssh -oStrictHostKeyChecking=no ${user}@${master} "ssh-keyscan -t rsa -H $master >> .ssh/known_hosts" )
-else
-    if [ -n "$pvthosts" ]; then
-        echo " -> Copy private hosts to master"
-        ( scp -oStrictHostKeyChecking=no $pvthosts ${user}@${master}: )
-        ( ssh -oStrictHostKeyChecking=no ${user}@${master} "sudo sh -c 'cat $pvtfile >> /etc/hosts'; rm $pvtfile" )
-    fi
 fi
 
 IFS=$'\n'
@@ -160,11 +159,6 @@ for host in $( cat $pubhosts | sort ); do
 
     echo " -> Set hostname $name"
     ( ssh -oStrictHostKeyChecking=no ${user}@${name} "sudo hostname $name; sudo sh -c 'echo $name > /etc/hostname'" )
-
-    # copy pvt hosts file but not to our master again
-    if [ "$ip" == "$master_ip" ]; then
-        continue
-    fi
 
     if [ -n "$pvthosts" ]; then
         echo " -> Add private hosts file"

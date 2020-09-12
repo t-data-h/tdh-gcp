@@ -133,7 +133,6 @@ echo " -> Created fstab tmp file: '$fstab'"
 
 ( cp /etc/fstab $fstab )
 ( printf "UUID=$uuid %15s  %10s  defaults,noatime    1 2\n" $mount $fstype >> $fstab )
-# echo "UUID=$uuid    $mount                  $fstype     defaults,noatime      1 2" >> $fstab )
 ( sudo cp $fstab /etc/fstab; sudo chmod 644 /etc/fstab )
 ( sudo mount $mount )
 

@@ -8,7 +8,7 @@ export TDH_GCP_CONFIG=1
 
 TDH_PNAME=${0##*\/}
 
-TDH_GCP_VERSION="1.5.7"
+TDH_GCP_VERSION="v20.09"
 TDH_GCP_PREFIX="tdh"
 
 GCP_DEFAULT_MACHINETYPE="n1-standard-4"
@@ -37,7 +37,7 @@ TDH_PREREQS="tdh-prereqs.sh"
 # -----------------------------------
 
 function tdh_version() {
-    printf "$TDH_PNAME: (tdh-gcp) v$TDH_GCP_VERSION\n"
+    printf "$TDH_PNAME: (tdh-gcp) $TDH_GCP_VERSION\n"
 }
 
 
@@ -61,8 +61,7 @@ function wait_for_gcphost() {
 
     for x in {1..5}; do
         yf=$( $cmd --command 'uname -n' 2>/dev/null )
-        if [[ $yf == $host ]]; then
-            #echo " It's ALIIIIVE!!!"
+        if [[ $yf == $host ]]; then  # " It's ALIIIIVE!!!"
             rt=0
             break
         fi
