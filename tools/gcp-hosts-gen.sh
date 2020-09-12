@@ -4,6 +4,7 @@
 #  only correct for project 'global' wide dns not zonal dns
 PNAME=${0##\/.*}
 
+# -----------------------------------
 ( which gcloud > /dev/null 2>&1 )
 if [ $? -ne 0 ]; then
     echo "Error 'gcloud' cli not found."
@@ -13,6 +14,7 @@ fi
 # indexed array
 declare -a gary
 
+# -----------------------------------
 zone="$1"
 project=$( gcloud config configurations list | grep True | awk '{ print $4 }' )
 dom="c.${project}.internal"

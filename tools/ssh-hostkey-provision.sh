@@ -13,6 +13,8 @@ if [ -f ${tdh_path}/../bin/tdh-gcp-config.sh ]; then
     . ${tdh_path}/../bin/tdh-gcp-config.sh
 fi
 
+# -----------------------------------
+
 pubhosts=
 pvthosts=
 pubfile=
@@ -25,6 +27,7 @@ master_ip=
 master_id=
 idfile=
 
+# -----------------------------------
 
 usage()
 {
@@ -48,6 +51,7 @@ usage()
     echo ""
 }
 
+# -----------------------------------
 
 rt=0
 

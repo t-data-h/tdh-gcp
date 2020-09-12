@@ -10,7 +10,10 @@
 PNAME=${0##*\/}
 rt=0
 
-prereqs="wget yum-utils rng-tools bind-utils net-tools"
+# -----------------------------------
+
+yum_prereqs="wget yum-utils coreutils rng-tools bind-utils net-tools iputils ethtool"
+apt_prereqs="wget coreutils dnsutils rng-tools iputils-arping ethtool"
 
 if [ -n "$TDH_PREREQS" ]; then
     prereqs="$TDH_PREREQS"
@@ -19,6 +22,19 @@ fi
 cloudsdk="/etc/yum.repos.d/google-cloud.repo"
 gcp=0
 
+. /etc/os-release
+
+if [ "$ID" =~ "ubuntu" ]; then
+    if [ -z "$prereqs" ]; then 
+        prereqs="$apt_prereqs"
+    fi
+    ( sudo apt install $prereqs )
+    exit $?
+fi
+
+if [ -z "$prereqs" ]; then
+    prereqs="$yum_prereqs"
+fi
 
 if [ -e "$cloudsdk" ]; then
     gcp=1
@@ -26,14 +42,14 @@ fi
 
 # -----------------------------------
 
-cmd="sudo yum install"
+cmd="sudo yum install -y"
 
 # Disable cloud sdk repo check
 if [ $gcp -eq 1 ]; then
     cmd="$cmd --disablerepo=google-cloud-sdk"
 fi
 
-cmd="$cmd -y $prereqs"
+cmd="$cmd $prereqs"
 
 ( $cmd )
 
