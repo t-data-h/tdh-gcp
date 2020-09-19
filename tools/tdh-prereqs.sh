@@ -8,19 +8,22 @@
 #  newer version than provided by some os repos.
 #
 PNAME=${0##*\/}
-rt=0
 
 # -----------------------------------
 
 yum_prereqs="wget yum-utils coreutils rng-tools bind-utils net-tools iputils ethtool"
 apt_prereqs="wget coreutils dnsutils rng-tools iputils-arping ethtool"
+cloudsdk="/etc/yum.repos.d/google-cloud.repo"
+gcp=0
+rt=0
 
 if [ -n "$TDH_PREREQS" ]; then
     prereqs="$TDH_PREREQS"
 fi
 
-cloudsdk="/etc/yum.repos.d/google-cloud.repo"
-gcp=0
+if [ -e "$cloudsdk" ]; then
+    gcp=1
+fi
 
 . /etc/os-release
 
@@ -34,10 +37,6 @@ fi
 
 if [ -z "$prereqs" ]; then
     prereqs="$yum_prereqs"
-fi
-
-if [ -e "$cloudsdk" ]; then
-    gcp=1
 fi
 
 # -----------------------------------

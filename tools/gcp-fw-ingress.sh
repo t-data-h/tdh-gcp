@@ -29,12 +29,13 @@ noprompt=0
 if [ -n "$GCP_NETWORK" ]; then
     network="$GCP_NETWORK"
 fi
+
 # -----------------------------------
 
 usage()
 {
     echo ""
-    echo " Manipulate GCP fw rules for ingress access: "
+    echo " Manipulate GCP fw rules for ingress access."
     echo ""
     echo "Usage: $TDH_NAME [options] <action> <name> [cidr] [proto:port]"
     echo " -h|--help              : Show usage and exit"
@@ -47,11 +48,11 @@ usage()
     echo "  create  <name>        : Creates a new ingress rule allowing access"
     echo "    <cidr> <proto:port>   from the provided IP Range. The rule name is"
     echo "                          generated from the name and network."
-    echo "   delete   <name>      : Delete a rule by given name or tag (w/o network). "
-    echo "   list                 : List the current rules"
-    echo "   enable   <name>      : Enable a firewall rule that has been disabled."
-    echo "   disable  <name>      : Disable an existing firewall rule."
-    echo "   describe <name>      : Get a full description of a firewall rule."
+    echo "  delete   <name>       : Delete a rule by given name or tag (w/o network). "
+    echo "  list                  : List the current rules"
+    echo "  enable   <name>       : Enable a firewall rule that has been disabled."
+    echo "  disable  <name>       : Disable an existing firewall rule."
+    echo "  describe <name>       : Get a full description of a firewall rule."
     echo ""
 }
 

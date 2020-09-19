@@ -99,11 +99,6 @@ Additional support scripts used for various environment bootstrapping.
   non-GCP hosts), this script will format and mount a sequential set of
   attached storage via ssh.
 
-* ssh-hostkey-provision.sh:
-
-  Script for remotely configuring a cluster of hosts for passwordless login
-  via a master host.
-
 ## Support scripts:
 
 Support scripts are utilized by the initialization scripts in some cases, but
@@ -128,9 +123,14 @@ instances have already been created.
 
   Script for building a hosts file of GCP Instances.
 
-* gfw-ssh.sh:
+* gcp-fw-ingress.sh:
 
-  Handy script for easily adding ssh only access for remote networks.
+  Handy script for easily adding ingress fw rules.
+
+* ssh-hostkey-provision.sh:
+
+  Script for remotely configuring a cluster of hosts for passwordless login
+  via a master host.
 
 ---
 
