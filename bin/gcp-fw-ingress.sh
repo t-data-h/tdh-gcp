@@ -16,6 +16,8 @@ gfw="gcloud compute firewall-rules"
 
 name=
 action=
+cidr=
+protoport=
 network="default"
 tags=
 dryrun=0
@@ -27,31 +29,30 @@ noprompt=0
 if [ -n "$GCP_NETWORK" ]; then
     network="$GCP_NETWORK"
 fi
+
 # -----------------------------------
 
 usage()
 {
     echo ""
-    echo " Manipulate GCP fw rules for Ingress SSH Access: "
+    echo " Manipulate GCP fw rules for ingress access."
     echo ""
-    echo "Usage: $TDH_NAME [options] <action> <name> <cidr>"
-    echo " -h|--help           : Show usage and exit"
-    echo " -N|--network <name> : Name of network to apply rule if not default"
-    echo "    --dryrun         : Enables dryrun, no action is taken"
-    echo " -T|--tags <tag1,..> : Set target tags on rules being created"
-    echo " -V|--version        : Show Version info and exit"
+    echo "Usage: $TDH_NAME [options] <action> <name> [cidr] [proto:port]"
+    echo " -h|--help              : Show usage and exit"
+    echo " -N|--network <name>    : Name of network to apply rule if not default"
+    echo "    --dryrun            : Enables dryrun, no action is taken"
+    echo " -T|--tags <tag1,..>    : Set target tags on rules being created"
+    echo " -V|--version           : Show Version info and exit"
     echo ""
-    echo " Where <action> is one of the following:"
-    echo "   create <name> <cidr> : Creates a new rule allowing SSH access"
-    echo "                          from the provided IP Range. The rule name"
-    echo "                          is generated from the provided name and the"
-    echo "                          network. eg. {network}-allowssh-{name}"
-    echo "   delete <name>        : Delete rule by given name. "
-    echo "                          Note that network is prefixed to {name}"
-    echo "   list                 : List the current rules"
-    echo "   enable <name>        : (Re)-Enable a firewall rule"
-    echo "   disable <name>       : Disable a firewall rule"
-    echo "   describe <name>      : Get full definition of a firewall rule"
+    echo "Where <action> is one of the following:"
+    echo "  create  <name>        : Creates a new ingress rule allowing access"
+    echo "    <cidr> <proto:port>   from the provided IP Range. The rule name is"
+    echo "                          generated from the name and network."
+    echo "  delete   <name>       : Delete a rule by given name or tag (w/o network). "
+    echo "  list                  : List the current rules"
+    echo "  enable   <name>       : Enable a firewall rule that has been disabled."
+    echo "  disable  <name>       : Disable an existing firewall rule."
+    echo "  describe <name>       : Get a full description of a firewall rule."
     echo ""
 }
 
@@ -94,6 +95,7 @@ while [ $# -gt 0 ]; do
             action="${1,,}"
             name="$2"
             cidr="$3"
+            protoport="$4"
             shift $#
             ;;
     esac
@@ -108,7 +110,7 @@ fi
 if [ -n "$name" ]; then
     name="${network}-allow-${name}"
 elif [ "$action" != "list" ]; then
-    echo "Error, missing <name> parameter"
+    echo "Fatal, missing <name> parameter"
     usage
     exit 1
 fi 
@@ -117,13 +119,19 @@ fi
 case "$action" in
 'create') 
 
-    if [ -z "$cidr" ]; then
-        echo "Error: create action requires name and address"
+    if [[ -z "$cidr" || -z "$protoport" ]; then
+        echo "Error: create action is missing parameters."
         usage
         exit 1
     fi
 
-    cmd="$gfw create $name --allow tcp:22 --direction INGRESS --source-ranges $cidr --network $network"
+    if [[ ! "$protoport" =~ ":" ]]; then 
+        echo "Error: Rule must provide port as 'protocol:port' eg. 'tcp:22'"
+        usage 
+        exit 1
+    fi
+
+    cmd="$gfw create $name --allow $protoport --direction INGRESS --source-ranges $cidr --network $network"
 
     if [ -n "$tags" ]; then
         cmd="$cmd --target-tags $tags"
