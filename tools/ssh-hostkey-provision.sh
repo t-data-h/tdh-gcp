@@ -2,8 +2,8 @@
 #
 #  Essentially remote ssh-copy-id for a group of hosts where one
 #  host needs ssh keys for all hosts. The use of ssh-copy-id
-#  was not utilized to avoid having to copy up the identity file
-#  to the master host.
+#  was not utilized to avoid having to push a private identity 
+#  file to the master host.
 #
 #  @author Timothy C. Arland <tcarland@gmail.com>
 #
@@ -35,9 +35,9 @@ usage()
     echo "$TDH_PNAME [options] <hosts_file> [master_host]"
     echo " -H|--pvthosts <file> : Add a private hosts file to all hosts."
     echo " -h|--help            : Show usage info and exit."
-    echo " -i  <identity>       : SSH Identity file for connecting to hosts."
-    echo " -M  <master_id>      : SSH public certificate of existing master."
     echo " -u|--user   <user>   : Name of remote user, if not '$user'."
+    echo " -i  <identity>       : SSH Identity file for connecting to hosts."
+    echo " -M  <master_id>      : SSH public key of an existing master."
     echo "   <hosts_file>       : File containing the list of hosts and IPs"
     echo "   [master_host]      : Defines the master host of cluster."
     echo ""
@@ -69,7 +69,7 @@ while [ $# -gt 0 ]; do
             ident="$2"
             shift
             ;;
-        -M|--master-id)
+        -M|--masterid)
             master_id="$2"
             shift
             ;;
@@ -125,6 +125,7 @@ if [ -z "$master_id" ]; then
     fi
 
     echo " -> Configuring master host '$master' as primary"
+
     # Remove any existing known_hosts entry for the master
     ( ssh-keygen -f "${HOME}/.ssh/known_hosts" -R "$master" > /dev/null 2>&1 )
 
