@@ -92,7 +92,7 @@ chars=( {b..z} )
 
 while [ $# -gt 0 ]; do
     case "$1" in
-        -h|--help)
+        'help'|-h|--help)
             usage
             exit 0
             ;;
@@ -144,7 +144,7 @@ while [ $# -gt 0 ]; do
             zone="$2"
             shift
             ;;
-        -V|--version)
+        'version'|-V|--version)
             tdh_version
             exit 0
             ;;

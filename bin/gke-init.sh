@@ -101,7 +101,7 @@ while [ $# -gt 0 ]; do
             dryrun=1
             echo " <DRYRUN> enabled"
             ;;
-        -h|--help)
+        'help'|-h|--help)
             usage
             exit $rt
             ;;
@@ -124,7 +124,7 @@ while [ $# -gt 0 ]; do
             zone="$2"
             shift
             ;;
-        -V|--version)
+        'version'|-V|--version)
             tdh_version
             exit $rt
             ;;

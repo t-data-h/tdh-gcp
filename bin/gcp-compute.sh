@@ -261,7 +261,7 @@ while [ $# -gt 0 ]; do
             bootsize="$2"
             shift
             ;;
-        -h|--help)
+        'help'|-h|--help)
             usage
             exit $rt
             ;;
@@ -323,7 +323,7 @@ while [ $# -gt 0 ]; do
         -X|--no-serial)
             serial=0
             ;;
-        -V|--version)
+        'version'|-V|--version)
             tdh_version
             exit $rt
             ;;

@@ -38,6 +38,10 @@ rt=0
 
 while [ $# -gt 0 ]; do
     case "$1" in
+        'help'|-h|--help)
+            usage 
+            exit 0
+            ;;
         -T|--tags)
             tags="$2"
             shift
@@ -45,7 +49,7 @@ while [ $# -gt 0 ]; do
         -v|--verbose)
             verbose=1
             ;;
-        -V|--version)
+        'version'|-V|--version)
             tdh_version
             exit 1
             ;;

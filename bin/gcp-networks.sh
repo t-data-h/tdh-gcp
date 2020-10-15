@@ -159,7 +159,7 @@ while [ $# -gt 0 ]; do
             addr="$2"
             shift
             ;;
-        -h|--help)
+        'help'|-h|--help)
             usage
             exit $rt
             ;;
@@ -173,7 +173,7 @@ while [ $# -gt 0 ]; do
         -y|--yes)
             yes=1
             ;;
-        -V|--version)
+        'version'|-V|--version)
             tdh_version
             exit $rt
             ;;
@@ -307,9 +307,6 @@ describe-subnet)
     if subnet_is_valid $network; then
         ( gcloud compute networks subnets describe $network )
     fi
-    ;;
-help)
-    usage
     ;;
 *)
     echo "Action Not Recognized! '$action'"
