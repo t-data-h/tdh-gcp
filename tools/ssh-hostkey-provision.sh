@@ -117,7 +117,7 @@ fi
 
 if [ -z "$master_id" ]; then
     master_ip=$( cat $pubhosts 2>/dev/null | grep $master | awk '{ print $1 }' )
-    master_id="master-$master-id_rsa.pub"
+    master_id="master-$master-id_ed25519.pub"
 
     if [ -z "$master_ip" ]; then
         echo " -> Error determining master IP, hosts file correct?"
@@ -137,10 +137,10 @@ if [ -z "$master_id" ]; then
     fi
 
     # keygen for master host
-    ( ssh -oStrictHostKeyChecking=no ${user}@${master} "ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa"  )
+    ( ssh -oStrictHostKeyChecking=no ${user}@${master} "ssh-keygen -t ed25519 -a 100 -N '' -f ~/.ssh/id_ed25519"  )
     # acquire our master id
-    ( scp -oStrictHostKeyChecking=no ${user}@${master}:.ssh/id_rsa.pub ./${master_id} )
-    ( ssh -oStrictHostKeyChecking=no ${user}@${master} "ssh-keyscan -t rsa -H $master >> .ssh/known_hosts" )
+    ( scp -oStrictHostKeyChecking=no ${user}@${master}:.ssh/id_ed25519.pub ./${master_id} )
+    ( ssh -oStrictHostKeyChecking=no ${user}@${master} "ssh-keyscan -H $master >> .ssh/known_hosts" )
 fi
 
 IFS=$'\n'
@@ -169,7 +169,7 @@ for host in $( cat $pubhosts | sort ); do
 
     # add known_hosts entry
     echo " -> Add to known_hosts"
-    ( ssh -oStrictHostKeyChecking=no ${user}@${master} "ssh-keyscan -t rsa -H $name >> .ssh/known_hosts" 2>/dev/null )
+    ( ssh -oStrictHostKeyChecking=no ${user}@${master} "ssh-keyscan -H $name >> .ssh/known_hosts" 2>/dev/null )
 done
 
 echo "$PNAME Finished."

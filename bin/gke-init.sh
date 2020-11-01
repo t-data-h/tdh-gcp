@@ -97,7 +97,7 @@ while [ $# -gt 0 ]; do
             dsize="$2"
             shift
             ;;
-        --dryrun)
+        --dryrun|--dry-run)
             dryrun=1
             echo " <DRYRUN> enabled"
             ;;

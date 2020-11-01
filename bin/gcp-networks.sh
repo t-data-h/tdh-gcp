@@ -163,7 +163,7 @@ while [ $# -gt 0 ]; do
             usage
             exit $rt
             ;;
-        -n|--dryrun)
+        -n|--dryrun|--dry-run)
             dryrun=1
             ;;
         -r|--region)

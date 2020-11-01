@@ -24,7 +24,7 @@ usage()
 {
     echo ""
     echo "Usage: $TDH_PNAME <action> <env>"
-    echo "  <action> any action other than 'run' is a 'dryrun'"
+    echo "  <action> any action other than 'run' is a 'dry-run'"
     echo "  <env>    is the ansible inventory name."
     echo ""
     echo " The environment variable TDH_ANSIBLE_ENV is honored if the"

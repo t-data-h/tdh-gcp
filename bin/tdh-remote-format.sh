@@ -86,7 +86,7 @@ while [ $# -gt 0 ]; do
             ident="$2"
             shift
             ;;
-        -n|--dryrun)
+        -n|--dryrun|--dry-run)
             dryrun=1
             ;;
         -p|--prefix)

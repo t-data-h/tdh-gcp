@@ -143,7 +143,7 @@ while [ $# -gt 0 ]; do
             pwfile="$2"
             shift
             ;;
-        --dryrun)
+        --dryrun|--dry-run)
             dryrun=1
             ;;
         -n|--subnet)

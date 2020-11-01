@@ -287,7 +287,7 @@ while [ $# -gt 0 ]; do
             list_disk_types
             exit $rt
             ;;
-        --dryrun)
+        --dryrun|--dry-run)
             dryrun=1
             ;;
         -N|--network)

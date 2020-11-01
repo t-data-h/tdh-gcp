@@ -115,7 +115,7 @@ while [ $# -gt 0 ]; do
             prefix="$2"
             shift
             ;;
-        --dryrun)
+        --dryrun|--dry-run)
             dryrun=1
             ;;
         -N|--network)

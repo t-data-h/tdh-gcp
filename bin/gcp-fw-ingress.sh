@@ -73,7 +73,7 @@ while [ $# -gt 0 ]; do
         -l|--list)
             action="list"
             ;;
-        --dryrun)
+        --dryrun|--dry-run)
             dryrun=1
             ;;
         -N|--network)
