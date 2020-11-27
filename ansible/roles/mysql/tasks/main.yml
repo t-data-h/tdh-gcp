@@ -45,7 +45,7 @@
       priv: 'metastore.*:ALL'
       host: '{{ item }}'
     with_items: '{{ tdh_mysql_client_hosts }}'
-  when: inventory_hostname in groups['master01']
+  when: inventory_hostname in groups['mysql_master']
 
 - name: Mysql Replication
   block:
@@ -84,4 +84,4 @@
       login_password: '{{ mysql_root_password }}'
       mode: startslave
     when: not slave_status.Is_Slave
-  when: inventory_hostname in groups['master02']
+  when: inventory_hostname in groups['mysql_slave']
