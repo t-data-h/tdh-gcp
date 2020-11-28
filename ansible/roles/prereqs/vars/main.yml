@@ -38,13 +38,13 @@ apt_master_packages:
 
 apt_install_packages:
   - dnsutils
+  - python3-pymysql
   - bzip2
   - unzip
   - wget
   - rng-tools
   - openssl
   - zlib1g-dev
+  - selinux-utils
   - krb5-user
   - libkrb5-dev
-  - selinux-utils
-  - python3-pymysql
