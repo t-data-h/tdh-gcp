@@ -2,18 +2,16 @@
 # Install host prerequisites
 - name: Install TDH
   hosts: all
-  gather_facts: False
+  gather_facts: True
 
 - name: Deploy TDH Workers
   hosts: workers
-  gather_facts: False
   tags: [ 'tdh_worker' ]
   roles:
     - 'tdh_worker'
 
 - name: Deploy TDH Masters
   hosts: masters
-  gather_facts: False
   tags: [ 'tdh_master' ]
   roles:
     - 'tdh_master'
