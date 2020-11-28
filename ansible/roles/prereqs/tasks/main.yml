@@ -20,7 +20,6 @@
   become: true
   yum:
     name: '{{ apt_java_packages }}'
-    lock_timeout: 180
     state: present
   when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
 
