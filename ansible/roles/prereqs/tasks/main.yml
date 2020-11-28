@@ -5,6 +5,7 @@
   become: true
   yum:
     name: '{{ yum_remove_packages }}'
+    lock_timeout: 180
     state: absent
   when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
 
@@ -19,6 +20,7 @@
   become: true
   yum:
     name: '{{ apt_java_packages }}'
+    lock_timeout: 180
     state: present
   when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
 
@@ -48,7 +50,6 @@
   become: true
   yum:
     name: '{{ apt_install_packages }}'
-    lock_timeout: 180
     state: present
   when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
 
