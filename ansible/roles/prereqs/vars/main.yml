@@ -9,29 +9,32 @@ jdk_sh_template: jdk.sh
 jdk_csh_template: jdk.csh
 
 yum_java_packages:
- - java-1.8.0-openjdk-devel
+  - java-1.8.0-openjdk-devel
 
 yum_install_packages:
- - nmap-ncat
- - bind-utils
- - MySQL-python
- - bzip2
- - unzip
- - wget
- - rng-tools
- - openssl-devel
- - zlib-devel
- - krb5-devel
- - krb5-workstation
+  - nmap-ncat
+  - bind-utils
+  - MySQL-python
+  - bzip2
+  - unzip
+  - wget
+  - rng-tools
+  - openssl-devel
+  - zlib-devel
+  - krb5-devel
+  - krb5-workstation
 
 yum_master_packages:
- - tmux
+  - tmux
 
 yum_remove_packages:
- - mariadb-libs
+  - mariadb-libs
 
 apt_java_packages:
- - openjdk-8-jdk-headless
+  - openjdk-8-jdk-headless
+
+apt_master_packages:
+  - tmux
 
 apt_install_packages:
   - dnsutils

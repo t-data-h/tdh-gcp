@@ -6,12 +6,21 @@
   yum:
     name: '{{ yum_remove_packages }}'
     state: absent
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
 
-- name: Add/Update OpenJDK
+- name: Add/Update OpenJDK (RHEL/CentOS)
   become: true
   yum:
     name: '{{ yum_java_packages }}'
     state: present
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+- name: Add/Update OpenJDK (Debian/Ubuntu)
+  become: true
+  yum:
+    name: '{{ apt_java_packages }}'
+    state: present
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
 
 - name: Copy Java Bash Profile
   become: true
@@ -27,12 +36,21 @@
     dest: '/etc/profile.d/jdk.csh'
     mode: 0644
 
-- name: Install Packages
+- name: Install Packages (RHEL/CentOS)
   become: true
   yum:
     name: '{{ yum_install_packages }}'
     lock_timeout: 180
     state: present
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+- name: Install Packages (Debian/Ubnuntu)
+  become: true
+  yum:
+    name: '{{ apt_install_packages }}'
+    lock_timeout: 180
+    state: present
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
 
 - name: Copy sysctl config
   become: true

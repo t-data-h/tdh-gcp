@@ -21,12 +21,21 @@
     msg: "Both TDH Install and TDH dropfile not found"
   when: tdhdropstat.stat.exists == false and tdhstat.stat.exists == false
 
-- name: Master specific packages
+- name: Master system packages (RHEL/CentOS)
   become: true
   yum:
     name: '{{ yum_master_packages }}'
     lock_timeout: 180
     state: present
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+- name: Master system packages (Debian/Ubuntu)
+  become: true
+  yum:
+    name: '{{ apt_master_packages }}'
+    lock_timeout: 180
+    state: present
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
 
 - name: TDH Provisioning ...
   block:
