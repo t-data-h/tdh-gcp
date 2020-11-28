@@ -105,4 +105,4 @@
     group: '{{ tdh_group }}'
     state: directory
     mode: 0775
-  with_items: '{{ tdh_log_dirs }}'
+  with_items: '{{ tdh_dirs }}'

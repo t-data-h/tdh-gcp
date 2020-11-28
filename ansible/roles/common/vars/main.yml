@@ -26,12 +26,13 @@ tdh_zk_data_dir: '{{ tdh_data_dir }}/{{ tdh_zk_dir }}'
 tdh_zk_datalog_dir: '/var/lib/zookeeper'
 tdh_log_dir: '/var/log/hadoop'
 
-tdh_log_dirs:
+tdh_dirs:
   - '{{ tdh_log_dir }}'
   - '{{ tdh_log_dir }}/zookeeper'
   - '{{ tdh_log_dir }}/hbase'
   - '{{ tdh_log_dir }}/hive'
   - '{{ tdh_log_dir }}/kafka'
+  - '/var/run/hadoop-hdfs'
 
 mysql_tdh_roles:
   - db_name: 'metastore'
