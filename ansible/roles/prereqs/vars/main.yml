@@ -47,3 +47,4 @@ apt_install_packages:
   - krb5-user
   - libkrb5-dev
   - selinux-utils
+  - python3-pymsyql
