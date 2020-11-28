@@ -66,6 +66,15 @@
     src: '{{ rc_local_template }}'
     dest: "/etc/rc.d/rc.local"
     mode: 0755
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+- name: Copy rc local
+  become: true
+  template:
+    src: '{{ rc_local_template }}'
+    dest: "/etc/rc.local"
+    mode: 0755
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
 
 - name: Copy security limits.conf
   become: true
