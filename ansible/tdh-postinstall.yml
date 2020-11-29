@@ -2,6 +2,7 @@
 - hosts: master01
   gather_facts: False
   tasks:
+  - include_vars: 'roles/common/vars/main.yml'
   - name: mkdir /hive/warehouse
     shell: '{{ tdh_install_path }}/hadoop/bin/hdfs dfs -mkdir -p /hive/warehouse/default'
   - name: mkdir /user/hdfs
