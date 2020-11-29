@@ -8,3 +8,4 @@
 .ansible
 ansible/inventory/*
 !ansible/inventory/tdh-example
+!ansible/inventory/single-node-example

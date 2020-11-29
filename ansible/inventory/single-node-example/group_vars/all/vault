@@ -1,0 +1,5 @@
+---
+mysql_root_password: 'myrootpw'
+mysql_repl_password: 'myreplpw'
+mysql_hive_password: 'myhivepw'
+
