@@ -170,8 +170,8 @@ the related ecosystem configurations.
   pushed as the *tdh-cluster-conf* package with the following command:
   ```
   export TDH_PUSH_HOST="tdh-m01"
-  ./bin/gcp-push.sh --use-gcp --zone us-central1-b \
-  ../tdh-config/gcp-central1 tdh-cluster-conf
+  ./bin/tdh-push.sh --use-gcp --zone us-central1-b \
+    ../tdh-config/gcp-central1 tdh-cluster-conf
   ```
 
   **NOTE** that the path name under ***tdh-config*** must match the value
@@ -185,7 +185,7 @@ the related ecosystem configurations.
   the cluster. As an example, we can push a locally maintained anaconda distribution
   by using the push script:
    ```
-   ./bin/gcp-push.sh -G /opt/python/anaconda3 tdh-anaconda3 $TDH_PUSH_HOST
+   ./bin/tdh-push.sh -G /opt/python/anaconda3 tdh-anaconda3 $TDH_PUSH_HOST
    ```
 
 ---

@@ -5,13 +5,23 @@
   become: true
   yum:
     name: '{{ yum_remove_packages }}'
+    lock_timeout: 180
     state: absent
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
 
-- name: Add/Update OpenJDK
+- name: Add/Update OpenJDK (RHEL/CentOS)
   become: true
   yum:
     name: '{{ yum_java_packages }}'
     state: present
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+- name: Add/Update OpenJDK (Debian/Ubuntu)
+  become: true
+  yum:
+    name: '{{ apt_java_packages }}'
+    state: present
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
 
 - name: Copy Java Bash Profile
   become: true
@@ -27,12 +37,20 @@
     dest: '/etc/profile.d/jdk.csh'
     mode: 0644
 
-- name: Install Packages
+- name: Install Packages (RHEL/CentOS)
   become: true
   yum:
     name: '{{ yum_install_packages }}'
     lock_timeout: 180
     state: present
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+- name: Install Packages (Debian/Ubnuntu)
+  become: true
+  yum:
+    name: '{{ apt_install_packages }}'
+    state: present
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
 
 - name: Copy sysctl config
   become: true
@@ -48,6 +66,15 @@
     src: '{{ rc_local_template }}'
     dest: "/etc/rc.d/rc.local"
     mode: 0755
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+- name: Copy rc local
+  become: true
+  template:
+    src: '{{ rc_local_template }}'
+    dest: "/etc/rc.local"
+    mode: 0755
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
 
 - name: Copy security limits.conf
   become: true
@@ -78,4 +105,4 @@
     group: '{{ tdh_group }}'
     state: directory
     mode: 0775
-  with_items: '{{ tdh_log_dirs }}'
+  with_items: '{{ tdh_dirs }}'

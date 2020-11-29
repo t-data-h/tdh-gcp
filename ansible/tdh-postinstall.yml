@@ -2,21 +2,22 @@
 - hosts: master01
   gather_facts: False
   tasks:
+  - include_vars: 'roles/common/vars/main.yml'
   - name: mkdir /hive/warehouse
-    shell: 'hdfs dfs -mkdir -p /hive/warehouse/default'
+    shell: '{{ tdh_install_path }}/hadoop/bin/hdfs dfs -mkdir -p /hive/warehouse/default'
   - name: mkdir /user/hdfs
-    shell: 'hdfs dfs -mkdir -p /user/hdfs'
+    shell: '{{ tdh_install_path }}/hadoop/bin/hdfs dfs -mkdir -p /user/hdfs'
   - name: mkdir /user/hive
-    shell: 'hdfs dfs -mkdir -p /user/hive'
+    shell: '{{ tdh_install_path }}/hadoop/bin/hdfs dfs -mkdir -p /user/hive'
   - name: mkdir /hbase
-    shell: 'hdfs dfs -mkdir -p /hbase'
+    shell: '{{ tdh_install_path }}/hadoop/bin/hdfs dfs -mkdir -p /hbase'
   - name: mkdir /tmp/logs
-    shell: 'hdfs dfs -mkdir -p /tmp/logs'
+    shell: '{{ tdh_install_path }}/hadoop/bin/hdfs dfs -mkdir -p /tmp/logs'
   - name: mkdir /user/spark
-    shell: 'hdfs dfs -mkdir -p /user/spark/jars'
+    shell: '{{ tdh_install_path }}/hadoop/bin/hdfs dfs -mkdir -p /user/spark/jars'
   - name: mkdir /tmp/spark
-    shell: 'hdfs dfs -mkdir -p /tmp/spark/applicationHistory'
+    shell: '{{ tdh_install_path }}/hadoop/bin/hdfs dfs -mkdir -p /tmp/spark/applicationHistory'
   - name: mkdir /tmp/spark2
-    shell: 'hdfs dfs -mkdir -p /tmp/spark2/applicationHistory'
+    shell: '{{ tdh_install_path }}/hadoop/bin/hdfs dfs -mkdir -p /tmp/spark2/applicationHistory'
   - name: mkdir users home
-    shell: 'hdfs dfs -mkdir /user/{{ lookup("env", "USER") }}'
+    shell: '{{ tdh_install_path }}/hadoop/bin/hdfs dfs -mkdir /user/{{ lookup("env", "USER") }}'
