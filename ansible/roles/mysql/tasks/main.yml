@@ -58,7 +58,8 @@
       mode: getmaster
     register: master_status
   - name: Show Master Status
-    debug: var='master_status'
+    debug: 
+      var: 'master_status'
   - name: Get Slave Info
     mysql_replication:
       login_user: 'root'
@@ -66,7 +67,8 @@
       mode: getslave
     register: slave_status
   - name: Show Slave Status
-    debug: var='slave_status'
+    debug: 
+      var: 'slave_status'
   - name: Configure slave
     mysql_replication:
       login_user: 'root'
