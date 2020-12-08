@@ -25,12 +25,12 @@ GCP_UBUNTU_IMAGEPROJECT="ubuntu-os-cloud"
 GCP_DEFAULT_IMAGE="$GCP_CENTOS_IMAGE"
 GCP_DEFAULT_IMAGEPROJECT="$GCP_CENTOS_IMAGEPROJECT"
 
-HAVEGCP=$( which gcloud 2>/dev/null )
 
-if [ -n "$HAVEGCP" ]; then
-    GCP_DEFAULT_REGION=$( gcloud config list 2>/dev/null | grep region | awk -F"= " '{ print $2 }' )
-    GCP_DEFAULT_ZONE=$( gcloud config list 2>/dev/null | grep zone | awk -F"= " '{ print $2 }' )
-    GCP_PROJECT_NAME=$( gcloud config configurations list | grep True | awk '{ print $4 }' )
+GCP=$( which gcloud 2>/dev/null )
+if [ -n "$GCP" ]; then
+    GCP_DEFAULT_REGION=$( $GCP config list 2>/dev/null | grep region | awk -F"= " '{ print $2 }' )
+    GCP_DEFAULT_ZONE=$( $GCP config list 2>/dev/null | grep zone | awk -F"= " '{ print $2 }' )
+    GCP_PROJECT_NAME=$( $GCP config configurations list | grep True | awk '{ print $4 }' )
 fi
 
 GSSH="gcloud compute ssh"

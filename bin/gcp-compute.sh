@@ -38,6 +38,13 @@ keep=0
 serial=1
 
 # -----------------------------------
+# Gcloud CLI required.
+if [ -z "$GCP" ]; then
+    echo "Error, Google Cloud CLI 'gcloud' not found."
+    exit 2
+fi
+
+# -----------------------------------
 # default overrides
 
 if [ -n "$GCP_MACHINE_TYPE" ]; then
