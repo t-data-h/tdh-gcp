@@ -38,6 +38,13 @@ keep=0
 serial=1
 
 # -----------------------------------
+# Gcloud CLI required.
+if [ -z "$GCP" ]; then
+    echo "Error, Google Cloud CLI 'gcloud' not found."
+    exit 2
+fi
+
+# -----------------------------------
 # default overrides
 
 if [ -n "$GCP_MACHINE_TYPE" ]; then
@@ -49,7 +56,7 @@ if [ -n "$GCP_MACHINE_IMAGE" ]; then
 fi
 
 if [ -n "$GCP_IMAGE_PROJECT" ]; then
-    image="$GCP_IMAGE_PROJECT"
+    image_project="$GCP_IMAGE_PROJECT"
 fi
 
 if [ -n "$GCP_NETWORK" ]; then
@@ -72,33 +79,34 @@ usage()
     echo " Manage GCP Compute Engine instances: "
     echo ""
     echo "Usage: $TDH_PNAME [options] <action> <instance-name>"
-    echo "  -a|--async           : Use 'async' option with gcloud commands"
-    echo "  -A|--attach          : Init and attach data disk(s) on 'create'"
-    echo "  -b|--bootsize <xxGB> : Size of instance boot disk"
-    echo "  -d|--disksize <xxGB> : Size of attached volume(s)"
-    echo "  -D|--disknum   <n>   : Number of attached volumes, if more than 1"
-    echo "  -F|--ip-forward      : Enables IP Forwarding for the instance"
-    echo "  -h|--help            : Display usage and exit"
-    echo "  -k|--keep            : Sets --keep-disks=data on delete action"
-    echo "  -l|--list-types      : List available machine-types for a zone"
-    echo "     --disk-types      : List available disk types for a zone"
-    echo "     --dryrun          : Enable dryrun, no action is taken"
-    echo "  -N|--network <name>  : GCP Network name when not using default"
-    echo "  -n|--subnet  <name>  : Used with --network to define the subnet"
-    echo "  -p|--prefix  <name>  : Prefix name to use for instances"
-    echo "  -S|--ssd             : Use SSD as attached disk type"
-    echo "  -t|--type            : Machine type to use for instances"
-    echo "  -T|--tags  <tag1,..> : A set of tags to use for instances"
-    echo "  -z|--zone  <name>    : Set GCP zone "
-    echo "  -v|--vga             : Attach a display device at create"
-    echo "  -X|--no-serial       : Don't enable logging to serial by default"
-    echo "  -V|--version         : Show version info and exit"
+    echo "  -a|--async              : Use 'async' option with gcloud commands"
+    echo "  -A|--attach             : Init and attach data disk(s) on 'create'"
+    echo "  -b|--bootsize <xxGB>    : Size of instance boot disk"
+    echo "  -d|--disksize <xxGB>    : Size of attached volume(s)"
+    echo "  -D|--disknum   <n>      : Number of attached volumes, if more than 1"
+    echo "  -F|--ip-forward         : Enables IP Forwarding for the instance"
+    echo "  -h|--help               : Display usage and exit"
+    echo "  -i|--imagefamily <name> : Image family as 'ubuntu' or 'centos' (default)"
+    echo "  -k|--keep               : Sets --keep-disks=data on delete action"
+    echo "  -l|--list-types         : List available machine-types for a zone"
+    echo "     --disk-types         : List available disk types for a zone"
+    echo "     --dryrun             : Enable dryrun, no action is taken"
+    echo "  -N|--network <name>     : GCP Network name when not using default"
+    echo "  -n|--subnet  <name>     : Used with --network to define the subnet"
+    echo "  -p|--prefix  <name>     : Prefix name to use for instances"
+    echo "  -S|--ssd                : Use SSD as attached disk type"
+    echo "  -t|--type               : Machine type to use for instances"
+    echo "  -T|--tags  <tag1,..>    : A set of tags to use for instances"
+    echo "  -z|--zone  <name>       : Set GCP zone "
+    echo "  -v|--vga                : Attach a display device at create"
+    echo "  -X|--no-serial          : Don't enable logging to serial by default"
+    echo "  -V|--version            : Show version info and exit"
     echo ""
     echo " Where <action> is one of the following: "
-    echo "     create            :  Initialize new GCP instance"
-    echo "     start             :  Start an existing GCP instance"
-    echo "     stop              :  Stop a running instance"
-    echo "     delete            :  Delete an instance"
+    echo "     create      :  Initialize new GCP instance"
+    echo "     start       :  Start an existing GCP instance"
+    echo "     stop        :  Stop a running instance"
+    echo "     delete      :  Delete an instance"
     echo ""
     echo "  Default Machine Type is '$mtype'"
     echo "  Default Image is        '$image'"
@@ -275,6 +283,13 @@ while [ $# -gt 0 ]; do
             ;;
         -F|--ip-forward)
             ipf=1
+            ;;
+        -i|--image*)
+            if [[ $2 =~ ubuntu ]]; then
+                image=$GCP_UBUNTU_IMAGE
+                image_project="$GCP_UBUNTU_IMAGEPROJECT"
+            fi
+            shift
             ;;
         -k|--keep)
             keep=1

@@ -8,23 +8,29 @@ export TDH_GCP_CONFIG=1
 
 TDH_PNAME=${0##*\/}
 
-TDH_GCP_VERSION="v20.12"
+TDH_GCP_VERSION="v20.12.1"
 TDH_GCP_PREFIX="tdh"
 
 GCP_DEFAULT_MACHINETYPE="n1-standard-4"
 GCP_DEFAULT_BOOTSIZE="64GB"
 GCP_DEFAULT_DISKSIZE="256GB"
-
-GCP_DEFAULT_IMAGE="centos-7"
-GCP_DEFAULT_IMAGEPROJECT="centos-cloud"
 GCP_ENABLE_VGA="--enable-display-device"
 
-HAVEGCP=$( which gcloud 2>/dev/null )
+GCP_CENTOS_IMAGE="centos-7"
+GCP_CENTOS_IMAGEPROJECT="centos-cloud"
 
-if [ -n "$HAVEGCP" ]; then
-    GCP_DEFAULT_REGION=$( gcloud config list 2>/dev/null | grep region | awk -F"= " '{ print $2 }' )
-    GCP_DEFAULT_ZONE=$( gcloud config list 2>/dev/null | grep zone | awk -F"= " '{ print $2 }' )
-    GCP_PROJECT_NAME=$( gcloud config configurations list | grep True | awk '{ print $4 }' )
+GCP_UBUNTU_IMAGE="ubuntu-minimal-2004-lts"
+GCP_UBUNTU_IMAGEPROJECT="ubuntu-os-cloud"
+
+GCP_DEFAULT_IMAGE="$GCP_CENTOS_IMAGE"
+GCP_DEFAULT_IMAGEPROJECT="$GCP_CENTOS_IMAGEPROJECT"
+
+
+GCP=$( which gcloud 2>/dev/null )
+if [ -n "$GCP" ]; then
+    GCP_DEFAULT_REGION=$( $GCP config list 2>/dev/null | grep region | awk -F"= " '{ print $2 }' )
+    GCP_DEFAULT_ZONE=$( $GCP config list 2>/dev/null | grep zone | awk -F"= " '{ print $2 }' )
+    GCP_PROJECT_NAME=$( $GCP config configurations list | grep True | awk '{ print $4 }' )
 fi
 
 GSSH="gcloud compute ssh"
