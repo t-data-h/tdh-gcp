@@ -184,7 +184,7 @@ Ideal Memory values for a not too small, usable cluster:
 
 Sample dev layout with minimal values:
 
-M01:
+**Master 01**:
 
 |     Component          |  HeapSize   |  Cores    |
 | ---------------------- | ----------- | --------- |
@@ -195,7 +195,9 @@ M01:
 |  JournalNode           |  1 Gb       |  1    |
 |  **Total**        |  **8Gb**  |  **5** |
 
-M02:
+<br>
+
+**Master 02**:
 
 |     Component           |  HeapSize   |  Cores    |
 | ----------------------- | ----------- | --------- |
@@ -205,7 +207,9 @@ M02:
 |  JournalNode            |  1 Gb       |  1    |
 |  **Total**           |  **6Gb**      | **4**   |
 
-M03:
+<br>
+
+**Master 03**:
 
 |     Component           |  HeapSize   |  Cores    |
 | ----------------------- | ----------- | --------- |
