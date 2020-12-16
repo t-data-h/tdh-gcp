@@ -11,6 +11,4 @@ ifdef TCAMAKE_PREFIX
 	$(CP) bin/gke-init.sh ${TCAMAKE_PREFIX}/bin/
 	$(CP) bin/tdh-gcp-config.sh ${TCAMAKE_PREFIX}/bin/
 	$(CP) bin/tdh-push.sh ${TCAMAKE_PREFIX}/bin/
-	$(CP) bin/tdh-masters-init.sh ${TCAMAKE_PREFIX}/bin/
-	$(CP) bin/tdh-workers-init.sh ${TCAMAKE_PREFIX}/bin/
 endif
