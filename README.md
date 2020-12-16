@@ -166,6 +166,8 @@ attaches a data disk formatted as XFS instead of Ext4.
 
 ```
 
+<br>
+
 ---
 
 ## Resource considerations:

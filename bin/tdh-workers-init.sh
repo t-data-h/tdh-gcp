@@ -341,9 +341,9 @@ for name in $names; do
         cmd="$cmd --zone $zone"
     fi
 
-    echo "( $cmd $host $role )"
+    echo "( $cmd $role $host )"
     if [ $dryrun -eq 0 ]; then
-        ( $cmd $host $role )
+        ( $cmd $role $host )
     fi
 
     rt=$?
