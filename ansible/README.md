@@ -5,9 +5,9 @@ Ansible playbooks for distributing and configuring a TDH environment.
 The environment is defined by the inventory files located in
 ***inventory/env/*** where ***env*** is a specific TDH deployment.
 
-The install is initiated by the `tdh-install.yml` playbook, but requires
-assets to be distributed first via `tdh-distribute.yml`. Wrapper scripts
-are provided to run the various stages:
+The install is initiated by the `tdh-install.yml` playbook, but 
+requires assets to be distributed first via `tdh-distribute.yml`. 
+Wrapper scripts are provided to run the various stages:
 
 - **tdh-install.sh**:  Complete run, distribute + the install playbook.
 - **tdh-config-update.sh**:  Runs distribute and only the cluster config update steps.
@@ -25,13 +25,14 @@ mysql_repl_password' 'replpw'
 mysql_hive_password: 'hivepw'
 ```
 
-The file should be encrypted via the command:
+The *vault* file is encrypted via the command:
 ```
 ansible-vault encrypt ./inventory/ENV/group_vars/all/vault
 ```
-and decrypted similarly using the 'decrypt' command. The password can be stored
-in a password vault file of .ansible/.ansible_vault as defined in the ansible.cfg
-file given that the .ansible directory is untracked via *.gitignore*.
+and decrypted similarly using the 'decrypt' command. The password can 
+be stored in a password vault file of *.ansible/.ansible_vault* as 
+defined in the ansible.cfg file given that the .ansible directory is 
+untracked via *.gitignore*.
 ```
 echo 'myvaultpw' > .ansible/.ansible_vault
 chmod 400 !$
@@ -68,12 +69,33 @@ file *inventory/$env/group_vars/all/vars*.
 The following example demonstrates the typical vars file in YAML format:
 ```
 ---
-tdh_env: 'my_env_name'
+tdh_env: 'my-env'
 
-# set to user running tdh
 tdh_user: 'myuser'
 tdh_group: 'myuser'
 
+tdh_datadir_prefix: '/data'
+
+tdh_master_volumes:
+ - '01'
+
+tdh_slave_volumes:
+ - '01'
+ - '02'
+ - '03'
+ - '04'
+ - '05'
+ - '06'
+
+tdh_data_dir: '{{ tdh_datadir_prefix }}01'
+
+tdh_nn_dir: 'hdfs/nn'
+tdh_jn_dir: 'hdfs/jn'
+tdh_dn_dir: 'hdfs/dn'
+tdh_nm_dir: 'hdfs/nm'
+tdh_zk_dir: 'zk'
+
+# note that mysql settings should use fqdn
 mysql_master_hostname: 'tdh-m01.gcp-projectname.internal'
 mysql_slave_hostname: 'tdh-m02.gcp-projectname.internal'
 mysql_hostname: '{{ mysql_master_hostname }}'
@@ -82,7 +104,6 @@ mysql_port: 3306
 mysql_repl_user: 'tdhrepl'
 mysql_hive_user: 'hive'
 mysql_hive_db: 'metastore'
-mysql_hive_schemafile: '/opt/TDH/hive/scripts/metastore/upgrade/mysql/hive-schema-1.2.0.mysql.sql'
 
 tdh_mysql_master_hosts:
   - '{{ mysql_master_hostname }}'
@@ -91,6 +112,7 @@ tdh_mysql_master_hosts:
 tdh_mysql_client_hosts:
   - 'tdh-m01.gcp-projectname.internal'
   - 'tdh-m02.gcp-projectname.internal'
+  - 'tdh-m03.gcp-projectname.internal'
   - 'tdh-d01.gcp-projectname.internal'
   - 'tdh-d02.gcp-projectname.internal'
   - 'tdh-d03.gcp-projectname.internal'
@@ -128,8 +150,8 @@ There are 4 packages that are expected by the deploy playbook:
 * **tdh-anaconda3.tar.gz**  
   The Anaconda Python distribution for utilizing Python3 on the cluster.
 
-If any of these packages exist in the input landing path, they are distributed to
-all nodes of the cluster for use by the install phase.
+If any of these packages exist in the input landing path, they are distributed 
+to all nodes of the cluster for use by the install phase.
 
 Note that the distribute yaml gets run automatically by the install script
 `./bin/tdh-install.sh`
@@ -140,23 +162,24 @@ Note that the distribute yaml gets run automatically by the install script
 
 ## TDH Assets
 
-There are a few separate projects that make up *TDH* and it's environment. The
-cluster ecosystem is distributed as a binary package that is deployed to
+There are a few separate projects that make up *TDH* and it's environment. 
+The cluster ecosystem is distributed as a binary package that is deployed to
 ***/opt/TDH*** (by default). TDH itself will have binary components for Hadoop,
 HDFS and Yarn, HBase, Hive, Kafka, and Spark primarily, though additional components
 such as Hue, Solr, Oozie and/or Zeppelin can also be easily incorporated.
 
 * **TDH-MGR** is the main project for the TDH distribution and while it doesn't
-contain any of the Apache project binaries, it provides the details for creating a
-TDH distribution. The *tdh-mgr* project provides support scripts for managing the
-cluster and installs as an overly to /opt/TDH. The TDH tarball asset *TDH.tar.gz* is
-essentially a snapshot of TDH installation, and the *tdh-mgr* tarball is the overlay.
+contain any of the Apache project binaries, it provides the details for creating 
+a TDH distribution. The *tdh-mgr* project provides support scripts for managing 
+the cluster and installs as an overly to /opt/TDH. The TDH tarball asset 
+*TDH.tar.gz* is essentially a snapshot of TDH installation, and the *tdh-mgr* 
+tarball is the overlay.
 
-* **TDH-CONFIG** is not so much a project as it is a repository for tracking cluster
-configurations. Similar to *tdh-mgr* it will install by running an rsync command to
-overlay the new configs on top of an existing TDH installation. Within the *tdh-config*
-directory would be subdirectories named after the specific cluster deployment/env and
-the related ecosystem configurations.
+* **TDH-CONFIG** is not so much a project as it is a repository for tracking 
+cluster configurations. Similar to *tdh-mgr* it will install by running an 
+rsync command to overlay the new configs on top of an existing TDH installation. 
+Within the *tdh-config* directory would be subdirectories named after the specific 
+cluster deployment/env and the related ecosystem configurations.
   ```
   tdh-config
        |
@@ -186,9 +209,9 @@ the related ecosystem configurations.
   the example above, this would be ***/tmp/TDH/gcp-central1***. This name
   must match the *tdh_env* value.
 
-* **TDH-ANACONDA3** is an optional package for pushing a python3 environment to
-  the cluster. As an example, we can push a locally maintained anaconda distribution
-  by using the push script:
+* **TDH-ANACONDA3** is an optional package for pushing a python3 environment 
+  to the cluster. As an example, we can push a locally maintained anaconda 
+  distribution by using the push script:
    ```
    ./bin/tdh-push.sh -G /opt/python/anaconda3 tdh-anaconda3 $TDH_PUSH_HOST
    ```
@@ -199,16 +222,16 @@ the related ecosystem configurations.
 
 ## Deploying Assets and Configuration
 
-The primary script for running both the deploy and install playbooks is called
-`tdh-install.sh`.  This will run the distribute and install playbooks, installing
-all prerequisites and install/update the TDH Environment depending on what
-*dropfiles* exist in the `tdh_drop_path`. The playbook is idempotent with the
-install capable of being run over an existing installation without affect.
-The caveat here being the cluster configurations themselves, pushed by the
-playbook.
+The primary script for running both the deploy and install playbooks is 
+called `tdh-install.sh`.  This will run the distribute and install playbooks, 
+installing all prerequisites and install/update the TDH Environment depending 
+on what *dropfiles* exist in the `tdh_drop_path`. The playbook is idempotent 
+with the install capable of being run over an existing installation without 
+affect. The caveat here being the cluster configurations themselves, pushed 
+by the playbook.
 
-The various install scripts provided are to run portions of the install playbook
-via Ansible tags:
+The various install scripts provided are to run portions of the install 
+playbook via Ansible tags:
 
 |    Script/Command      |    Tag     |        Asset             |
 | ---------------------- | ---------- | ------------------------ |
@@ -224,18 +247,19 @@ bootstrapping.
 
 ## Starting TDH
 
-Once a full TDH install has run, the final step is to run the post-install playbook.
-This is a one-time operation that performs some HDFS directory seeding needed for
-the cluster to be fully operational. (eg. hive warehouse directory and permissions,
-log directories, hdfs tmp and user paths, etc.).  To perform these steps, however,
-the cluster should first be started via tdh-mgr. If the Ansible steps all worked
-and the cluster configuration deployed, start HDFS via `hadoop-init.sh start`
-command and then run the post-install step.
-
+  Once a full TDH install has run, the final step is to run the post-install 
+playbook. This is a one-time operation that performs some HDFS directory 
+seeding needed for the cluster to be fully operational. (eg. hive warehouse 
+directory and permissions, log directories, hdfs tmp and user paths, etc.).  
+To perform these steps, however, the cluster should first be started via 
+*tdh-mgr*. If the Ansible steps succeeded and the cluster configuration 
+deployed, start HDFS with the `hadoop-init.sh start` command and then run 
+the post-install step. 
 
 ## Post-Install:
 
-Run the post-install playbook once HDFS is operational.
+Run the post-install playbook once HDFS is operational. This seeds the 
+required HDFS directories for Hive, HBase, and Spark.
 ```
 $ source ~/.bashrc
 $ ansible-playbook -i inventory/$GCP_ENV/hosts tdh-postinstall.yml
