@@ -267,4 +267,5 @@ The precedence order is:   `default < env-var < cmd-line`.
 | `GCP_SUBNET`         | The Network Subnet to use for create operations.
 | `TDH_PUSH_HOST`      | Host to use for push operations used by *tdh-push.sh*.
 | `TDH_DIST_PATH`      | The distribution path for binary packages. Utilized by *tdh-push.sh*.
+| `TDH_PREREQS`        | List of package prerequistes to be installed.
 

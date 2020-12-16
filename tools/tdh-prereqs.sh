@@ -11,7 +11,7 @@ PNAME=${0##*\/}
 
 # -----------------------------------
 
-yum_prereqs="wget yum-utils coreutils rng-tools bind-utils net-tools iputils ethtool"
+yum_prereqs="wget yum-utils coreutils rng-tools bind-utils net-tools iputils ethtool epel-release"
 apt_prereqs="wget coreutils dnsutils rng-tools iputils-arping ethtool"
 cloudsdk="/etc/yum.repos.d/google-cloud.repo"
 gcp=0
@@ -27,7 +27,7 @@ fi
 
 . /etc/os-release
 
-if [ "$ID" =~ "ubuntu" ]; then
+if [[ "$ID" =~ "ubuntu" ]]; then
     if [ -z "$prereqs" ]; then 
         prereqs="$apt_prereqs"
     fi
