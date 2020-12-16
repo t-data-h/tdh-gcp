@@ -17,7 +17,5 @@
     shell: '{{ tdh_install_path }}/hadoop/bin/hdfs dfs -mkdir -p /user/spark/jars'
   - name: mkdir /tmp/spark
     shell: '{{ tdh_install_path }}/hadoop/bin/hdfs dfs -mkdir -p /tmp/spark/applicationHistory'
-  - name: mkdir /tmp/spark2
-    shell: '{{ tdh_install_path }}/hadoop/bin/hdfs dfs -mkdir -p /tmp/spark2/applicationHistory'
   - name: mkdir users home
     shell: '{{ tdh_install_path }}/hadoop/bin/hdfs dfs -mkdir /user/{{ lookup("env", "USER") }}'

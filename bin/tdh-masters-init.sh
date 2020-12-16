@@ -200,8 +200,17 @@ if [ -z "$action" ]; then
 fi
 
 if [ -n "$network" ] && [ -z "$subnet" ]; then
-    echo "Error! Subnet must be provided with --network"
+    echo "ERROR, Subnet must be provided with --network"
     exit 1
+fi
+
+if [[ ! -e ${tdh_path}/${mysqlinstall} ]]; then
+    echo "ERROR, cannot locate '$mysqlinstall'. Is this being run from tdh-gcp root?"
+    exit 2
+fi
+if [[ ! -e ${tdh_path}/../tools/${format} ]]; then
+    echo "ERROR, cannot locate '$format', is this being run from tdh-gcp root?"
+    exit 2
 fi
 
 echo ""
@@ -230,7 +239,7 @@ fi
 # Set mysqld password
 if [ -z "$pwfile" ]; then
     if [ $noprompt -gt 0 ]; then
-        echo "Error! Password File required with --noprompt"
+        echo "ERROR, Password File required with --noprompt"
         exit 1
     fi
 
@@ -239,9 +248,14 @@ if [ -z "$pwfile" ]; then
     if [ $dryrun -eq 0 ]; then
         read_password
         if [ $? -gt 0 ]; then
-            echo "ERROR! Passwords do not match!"
+            echo "ERROR, Passwords do not match!"
             exit 1
         fi
+    fi
+else
+    if [ ! -e $pwfile ]; then
+        echo "ERROR, Password file '$pwfile' does not exist."
+        exit 3
     fi
 fi
 
@@ -353,7 +367,6 @@ for name in $names; do
         ( $GSCP ${tdh_path}/../tools/tdh-prereqs.sh ${host}: )
         ( $GSSH $host --command 'chmod +x tdh-prereqs.sh' )
         ( $GSSH $host --command './tdh-prereqs.sh' )
-        ( $GSSH $host --command 'sudo yum install -y epel-release' )
         ( $GSSH $host --command 'sudo yum install -y ansible ansible-lint' )
     fi
 
@@ -366,6 +379,7 @@ for name in $names; do
     #
     # ssh
     echo " -> Configure ssh host keys"
+
     echo "( $GSSH $host --command \"ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa; \
       cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys\" )"
 
@@ -393,7 +407,6 @@ for name in $names; do
         fi
     fi
 
-
     #
     # mysqld
     if [ $myid -eq 1 ]; then
@@ -409,10 +422,10 @@ for name in $names; do
     fi
 
     echo " -> Mysqld install"
-    echo "( $cmd -G -s $myid -P $pwfile $host $role )"
+    echo "( $cmd -G -s $myid -P $pwfile $role $host )"
 
     if [ $dryrun -eq 0 ]; then
-        ( $cmd -G -s $myid -P $pwfile $host $role )
+        ( $cmd -G -s $myid -P $pwfile $role $host )
     fi
     ((++myid))
 
