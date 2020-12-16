@@ -200,8 +200,17 @@ if [ -z "$action" ]; then
 fi
 
 if [ -n "$network" ] && [ -z "$subnet" ]; then
-    echo "Error! Subnet must be provided with --network"
+    echo "Error, Subnet must be provided with --network"
     exit 1
+fi
+
+if [[ ! -e ${tdh_path}/${mysqlinstall} ]]; then
+    echo "Error, cannot locate '$mysqlinstall'. Is this being run from tdh-gcp root?"
+    exit 2
+fi
+if [[ ! -e ${tdh_path}/../tools/${format} ]]; then
+    echo "Error, cannot locate '$format', is this being run from tdh-gcp root?"
+    exit 2
 fi
 
 echo ""
