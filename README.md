@@ -1,6 +1,6 @@
 TDH-GCP
 =========
-Timothy C. Arland  ( tcarland@gmail.com  |  tarland@trace3.com  )
+Timothy C. Arland  ( tcarland@gmail.com  |  tarland@trace3.com )
 
 ## Overview
 
@@ -14,9 +14,8 @@ for creating GCP-based instances, though GCP is not a strict requirement for
 some of the bootstrapping scripts provided.
 
 Ansible playbooks are used for installing or updating/upgrading a TDH
-cluster. The playbook is currently OS focused on RHEL or CentOS flavors
-of Linux. Refer to the `README.md` located in *./ansible*. The playbooks
-are idempotent and are also not GCP specific.
+cluster. Refer to the `README.md` located in *./ansible*. The playbooks
+are idempotent and are not GCP specific.
 
 
 ## Instance scripts:
@@ -27,6 +26,13 @@ are idempotent and are also not GCP specific.
   will create an instance and optionally attach data disks to the instance as
   well as stopping, deleting, or checking an instance. It is used by the
   tdh master and worker init scripts for creating GCP instances.
+
+* gcp-networks.sh:
+
+  Provides a wrapper for creating custom GCP Networks and Subnets. If not
+  specified, GCP will revert to using the `default` network and subnet. If the
+  intention is to deploy on a specific network, this script is first run to
+  define the subnet and associated address range in CIDR Format.
 
 * tdh-masters-init.sh:
 
@@ -50,13 +56,6 @@ are idempotent and are also not GCP specific.
 ## Utility Scripts (tools):
 
 Additional support scripts used for various environment bootstrapping.
-
-* gcp-networks.sh:
-
-  Provides a wrapper for creating custom GCP Networks and Subnets. If not
-  specified, GCP will revert to using the `default` network and subnet. If the
-  intention is to deploy on a specific network, this script is first run to
-  define the subnet and associated address range in CIDR Format.
 
 * tdh-mysql-install.sh:
 
@@ -125,7 +124,7 @@ instances have already been created.
 
 * gcp-fw-ingress.sh:
 
-  Handy script for easily adding ingress fw rules.
+  Script for adding ingress fw rules.
 
 * ssh-hostkey-provision.sh:
 
@@ -174,7 +173,7 @@ attaches a data disk formatted as XFS instead of Ext4.
 All of this varies, of course, on data sizes and workloads and is
 intended purely as a starting point.
 
-Ideal Memory values for a small, usable cluster:
+Ideal Memory values for a not too small, usable cluster:
 *  NN/SN = 4 Gb ea.
 *  DN/NM (worker) = 1 Gb ea
 *  Hive Meta|S2  = 12 Gb ea
@@ -189,36 +188,35 @@ M01:
 
 |     Component          |  HeapSize   |  Cores    |
 | ---------------------- | ----------- | --------- |
-|  NameNode (primary)    |  4 Gb       |  1    |
+|  NameNode (primary)    |  2 Gb       |  1    |
 |  ResourceManager       |  2 Gb       |  1    |
 |  HBase Master          |  2 Gb       |  1    |
 |  Zookeeper             |  1 Gb       |  1    |
 |  JournalNode           |  1 Gb       |  1    |
-|  **Total**        |  **10Gb**  |  **5** |
+|  **Total**        |  **8Gb**  |  **5** |
 
 M02:
 
 |     Component           |  HeapSize   |  Cores    |
 | ----------------------- | ----------- | --------- |
-|  NameNode (secondary)   |  4 Gb       |  1    |
+|  NameNode (secondary)   |  2 Gb       |  1    |
 |  ResourceManager        |  2 Gb       |  1    |
 |  Zookeeper              |  1 Gb       |  1    |
 |  JournalNode            |  1 Gb       |  1    |
-|  **Total**           |  **8Gb**      | **4**   |
+|  **Total**           |  **6Gb**      | **4**   |
 
 M03:
 
 |     Component           |  HeapSize   |  Cores    |
 | ----------------------- | ----------- | --------- |
-|  Hive Metastore         |  4 Gb       |  1    |
-|  Hive Server2           |  4 Gb       |  1    |
-|  Spark HistoryServer    |  2 Gb       |  1    |
+|  Hive Metastore         |  2 Gb       |  1    |
+|  Hive Server2           |  2 Gb       |  1    |
+|  Spark HistoryServer    |  1 Gb       |  1    |
 |  Zookeeper              |  1 Gb       |  1    |
 |  JournalNode            |  1 Gb       |  1    |
-|  **Total**           |  **12Gb**      | **5**   |
+|  **Total**           |  **7Gb**      | **5**   |
 
-
----
+<br>
 
 ## GCP Machine-Types:
 
@@ -232,6 +230,7 @@ M03:
 | Worker/Data   |  n1-highmem-16  | 16 vCPU and 104 Gb |
 | Worker/Data   |  n1-highmem-32  | 32 vCPU and 208 Gb |
 
+<br>
 
 ## Changing GCP Machine Type:
   Shut down the instance first.
@@ -239,6 +238,8 @@ M03:
 $ gcloud compute instances set-machine-type tdh-d01 \
   --machine-type n1-highmem-16
 ```
+
+<br>
 
 ---
 
@@ -263,8 +264,3 @@ The precedence order is:   `default < env-var < cmd-line`.
 | `TDH_PUSH_HOST`      | Host to use for push operations used by *tdh-push.sh*.
 | `TDH_DIST_PATH`      | The distribution path for binary packages. Utilized by *tdh-push.sh*.
 
-
-### TODO
-
-Add support for GCP Ubuntu images:
---image-family ubuntu-1804-lts --image-project ubuntu-os-cloud
