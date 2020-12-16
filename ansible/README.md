@@ -68,7 +68,7 @@ file *inventory/$env/group_vars/all/vars*.
 The following example demonstrates the typical vars file in YAML format:
 ```
 ---
-tdh_env: 'env-name'
+tdh_env: 'my_env_name'
 
 # set to user running tdh
 tdh_user: 'myuser'
@@ -94,7 +94,10 @@ tdh_mysql_client_hosts:
   - 'tdh-d01.gcp-projectname.internal'
   - 'tdh-d02.gcp-projectname.internal'
   - 'tdh-d03.gcp-projectname.internal'
+  - 'tdh-d04.gcp-projectname.internal'
 ```
+
+<br>
 
 ---
 
@@ -130,6 +133,8 @@ all nodes of the cluster for use by the install phase.
 
 Note that the distribute yaml gets run automatically by the install script
 `./bin/tdh-install.sh`
+
+<br>
 
 ---
 
@@ -187,6 +192,8 @@ the related ecosystem configurations.
    ```
    ./bin/tdh-push.sh -G /opt/python/anaconda3 tdh-anaconda3 $TDH_PUSH_HOST
    ```
+
+<br>
 
 ---
 
