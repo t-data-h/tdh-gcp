@@ -1,5 +1,4 @@
 ---
-# Install host prerequisites
 - name: Install TDH
   hosts: all
   gather_facts: True
@@ -18,7 +17,6 @@
 
 - name: Deploy TDH clients
   hosts: clients
-  gather_facts: False
   tags: [ "tdh_clients" ]
   roles:
     - "tdh_client"

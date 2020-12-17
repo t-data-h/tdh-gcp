@@ -1,7 +1,6 @@
 ---
 - name: Distribute TDH Packages
   hosts: all
-  gather_facts: false
   vars_files:
     - roles/common/vars/main.yml
   tasks:
