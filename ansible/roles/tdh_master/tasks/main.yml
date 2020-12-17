@@ -38,10 +38,10 @@
 
 - name: TDH Provisioning ...
   block:
-  - name: TDH Provisioning Step 1 - Mysql
+  - name: TDH Provisioning - 01-tdh-mysql-provision
     shell: '{{ tdh_install_path }}/sbin/01-tdh-mysql-provision.sh {{ mysql_hive_db }}'
     when: inventory_hostname in groups['master01'] and nndir.stat.exists == false
-  - name: TDH Provisioning Step 2 - TDH
+  - name: TDH Provisioning - 03-tdh-provision
     shell: '{{ tdh_install_path }}/sbin/03-tdh-provision.sh'
   - name: Increase Host Entropy
     become: true
@@ -83,16 +83,15 @@
         group: '{{ tdh_group }}'
         mode: 0750
         state: directory
-    - name: Provision ZooKeeper Id
+    - name: TDH Provisioning - 05-zk-provision
       shell: '{{ tdh_install_path }}/sbin/05-zk-provision.sh'
-    - name: Format namenode
+    - name: TDH Provisioning - 00-hdfs-format.sh
       shell: '{{ tdh_install_path }}/sbin/00-hdfs-format.sh'
       when: inventory_hostname in groups['master01']
     when: nndir.stat.exists == false
-
-  - name: TDH Provisioning Step 3 - Spark
+  - name: TDH Provisioning - 07-spark-provision
     shell: '{{ tdh_install_path }}/sbin/07-spark-provision.sh'
-  - name: Provision Kafka Broker Id
+  - name: TDH Provisioning - 09-kafka-provision
     shell: '{{ tdh_install_path }}/sbin/09-kafka-provision.sh'
     tags: [ tdh-config ]
   - name: Configure Metastore password

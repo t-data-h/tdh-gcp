@@ -12,13 +12,12 @@
 
 - name: TDH Provisioning...
   block:
-  - name: TDH Provisioning Step 1
+  - name: TDH Provisioning - 03-tdh-provision
     shell: '{{ tdh_install_path }}/sbin/03-tdh-provision.sh'
-  - name: TDH Provisioning Step 2
+  - name: TDH Provisioning - 07-spark-provision
     shell: '{{ tdh_install_path }}/sbin/07-spark-provision.sh'
-  - name: Provision Kafka Broker Id
+  - name: TDH Provisioning - 09-kafka-provision
     shell: '{{ tdh_install_path }}/sbin/09-kafka-provision.sh'
-
   - name: Create HDFS DataNode path(s)
     become: true
     file:
@@ -28,7 +27,6 @@
       mode: 0750
       state: directory
     with_items: '{{ tdh_slave_volumes }}'
-
   - name: Create HDFS DomainSocket path
     become: true
     file:
@@ -37,7 +35,6 @@
       group: '{{ tdh_user }}'
       mode: 0750
       state: directory
-
   - name: Create YARN NodeManager path(s)
     become: true
     file:
@@ -47,6 +44,5 @@
       mode: 0750
       state: directory
     with_items: '{{ tdh_slave_volumes }}'
-
   tags: [ tdh-config ]
   when: tdhstat.stat.exists

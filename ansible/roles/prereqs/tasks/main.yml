@@ -37,6 +37,16 @@
     dest: '/etc/profile.d/jdk.csh'
     mode: 0644
 
+- name: Create JVM Link
+  become: true
+  file:
+    src: '/usr/lib/jvm/java-1.8.0-openjdk'
+    dest: '/usr/lib/jvm/default-java'
+    owner: 'root'
+    group: 'root'
+    state: link
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
 - name: Install Packages (RHEL/CentOS)
   become: true
   yum:
