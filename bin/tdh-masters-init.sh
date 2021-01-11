@@ -26,14 +26,10 @@ subnet=
 gcpcompute="${tdh_path}/gcp-compute.sh"
 master_id="master-id_rsa.pub"
 master_id_file="${tdh_path}/../ansible/.ansible/${master_id}"
-mysqlinstall="tdh-mysql-install.sh"
 
-myid=1
 dryrun=0
-noprompt=0
 attach=0
 ssd=0
-pwfile=
 tags=
 action=
 rt=
@@ -71,16 +67,11 @@ usage() {
     echo "  -n|--subnet <name>    : Used with --network to define the subnet"
     echo "  -p|--prefix <name>    : Prefix name to use for instances."
     echo "                          Default prefix is '$prefix'"
-    echo "  -P|--pwfile <file>    : File containing mysql root password."
-    echo "  -s|--server-id <n>    : Starting mysqld server-id, Default is 1"
-    echo "                          1 is always master, all other ids are slaves"
     echo "  -S|--ssd              : Use SSD as attached disk type"
     echo "  -t|--type             : Machine type to use for instances"
     echo "                          Default is '$mtype'"
     echo "  -T|--tags <tag1,..>   : List of tags to use for instances"
     echo "  -x|--use-xfs          : Use the XFS filesystem for attached disks"
-    echo "  -y|--noprompt         : Will not prompt for password"
-    echo "                          --pwfile must be provided for mysqld"
     echo "  -z|--zone <name>      : Set GCP zone to use if not gcloud default."
     echo ""
     echo " Where <action> is 'run' (any other action enables '--dryrun') "
@@ -89,28 +80,6 @@ usage() {
     echo " eg. '$TDH_PNAME test m01 m02 m03'"
     echo " Will dryrun 3 master nodes: $prefix-m01, $prefix-m02, and $prefix-m03"
     echo ""
-}
-
-
-read_password()
-{
-    local prompt="Password: "
-    local pass=
-    local pval=
-
-    read -s -p "$prompt" pass
-    echo ""
-    read -s -p "Repeat $prompt" pval
-    echo ""
-
-    if [[ "$pass" != "$pval" ]]; then
-        return 1
-    fi
-
-    pwfile=$(mktemp /tmp/tdh-mysqlpw.XXXXXXXX)
-    echo $pass > $pwfile
-
-    return 0
 }
 
 
@@ -139,10 +108,6 @@ while [ $# -gt 0 ]; do
             prefix="$2"
             shift
             ;;
-        -P|--pwfile)
-            pwfile="$2"
-            shift
-            ;;
         --dryrun|--dry-run)
             dryrun=1
             ;;
@@ -157,10 +122,6 @@ while [ $# -gt 0 ]; do
         -S|-ssd)
             ssd=1
             ;;
-        -s|--server-id)
-            myid=$2
-            shift
-            ;;
         -t|--type)
             mtype="$2"
             shift
@@ -171,9 +132,6 @@ while [ $# -gt 0 ]; do
             ;;
         -x|--use-xfs)
             xfs=1
-            ;;
-        -y|--no-prompt)
-            noprompt=1
             ;;
         -z|--zone)
             zone="$2"
@@ -204,10 +162,6 @@ if [ -n "$network" ] && [ -z "$subnet" ]; then
     exit 1
 fi
 
-if [[ ! -e ${tdh_path}/${mysqlinstall} ]]; then
-    echo "ERROR, cannot locate '$mysqlinstall'. Is this being run from tdh-gcp root?"
-    exit 2
-fi
 if [[ ! -e ${tdh_path}/../tools/${format} ]]; then
     echo "ERROR, cannot locate '$format', is this being run from tdh-gcp root?"
     exit 2
@@ -235,29 +189,6 @@ else
     echo "Using default of 3 master instances"
 fi
 
-#
-# Set mysqld password
-if [ -z "$pwfile" ]; then
-    if [ $noprompt -gt 0 ]; then
-        echo "ERROR, Password File required with --noprompt"
-        exit 1
-    fi
-
-    echo "Please provide the root mysqld password..."
-    echo "  This should match the password configured in ansible inventory."
-    if [ $dryrun -eq 0 ]; then
-        read_password
-        if [ $? -gt 0 ]; then
-            echo "ERROR, Passwords do not match!"
-            exit 1
-        fi
-    fi
-else
-    if [ ! -e $pwfile ]; then
-        echo "ERROR, Password file '$pwfile' does not exist."
-        exit 3
-    fi
-fi
 
 echo "Creating master instances '$mtype' for { $names }"
 echo ""
@@ -405,34 +336,6 @@ for name in $names; do
             ( $GSCP ${host}:.ssh/id_rsa.pub ${master_id_file} )
             ( $GSSH $host --command "cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys" )
         fi
-    fi
-
-    #
-    # mysqld
-    if [ $myid -eq 1 ]; then
-        role="master"
-    else
-        role="slave"
-    fi
-
-    cmd="${tdh_path}/${mysqlinstall}"
-
-    if [ -n "$zone" ]; then
-        cmd="$cmd --zone $zone"
-    fi
-
-    echo " -> Mysqld install"
-    echo "( $cmd -G -s $myid -P $pwfile $role $host )"
-
-    if [ $dryrun -eq 0 ]; then
-        ( $cmd -G -s $myid -P $pwfile $role $host )
-    fi
-    ((++myid))
-
-    rt=$?
-    if [ $rt -gt 0 ]; then
-        echo "Error in '${msyqlinstall}' for $host"
-        break
     fi
 
     #

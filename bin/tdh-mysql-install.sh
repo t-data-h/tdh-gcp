@@ -18,6 +18,7 @@ role=
 zone=
 ident=
 pw=
+pwfile=
 rt=
 id=1
 usegcp=0
@@ -44,6 +45,26 @@ usage()
     echo ""
 }
 
+read_password()
+{
+    local prompt="Password: "
+    local pass=
+    local pval=
+
+    read -s -p "$prompt" pass
+    echo ""
+    read -s -p "Repeat $prompt" pval
+    echo ""
+
+    if [[ "$pass" != "$pval" ]]; then
+        return 1
+    fi
+
+    pwfile=$(mktemp /tmp/tdh-mysqlpw.XXXXXXXX)
+    echo $pass > $pwfile
+
+    return 0
+}
 
 # Main
 #
@@ -67,7 +88,7 @@ while [ $# -gt 0 ]; do
         -P|--pwfile)
             pwfile="$2"
             if [ -r $pwfile ]; then
-                pw=$(cat $2)
+                pw=$(cat $2 2>/dev/null)
             fi
             shift
             ;;
@@ -105,9 +126,13 @@ if [ -z "$hosts" ] || [ -z "$role" ]; then
 fi
 
 if [ -z "$pw" ] && [ "$role" != "client" ]; then
-    echo "$TDH_PNAME Error! Password was not provided."
-    usage
-    exit 1
+    echo "$PNAME Password not provided. Please provide the mysql root password."
+    read_password
+    if [ $? -ne 0 ]; then 
+        echo "$PNAME Error obtaining mysql password"
+        exit 1
+    fi
+    pw=$(cat $pwfile 2>/dev/null)
 fi
 
 ssh="ssh"
