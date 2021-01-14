@@ -3,7 +3,7 @@
 #  Essentially remote ssh-copy-id for a group of hosts where one
 #  host needs ssh keys for all hosts. The use of ssh-copy-id
 #  was not utilized to avoid having to push a private identity 
-#  file to the master host.
+#  file out to an insecure host.
 #
 #  @author Timothy C. Arland <tcarland@gmail.com>
 #
@@ -15,13 +15,13 @@ fi
 
 # -----------------------------------
 
+user="$USER"
 pubhosts=
 pvthosts=
 pubfile=
 pvtfile=
 ident=
 cert=
-user="$USER"
 master=
 master_ip=
 master_id=
@@ -33,7 +33,7 @@ usage()
 {
     echo ""
     echo "$TDH_PNAME [options] <hosts_file> [master_host]"
-    echo " -H|--pvthosts <file> : Add a private hosts file to all hosts."
+    echo " -H|--pvthosts <file> : Add a custom 'hosts' file to all hosts."
     echo " -h|--help            : Show usage info and exit."
     echo " -u|--user   <user>   : Name of remote user, if not '$user'."
     echo " -i  <identity>       : SSH Identity file for connecting to hosts."
@@ -42,12 +42,12 @@ usage()
     echo "   [master_host]      : Defines the master host of cluster."
     echo ""
     echo "  Note the hosts file is intended to be in the same format as "
-    echo "  a typical '/etc/hosts' file".
+    echo "  a system '/etc/hosts' file".
     echo ""
     echo "  If a 'master_host' is provided without an id file (-M), "
-    echo "  ssh-keygen is run on the target host to obtain a certificate; "
-    echo "  else, if a certificate is provided, it is used as the master "
-    echo "  cert and keygen is not run."
+    echo "  ssh-keygen is run on the target host to obtain a key-pair; "
+    echo "  else, if a public key is provided, it is used as the master "
+    echo "  certificate and keygen is not run on the target host."
     echo ""
 }
 

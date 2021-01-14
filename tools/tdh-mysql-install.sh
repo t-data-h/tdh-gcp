@@ -179,11 +179,11 @@ for host in $hosts; do
     # Install specific 5.1.46 JDBC Driver
     ( $hostssh 'wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.46.tar.gz' )
     ( $hostssh 'tar zxf mysql-connector-java-5.1.46.tar.gz; \
-    sudo mkdir -p /usr/share/java; \
-    sudo cp mysql-connector-java-5.1.46/mysql-connector-java-5.1.46-bin.jar /usr/share/java/; \
-    sudo chmod 644 /usr/share/java/mysql-connector-java-5.1.46-bin.jar; \
-    sudo ln -s /usr/share/java/mysql-connector-java-5.1.46-bin.jar /usr/share/java/mysql-connector-java.jar; \
-    rm -rf mysql-connector-java-5.1.46 mysql-connector-java-5.1.46.tar.gz' )
+      sudo mkdir -p /usr/share/java; \
+      sudo cp mysql-connector-java-5.1.46/mysql-connector-java-5.1.46-bin.jar /usr/share/java/; \
+      sudo chmod 644 /usr/share/java/mysql-connector-java-5.1.46-bin.jar; \
+      sudo ln -s /usr/share/java/mysql-connector-java-5.1.46-bin.jar /usr/share/java/mysql-connector-java.jar; \
+      rm -rf mysql-connector-java-5.1.46 mysql-connector-java-5.1.46.tar.gz' )
     ( $hostssh 'rm mysql-community.repo RPM-GPG-KEY-mysql' )
 done
 

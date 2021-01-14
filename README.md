@@ -37,23 +37,23 @@ are idempotent and are not GCP specific.
 * tdh-masters-init.sh:
 
   Wraps `gcp-copmpute.sh` with defaults for initializing TDH master hosts.
-  This will also bootstrap master hosts with Mysqld. Ansible is then used to
-  deploy and configure the cluster. The first master is commonly used as the
-  primary management node for running Ansible.
+  Ansible is then used to deploy and configure the cluster. The first master 
+  is commonly used as the primary management node for running Ansible. The
+  the script will use the `master_id` file as the Ansible Server ssh public key.
+  The first host's key is generated and used as the master if none is provided.
 
 * tdh-workers-init.sh:  
 
   Builds TDH worker nodes in similarly to the masters init, but generally
-  of a different machine type. Installs a few prerequisites such as the
-  mysql client library and tools like `wget` that may be needed prior to
-  Ansible bootstrapping.
+  of a different machine type. Installs a few prerequisites like `wget` that 
+  may be needed prior to running Ansible.
 
 * gke-init.sh:
 
   Script for initializing a GCP Kubernetes Cluster.
 
 
-## Utility Scripts (tools):
+## Utility Scripts 
 
 Additional support scripts used for various environment bootstrapping.
 
@@ -62,8 +62,8 @@ Additional support scripts used for various environment bootstrapping.
   Bootstraps a Mysql 5.7 Server instance (on given master hosts). It takes
   care of an initial install of the mysql server and client, setting the root
   password as well as ensuring `server-id` is set in accordance to the number
-  of masters. Actual slave configuration and accounts are provisioned later by
-  Ansible playbooks.
+  of masters. This script is being deprecated in favor of a separate Ansible
+  playbook for deploying MySQL. 
 
 * tdh-push.sh
 
@@ -98,6 +98,11 @@ Additional support scripts used for various environment bootstrapping.
   non-GCP hosts), this script will format and mount a sequential set of
   attached storage via ssh.
 
+* ssh-hostkey-provision.sh:
+
+  Script for remotely configuring a cluster of hosts for passwordless login
+  via a master host.
+
 ## Support scripts:
 
 Support scripts are utilized by the initialization scripts in some cases, but
@@ -124,12 +129,7 @@ instances have already been created.
 
 * gcp-fw-ingress.sh:
 
-  Script for adding ingress fw rules.
-
-* ssh-hostkey-provision.sh:
-
-  Script for remotely configuring a cluster of hosts for passwordless login
-  via a master host.
+  Convenience script for adding ingress fw rules.
 
 ---
 
@@ -140,40 +140,41 @@ the parent `tdh-gcp` directory. Below are some examples of creating master
 and worker nodes.
 
 
-Create three master nodes, first with a test run, using the default network:
-```
-./bin/tdh-masters-init.sh -t 'n1-standard-2' test m01 m02 m03
-./bin/tdh-masters-init.sh -t 'n1-standard-4' run m01 m02 m03
-```
+- Create three master nodes, first with a test run, using the default network:
+  ```
+  ./bin/tdh-masters-init.sh -t 'n1-standard-2' test m01 m02 m03
+  ./bin/tdh-masters-init.sh -t 'n1-standard-4' run m01 m02 m03
+  ```
 
-Create four worker nodes, with 256G boot drive as SSD and default machine-type.
-```
-./bin/tdh-workers-init.sh -b 256GB -S run d01 d02 d03 d04
-```
+  Note the creation of the file `./ansible/.ansible/master-id_rsa.pub` which 
+  is the public key for the first master created, *tdh-m01* in the above example.
+  Be aware that this file is not removed or cleaned up between runs.
 
-This example first creates a new GCP Network and Subnet for the cluster,
-attaches a data disk formatted as XFS instead of Ext4.
-```
-./bin/gcp-networks.sh --addr 172.16.200.0/24 create tdh-net tdh-subnet-200
+- Create four worker nodes, with 256G boot drive as SSD and default machine-type.
+  ```
+  ./bin/tdh-workers-init.sh -b 256GB -S run d01 d02 d03 d04
+  ```
 
-./bin/tdh-masters-init.sh --network tdh-net --subnet tdh-subnet-200 \
-  --pwfile mysqlpw.txt --tags tdh --type n1-standard-4 \
-  run m01 m02 m03
+- This example first creates a new GCP Network and Subnet for the cluster,
+  attaches a data disk formatted as XFS instead of Ext4.
+  ```
+  ./bin/gcp-networks.sh --addr 172.16.200.0/24 create tdh-net tdh-subnet-200
 
-./bin/tdh-workers-init.sh --network tdh-net --subnet tdh-subnet-200 \
-  --tags tdh --type n1-highmem-4 --attach --disksize 256GB --use-xfs \
-  run d01 d02 d03 d04
+  ./bin/tdh-masters-init.sh --network tdh-net --subnet tdh-subnet-200 --pwfile mysqlpw.txt --tags tdh --type n1-standard-4 run m01 m02 m03
 
-```
+  ./bin/tdh-workers-init.sh --network tdh-net --subnet tdh-subnet-200 --tags tdh --type n1-highmem-4 --attach --disksize 256GB --use-xfs run d01 d02 d03 d04
+  ```
 
 <br>
 
 ---
 
+<br>
+
 ## Resource considerations:
 
-All of this varies, of course, on data sizes and workloads and is
-intended purely as a starting point.
+All of this varies on data sizes and workloads and is intended purely as a 
+starting point.
 
 Ideal Memory values for a not too small, usable cluster:
 *  NN/SN = 4 Gb ea.
@@ -184,7 +185,7 @@ Ideal Memory values for a not too small, usable cluster:
 *  HBase RegionServers = 8 to 20 Gb depending
 
 
-Sample dev layout with minimal values:
+Small dev layout with minimal values:
 
 **Master 01**:
 

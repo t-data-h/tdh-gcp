@@ -333,25 +333,6 @@ for name in $names; do
         ( $GSSH $host --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys " )
     fi
 
-    # mysql client
-    role="client"
-    cmd="${tdh_path}/tdh-mysql-install.sh -G"
-
-    if [ -n "$zone" ]; then
-        cmd="$cmd --zone $zone"
-    fi
-
-    echo "( $cmd $role $host )"
-    if [ $dryrun -eq 0 ]; then
-        ( $cmd $role $host )
-    fi
-
-    rt=$?
-    if [ $rt -gt 0 ]; then
-        echo "Error in tdh-mysql-install for $host"
-        break
-    fi
-
     echo "Initialization complete for $host"
     echo ""
 done
