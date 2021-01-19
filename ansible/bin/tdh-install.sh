@@ -20,17 +20,21 @@ fi
 
 # -------
 
-usage()
-{
-    echo ""
-    echo "Usage: $TDH_PNAME <action> <env>"
-    echo "  <action> any action other than 'run' is a 'dry-run'"
-    echo "  <env>    is the ansible inventory name."
-    echo ""
-    echo " The environment variable TDH_ANSIBLE_ENV is honored if the"
-    echo "environment parameter is not provided."
-    echo ""
-}
+usage="
+The install script wraps calling ansible-playbooks for 
+both distribute and install.
+
+Synopsis:
+  $TDH_PNAME <action> <env>
+
+Options:
+  <action> any action other than 'run' is a 'dry-run'
+  <env>    is the ansible inventory name.
+  
+  The environment variable TDH_ANSIBLE_ENV is honored if the
+  environment parameter is not provided.
+"
+
 
 # MAIN
 #
@@ -39,7 +43,7 @@ rt=0
 while [ $# -gt 0 ]; do
     case "$1" in
         'help'|-h|--help)
-            usage 
+            echo "$usage" 
             exit 0
             ;;
         -T|--tags)
@@ -67,7 +71,7 @@ if [ -z "$env" ] && [ -n "$TDH_ANSIBLE_ENV" ]; then
 fi
 
 if [ -z "$action" ] || [ -z "$env" ]; then
-    usage
+    echo "$usage"
     exit 1
 fi
 

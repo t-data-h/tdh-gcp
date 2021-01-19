@@ -26,24 +26,27 @@ user="$USER"
 
 # -----------------------------------
 
-usage()
-{
-    echo ""
-    echo "Usage: $TDH_PNAME [options] [ROLE] [host] {host2 host3 ..}"
-    echo "  -h|--help             : Display help and exit"
-    echo "  -G|--use-gcp          : Run commands using the GCP API."
-    echo "  -i|--identity <file>  : SSH Identity file."
-    echo "  -p|--password <pw>    : The root mysql password."
-    echo "  -P|--pwfile <file>    : File containing root mysql password."
-    echo "  -s|--server-id <n>    : Server ID to use for mysql instance."
-    echo "  -u|--user <name>      : SSH Username to use for target host."
-    echo "  -z|--zone <zoneid>    : GCP Zone of target host, if needed."
-    echo "  -V|--version          : Show version info and exit."
-    echo ""
-    echo " Where ROLE is 'master', 'slave', or 'client'"
-    echo " Host list only supported for client role."
-    echo ""
-}
+usage="
+Bootstraps MySQL for a host as either server or client.
+
+Synopsis: 
+  $TDH_PNAME [options] [ROLE] [host] {host2 host3 ..}
+
+Options:
+   -h|--help             : Display help and exit
+   -G|--use-gcp          : Run commands using the GCP API.
+   -i|--identity <file>  : SSH Identity file.
+   -p|--password <pw>    : The root mysql password.
+   -P|--pwfile <file>    : File containing root mysql password.
+   -s|--server-id <n>    : Server ID to use for mysql instance.
+   -u|--user <name>      : SSH Username to use for target host.
+   -z|--zone <zoneid>    : GCP Zone of target host, if needed.
+   -V|--version          : Show version info and exit.
+ 
+  Where ROLE is 'master', 'slave', or 'client'
+  Hosts as a list is only supported for the client role.
+"
+
 
 read_password()
 {
@@ -71,7 +74,7 @@ read_password()
 while [ $# -gt 0 ]; do
     case "$1" in
         'help'|-h|--help)
-            usage
+            echo "$usage"
             exit 0
             ;;
         -G|--use-gcp)
@@ -121,7 +124,7 @@ done
 
 if [ -z "$hosts" ] || [ -z "$role" ]; then
     tdh_version
-    usage
+    echo "$usage"
     exit 1
 fi
 

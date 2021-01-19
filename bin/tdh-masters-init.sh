@@ -55,32 +55,35 @@ fi
 
 # -----------------------------------
 
-usage() {
-    echo ""
-    echo "Usage: $TDH_PNAME [options] <action>  host1 host2 ..."
-    echo "  -A|--attach           : Create an attached volume"
-    echo "  -b|--bootsize <xxGB>  : Size of boot disk, Default is $bootsize"
-    echo "  -d|--disksize <xxGB>  : Size of attached disk, Default is $disksize"
-    echo "  -h|--help             : Display usage and exit"
-    echo "     --dryrun           :  Enable dryrun, no action is taken"
-    echo "  -N|--network <name>   : Define a GCP Network to use for instances."
-    echo "  -n|--subnet <name>    : Used with --network to define the subnet"
-    echo "  -p|--prefix <name>    : Prefix name to use for instances."
-    echo "                          Default prefix is '$prefix'"
-    echo "  -S|--ssd              : Use SSD as attached disk type"
-    echo "  -t|--type             : Machine type to use for instances"
-    echo "                          Default is '$mtype'"
-    echo "  -T|--tags <tag1,..>   : List of tags to use for instances"
-    echo "  -x|--use-xfs          : Use the XFS filesystem for attached disks"
-    echo "  -z|--zone <name>      : Set GCP zone to use if not gcloud default."
-    echo ""
-    echo " Where <action> is 'run' (any other action enables '--dryrun') "
-    echo " followed by a list of names that become '\$prefix-\$name'."
-    echo ""
-    echo " eg. '$TDH_PNAME test m01 m02 m03'"
-    echo " Will dryrun 3 master nodes: $prefix-m01, $prefix-m02, and $prefix-m03"
-    echo ""
-}
+usage="
+ A script for creating TDH Master instances on GCP.
+
+Synopsis:
+  $TDH_PNAME [options] <action> host1 host2 ...
+
+Options:
+   -A|--attach           : Create an attached volume.
+   -b|--bootsize <xxGB>  : Size of boot disk, Default is $bootsize.
+   -d|--disksize <xxGB>  : Size of attached disk, Default is $disksize.
+   -h|--help             : Display usage and exit.
+      --dryrun           : Enable dryrun, no action is taken.
+   -N|--network <name>   : Define a GCP Network to use for instances.
+   -n|--subnet <name>    : Used with --network to define the subnet.
+   -p|--prefix <name>    : Prefix name to use for instances.
+                           Default prefix is '$prefix'.
+   -S|--ssd              : Use SSD as attached disk type.
+   -t|--type             : Machine type to use for instances.
+                           Default is '$mtype'.
+   -T|--tags <tag1,..>   : List of tags to use for instances.
+   -x|--use-xfs          : Use the XFS filesystem for attached disks.
+   -z|--zone <name>      : Set GCP zone to use if not gcloud default.
+  
+Where <action> is 'run'. Any other action enables '--dryrun' 
+ followed by a list of names that become '\$prefix-\$name'.
+  
+eg. '$TDH_PNAME test m01 m02 m03'
+Will dryrun 3 master nodes: $prefix-m01, $prefix-m02, and $prefix-m03
+"
 
 
 # MAIN
@@ -90,7 +93,7 @@ rt=0
 while [ $# -gt 0 ]; do
     case "$1" in
         'help'|-h|--help)
-            usage
+            echo "$usage"
             exit 0
             ;;
         -A|--attach)
@@ -153,7 +156,7 @@ done
 
 if [ -z "$action" ]; then
     tdh_version
-    usage
+    echo "$usage"
     exit 1
 fi
 
