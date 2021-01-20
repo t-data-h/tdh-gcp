@@ -29,31 +29,31 @@ fi
 # -----------------------------------
 
 
-usage()
-{
-    echo ""
-    echo " Manage GCP VPC Networks and Subnets: "
-    echo ""
-    echo "Usage: $TDH_PNAME [-a iprange] {options} [action] "
-    echo "  -a|--addr  <ipaddr/mb> :  Ip Address range of the subnet (required)"
-    echo "  -r|--region <name>     :  Region to create the subnet"
-    echo "                            Default region is currently '$region'"
-    echo "  -n|--dryrun            :  Enable dryrun, no action is taken"
-    echo "  -y|--yes               :  Do not prompt on create. This will auto-create"
-    echo "                            the network if it does not already exist"
-    echo ""
-    echo " Where <action> is one of the following: "
-    echo "  create [network] [subnet] :  Create a new network and subnet"
-    echo "  list-networks             :  List available networks"
-    echo "  list-subnets              :  List available subnets by region"
-    echo "  delete-subnet    [subnet] :  Delete a custom subnet"
-    echo "  delete-network   [subnet] :  Delete a network."
-    echo "  describe        [network] :  Get GCP network details"
-    echo "  describe-subnet  [subnet] :  Describes the GCP subnet"
-    echo ""
-    echo " Delete actions require that no resources use the given network/subnet"
-    echo ""
-}
+usage="
+Create and Manage GCP VPC Networks and Subnets.
+
+Synopsis:
+  $TDH_PNAME [-a iprange] {options} [action]
+
+Options:
+  -a|--addr  <ipaddr/mb> :  Ip Address range of the subnet (required)
+  -r|--region <name>     :  Region to create the subnet. Default is '$region'
+  -n|--dryrun            :  Enable dryrun, no action is taken.
+  -y|--yes               :  Do not prompt on create. This will auto-create
+                            the network if it does not already exist.
+ 
+Where <action> is one of the following: 
+  create [network] [subnet] :  Create a new network and subnet.
+  list-networks             :  List available networks.
+  list-subnets              :  List available subnets by region.
+  delete-subnet    [subnet] :  Delete a custom subnet.
+  delete-network   [subnet] :  Delete a network.
+  describe        [network] :  Get GCP network details.
+  describe-subnet  [subnet] :  Describes the GCP subnet.
+ 
+Delete actions require that no existing resources use the 
+given network|subnet.
+"
 
 
 ask()
@@ -160,7 +160,7 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         'help'|-h|--help)
-            usage
+            echo "$usage"
             exit $rt
             ;;
         -n|--dryrun|--dry-run)
@@ -190,7 +190,7 @@ done
 tdh_version
 
 if [ -z "$action" ]; then
-    usage
+    echo "$usage"
     exit 1
 fi
 
@@ -310,7 +310,7 @@ describe-subnet)
     ;;
 *)
     echo "Action Not Recognized! '$action'"
-    usage
+    echo "$usage"
     rt=1
     ;;
 esac

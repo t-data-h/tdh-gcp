@@ -32,29 +32,30 @@ fi
 
 # -----------------------------------
 
-usage()
-{
-    echo ""
-    echo " Manipulate GCP fw rules for ingress access."
-    echo ""
-    echo "Usage: $TDH_NAME [options] <action> <name> [cidr] [proto:port]"
-    echo " -h|--help              : Show usage and exit"
-    echo " -N|--network <name>    : Name of network to apply rule if not default"
-    echo "    --dryrun            : Enables dryrun, no action is taken"
-    echo " -T|--tags <tag1,..>    : Set target tags on rules being created"
-    echo " -V|--version           : Show Version info and exit"
-    echo ""
-    echo "Where <action> is one of the following:"
-    echo "  create  <name>        : Creates a new ingress rule allowing access"
-    echo "    <cidr> <proto:port>   from the provided IP Range. The rule name is"
-    echo "                          generated from the name and network."
-    echo "  delete   <name>       : Delete a rule by given name or tag (w/o network). "
-    echo "  list                  : List the current rules"
-    echo "  enable   <name>       : Enable a firewall rule that has been disabled."
-    echo "  disable  <name>       : Disable an existing firewall rule."
-    echo "  describe <name>       : Get a full description of a firewall rule."
-    echo ""
-}
+usage="
+Convenience script to manipulate GCP firewall rules for ingress access.
+
+Synopsis:
+  $TDH_NAME [options] <action> <name> [cidr] [proto:port]
+
+Options:
+  -h|--help              : Show usage and exit
+  -N|--network <name>    : Name of network to apply rule if not default
+     --dryrun            : Enables dryrun, no action is taken
+  -T|--tags <tag1,..>    : Set target tags on rules being created
+  -V|--version           : Show Version info and exit
+    
+Where <action> is one of the following:
+  create  <name> <cidr>
+          <proto:port> : Creates a new ingress rule allowing access
+                         from the provided IP Range. The rule name is
+                         generated from the name and network.
+  delete   <name>      : Delete a rule by given name or tag (w/o network). 
+  list                 : List the current rules.
+  enable   <name>      : Enable a firewall rule that has been disabled.
+  disable  <name>      : Disable an existing firewall rule.
+  describe <name>      : Get a full description of a firewall rule.
+"
 
 
 # MAIN
@@ -67,7 +68,7 @@ rt=0
 while [ $# -gt 0 ]; do
     case "$1" in
         'help'|-h|--help)
-            usage
+            echo "$usage"
             exit $rt
             ;;
         -l|--list)
@@ -103,7 +104,7 @@ while [ $# -gt 0 ]; do
 done
 
 if [ -z "$action" ]; then
-    usage
+    echo "$usage"
     exit 1
 fi
 
@@ -111,7 +112,7 @@ if [ -n "$name" ]; then
     name="${network}-allow-${name}"
 elif [ "$action" != "list" ]; then
     echo "Fatal, missing <name> parameter"
-    usage
+    echo "$usage"
     exit 1
 fi 
 
@@ -121,13 +122,13 @@ case "$action" in
 
     if [[ -z "$cidr" || -z "$protoport" ]; then
         echo "Error: create action is missing parameters."
-        usage
+        echo "$usage"
         exit 1
     fi
 
     if [[ ! "$protoport" =~ ":" ]]; then 
         echo "Error: Rule must provide port as 'protocol:port' eg. 'tcp:22'"
-        usage 
+        echo "$usage" 
         exit 1
     fi
 

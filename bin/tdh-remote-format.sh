@@ -29,30 +29,31 @@ user="$USER"
 
 # -----------------------------------
 
-usage()
-{
-    echo "Format and mount multiple sequentially ordered block devices"
-    echo "on a set of hosts via ssh."
-    echo ""
-    echo "Usage: $TDH_PNAME [options] [host1] [host2] ..."
-    echo "  -D|--disknum  <n>     : Number of disk volumes to mount (default=1)."
-    echo "  -f|--force            : Set force option on 'mkfs'."
-    echo "  -G|--use-gcp          : Use Google API for connecting to hosts."
-    echo "  -h|--help             : Show usage info and exit."
-    echo "  -i|--identity <file>  : SSH Identity file."
-    echo "  -n|--dryrun           : Enable dryrun (no actions are taken)."
-    echo "  -p|--prefix  <path>   : Pathname prefix (default is /data)."
-    echo "  -t|--type     <n>     : Disk type, 0=nvme, 1=sd, 2=xvd, 3=vd"
-    echo "  -u|--user    <name>   : Name of remote user, if not '$user'."
-    echo "  -x|--use-xfs          : Use XFS instead of default EXT4."
-    echo "  -z|--zone   <zoneid>  : GCP zone of target, if applicable."
-    echo "  -V|--version          : Show version info and exit."
-    echo ""
-    echo "  eg. $TDH_PNAME -n 5 -x host1 host2 host3"
-    echo "  Will format and mount 5 drives (sdb through sdf) "
-    echo "  as /data01 through /data05 using XFS on 3 hosts."
-    echo ""
-}
+usage="
+Format and mount multiple sequentially ordered block devices 
+on a set of hosts via ssh.
+
+Synopsis:
+  $TDH_PNAME [options] [host1] [host2] ...
+
+Options:
+  -D|--disknum  <n>     : Number of disk volumes to mount (default=1).
+  -f|--force            : Set force option on 'mkfs'.
+  -G|--use-gcp          : Use Google API for connecting to hosts.
+  -h|--help             : Show usage info and exit.
+  -i|--identity <file>  : SSH Identity file.
+  -n|--dryrun           : Enable dryrun (no actions are taken).
+  -p|--prefix  <path>   : Pathname prefix (default is /data).
+  -t|--type     <n>     : Disk type, 0=nvme, 1=sd, 2=xvd, 3=vd
+  -u|--user    <name>   : Name of remote user, if not '$user'.
+  -x|--use-xfs          : Use XFS instead of default EXT4.
+  -z|--zone   <zoneid>  : GCP zone of target, if applicable.
+  -V|--version          : Show version info and exit.
+ 
+eg. $TDH_PNAME -n 5 -x host1 host2 host3
+Will format and mount 5 drives (sdb through sdf) 
+as /data01 through /data05 using XFS on 3 hosts.
+"
 
 
 # -----------------------------------
@@ -79,7 +80,7 @@ while [ $# -gt 0 ]; do
             usegcp=1
             ;;
         'help'|-h|--help)
-            usage
+            echo "$usage"
             exit 0
             ;;
         -i|--identity)
@@ -123,7 +124,7 @@ done
 # -----------------------------------
 
 if [ -z "$hosts" ]; then
-    usage
+    echo "$usage"
     exit 1
 fi
 

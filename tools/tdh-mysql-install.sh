@@ -18,6 +18,7 @@ role=
 zone=
 ident=
 pw=
+pwfile=
 rt=
 id=1
 usegcp=0
@@ -25,32 +26,55 @@ user="$USER"
 
 # -----------------------------------
 
-usage()
-{
-    echo ""
-    echo "Usage: $TDH_PNAME [options] [ROLE] [host] {host2 host3 ..}"
-    echo "  -h|--help             : Display help and exit"
-    echo "  -G|--use-gcp          : Run commands using the GCP API."
-    echo "  -i|--identity <file>  : SSH Identity file."
-    echo "  -p|--password <pw>    : The root mysql password."
-    echo "  -P|--pwfile <file>    : File containing root mysql password."
-    echo "  -s|--server-id <n>    : Server ID to use for mysql instance."
-    echo "  -u|--user <name>      : SSH Username to use for target host."
-    echo "  -z|--zone <zoneid>    : GCP Zone of target host, if needed."
-    echo "  -V|--version          : Show version info and exit."
-    echo ""
-    echo " Where ROLE is 'master', 'slave', or 'client'"
-    echo " Host list only supported for client role."
-    echo ""
-}
+usage="
+Bootstraps MySQL for a host as either server or client.
 
+Synopsis: 
+  $TDH_PNAME [options] [ROLE] [host] {host2 host3 ..}
+
+Options:
+   -h|--help             : Display help and exit
+   -G|--use-gcp          : Run commands using the GCP API.
+   -i|--identity <file>  : SSH Identity file.
+   -p|--password <pw>    : The root mysql password.
+   -P|--pwfile <file>    : File containing root mysql password.
+   -s|--server-id <n>    : Server ID to use for mysql instance.
+   -u|--user <name>      : SSH Username to use for target host.
+   -z|--zone <zoneid>    : GCP Zone of target host, if needed.
+   -V|--version          : Show version info and exit.
+ 
+  Where ROLE is 'master', 'slave', or 'client'
+  Hosts as a list is only supported for the client role.
+"
+
+
+read_password()
+{
+    local prompt="Password: "
+    local pass=
+    local pval=
+
+    read -s -p "$prompt" pass
+    echo ""
+    read -s -p "Repeat $prompt" pval
+    echo ""
+
+    if [[ "$pass" != "$pval" ]]; then
+        return 1
+    fi
+
+    pwfile=$(mktemp /tmp/tdh-mysqlpw.XXXXXXXX)
+    echo $pass > $pwfile
+
+    return 0
+}
 
 # Main
 #
 while [ $# -gt 0 ]; do
     case "$1" in
         'help'|-h|--help)
-            usage
+            echo "$usage"
             exit 0
             ;;
         -G|--use-gcp)
@@ -67,7 +91,7 @@ while [ $# -gt 0 ]; do
         -P|--pwfile)
             pwfile="$2"
             if [ -r $pwfile ]; then
-                pw=$(cat $2)
+                pw=$(cat $2 2>/dev/null)
             fi
             shift
             ;;
@@ -100,14 +124,18 @@ done
 
 if [ -z "$hosts" ] || [ -z "$role" ]; then
     tdh_version
-    usage
+    echo "$usage"
     exit 1
 fi
 
 if [ -z "$pw" ] && [ "$role" != "client" ]; then
-    echo "$TDH_PNAME Error! Password was not provided."
-    usage
-    exit 1
+    echo "$PNAME Password not provided. Please provide the mysql root password."
+    read_password
+    if [ $? -ne 0 ]; then 
+        echo "$PNAME Error obtaining mysql password"
+        exit 1
+    fi
+    pw=$(cat $pwfile 2>/dev/null)
 fi
 
 ssh="ssh"
@@ -154,11 +182,11 @@ for host in $hosts; do
     # Install specific 5.1.46 JDBC Driver
     ( $hostssh 'wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.46.tar.gz' )
     ( $hostssh 'tar zxf mysql-connector-java-5.1.46.tar.gz; \
-    sudo mkdir -p /usr/share/java; \
-    sudo cp mysql-connector-java-5.1.46/mysql-connector-java-5.1.46-bin.jar /usr/share/java/; \
-    sudo chmod 644 /usr/share/java/mysql-connector-java-5.1.46-bin.jar; \
-    sudo ln -s /usr/share/java/mysql-connector-java-5.1.46-bin.jar /usr/share/java/mysql-connector-java.jar; \
-    rm -rf mysql-connector-java-5.1.46 mysql-connector-java-5.1.46.tar.gz' )
+      sudo mkdir -p /usr/share/java; \
+      sudo cp mysql-connector-java-5.1.46/mysql-connector-java-5.1.46-bin.jar /usr/share/java/; \
+      sudo chmod 644 /usr/share/java/mysql-connector-java-5.1.46-bin.jar; \
+      sudo ln -s /usr/share/java/mysql-connector-java-5.1.46-bin.jar /usr/share/java/mysql-connector-java.jar; \
+      rm -rf mysql-connector-java-5.1.46 mysql-connector-java-5.1.46.tar.gz' )
     ( $hostssh 'rm mysql-community.repo RPM-GPG-KEY-mysql' )
 done
 

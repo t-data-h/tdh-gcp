@@ -3,7 +3,7 @@
 #  Essentially remote ssh-copy-id for a group of hosts where one
 #  host needs ssh keys for all hosts. The use of ssh-copy-id
 #  was not utilized to avoid having to push a private identity 
-#  file to the master host.
+#  file out to an insecure host.
 #
 #  @author Timothy C. Arland <tcarland@gmail.com>
 #
@@ -15,13 +15,13 @@ fi
 
 # -----------------------------------
 
+user="$USER"
 pubhosts=
 pvthosts=
 pubfile=
 pvtfile=
 ident=
 cert=
-user="$USER"
 master=
 master_ip=
 master_id=
@@ -29,27 +29,32 @@ idfile=
 
 # -----------------------------------
 
-usage()
-{
-    echo ""
-    echo "$TDH_PNAME [options] <hosts_file> [master_host]"
-    echo " -H|--pvthosts <file> : Add a private hosts file to all hosts."
-    echo " -h|--help            : Show usage info and exit."
-    echo " -u|--user   <user>   : Name of remote user, if not '$user'."
-    echo " -i  <identity>       : SSH Identity file for connecting to hosts."
-    echo " -M  <master_id>      : SSH public key of an existing master."
-    echo "   <hosts_file>       : File containing the list of hosts and IPs"
-    echo "   [master_host]      : Defines the master host of cluster."
-    echo ""
-    echo "  Note the hosts file is intended to be in the same format as "
-    echo "  a typical '/etc/hosts' file".
-    echo ""
-    echo "  If a 'master_host' is provided without an id file (-M), "
-    echo "  ssh-keygen is run on the target host to obtain a certificate; "
-    echo "  else, if a certificate is provided, it is used as the master "
-    echo "  cert and keygen is not run."
-    echo ""
-}
+usage="
+SSH HostKey provisioning for a group of hosts where one host needs the 
+keys to all other hosts. Intended to automate 'ssh-copy-id' without having 
+to move a private key around.
+
+Synopsis:
+  $TDH_PNAME [options] <hosts_file> [master_host]
+
+Options:
+  -H|--pvthosts <file> : Add a custom 'hosts' file to all hosts.
+  -h|--help            : Show usage info and exit.
+  -u|--user   <user>   : Name of remote user, if not '$user'.
+  -i  <identity>       : SSH Identity file for connecting to hosts.
+  -M  <master_id>      : SSH public key of an existing master.
+  <hosts_file>         : File containing the list of hosts and IPs
+  [master_host]        : Defines the master host of cluster.
+ 
+Note the hosts file is intended to be in the same format as 
+a system '/etc/hosts' file
+
+If a 'master_host' is provided without an id file (-M), 
+ssh-keygen is run on the target host to obtain a key-pair; 
+else, if a public key is provided, it is used as the master 
+certificate and keygen is not run on the target host.
+"
+
 
 # -----------------------------------
 
@@ -58,7 +63,7 @@ rt=0
 while [ $# -gt 0 ]; do
     case "$1" in
         'help'|-h|--help)
-            usage
+            echo "$usage"
             exit 0
             ;;
         -H|--pvthosts)
@@ -91,7 +96,7 @@ done
 
 
 if [ -z "$pubhosts" ]; then
-    usage
+    echo "$usage"
     exit 1
 fi
 

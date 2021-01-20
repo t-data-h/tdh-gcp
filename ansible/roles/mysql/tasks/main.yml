@@ -14,22 +14,6 @@
 
 - name: Mysql DB Setup
   block:
-  - name: Create Mysql Replication User
-    mysql_user:
-      login_user: 'root'
-      login_password: '{{ mysql_root_password }}'
-      name: '{{ mysql_repl_user }}'
-      password: '{{ mysql_repl_password }}'
-      priv: '*.*:ALL'
-      state: present
-      host: '%'
-  - name: Remove all anonymous user accounts
-    mysql_user:
-      login_user: 'root'
-      login_password: '{{ mysql_root_password }}'
-      name: ""
-      host_all: yes
-      state: absent
   - name: Create Hive Database
     mysql_db:
       login_user: 'root'
@@ -47,43 +31,3 @@
     with_items: '{{ tdh_mysql_client_hosts }}'
   when: inventory_hostname in groups['mysql_master']
 
-- name: Mysql Replication
-  block:
-  - name: Get Master Info
-    mysql_replication:
-      login_user: 'root'
-      login_password: '{{ mysql_root_password }}'
-      login_host: '{{ mysql_master_hostname }}'
-      login_port: '{{ mysql_port }}'
-      mode: getmaster
-    register: master_status
-  - name: Show Master Status
-    debug: 
-      var: 'master_status'
-  - name: Get Slave Info
-    mysql_replication:
-      login_user: 'root'
-      login_password: '{{ mysql_root_password }}'
-      mode: getslave
-    register: slave_status
-  - name: Show Slave Status
-    debug: 
-      var: 'slave_status'
-  - name: Configure slave
-    mysql_replication:
-      login_user: 'root'
-      login_password: '{{ mysql_root_password }}'
-      mode: changemaster
-      master_user: '{{ mysql_repl_user }}'
-      master_password: '{{ mysql_repl_password }}'
-      master_host: '{{ mysql_master_hostname }}'
-      master_log_file: '{{ master_status.File }}'
-      master_log_pos: '{{ master_status.Position }}'
-    when: not slave_status.Is_Slave
-  - name: Start mysql_replication
-    mysql_replication:
-      login_user: 'root'
-      login_password: '{{ mysql_root_password }}'
-      mode: startslave
-    when: not slave_status.Is_Slave
-  when: inventory_hostname in groups['mysql_slave']

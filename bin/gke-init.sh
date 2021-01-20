@@ -46,34 +46,38 @@ fi
 
 # -----------------------------------
 
-usage() {
-    echo ""
-    echo "Usage: $TDH_PNAME [options] <action> <cluster_name>"
-    echo " -a|--async            : Run actions asynchronously"
-    echo " -A|--ipalias          : Enables ip-alias during cluster creation"
-    echo " -c|--count <cnt>      : Number of nodes to deploy, Default is $nodecnt"
-    echo " -h|--help             : Display usage info and exit"
-    echo " -d|--disksize <xxGB>  : Size of boot disk. Default is $dsize"
-    echo "    --dryrun           : Enable dryrun"
-    echo " -N|--network <name>   : Name of GCP Network if not default"
-    echo " -n|--subnet <name>    : Name of GCP Subnet if not default"
-    echo " -S|--ssd              : Use 'pd-ssd' as GCP disk type"
-    echo " -t|--type <type>      : GCP Instance machine-type"
-    echo " -z|--zone <name>      : Sets an alternate GCP Zone"
-    echo " -V|--version          : Show Version Info and exit"
-    echo ""
-    echo "  Where <action> is one of the following:"
-    echo "     create            : Initialize a new GKE cluster"
-    echo "     delete            : Delete a GKE cluster"
-    echo ""
-    echo "  Default Machine Type is '$mtype'"
-    echo "  Default Boot Disk size  '$dsize'"
-    echo "  Default GCP Zone is     '$GCP_DEFAULT_ZONE'"
-    echo ""
-    echo " The following environment variables are honored for overrides:"
-    echo "  GCP_MACHINE_TYPE, GCP_ZONE, GCP_NETWORK, GCP_SUBNET"
-    echo ""
-}
+usage="
+Script for initializing a GKE cluster.
+
+Synopsis:
+  $TDH_PNAME [options] <action> <cluster_name>
+
+Options:
+   -a|--async            : Run actions asynchronously.
+   -A|--ipalias          : Enables ip-alias during cluster creation.
+   -c|--count <cnt>      : Number of nodes to deploy, Default is $nodecnt.
+   -h|--help             : Display usage info and exit.
+   -d|--disksize <xxGB>  : Size of boot disk. Default is $dsize.
+      --dryrun           : Enable dryrun.
+   -N|--network <name>   : Name of GCP Network if not default.
+   -n|--subnet <name>    : Name of GCP Subnet if not default.
+   -S|--ssd              : Use 'pd-ssd' as GCP disk type.
+   -t|--type <type>      : GCP Instance machine-type.
+   -z|--zone <name>      : Sets an alternate GCP Zone.
+   -V|--version          : Show Version Info and exit.
+   
+Where <action> is one of the following:
+   create       : Initialize a new GKE cluster
+   delete       : Delete a GKE cluster
+   
+  Default Machine Type is '$mtype'
+  Default Boot Disk size  '$dsize'
+  Default GCP Zone is     '$GCP_DEFAULT_ZONE'
+   
+The following environment variables are honored for overrides:
+  GCP_MACHINE_TYPE, GCP_ZONE, GCP_NETWORK, GCP_SUBNET
+"
+
 
 # -----------------------------------
 

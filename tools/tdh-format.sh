@@ -23,28 +23,27 @@ usexfs=0
 # -----------------------------------
 
 
-usage()
-{
-    echo "Format a block device as a raw disk."
-    echo ""
-    echo "Usage: $PNAME [options] <device> <mountpoint>"
-    echo "  -f|--force   : Set force option on mkfs"
-    echo "  -h|--help    : Show usage info and exit"
-    echo "  -x|--use-xfs : Use XFS Filesytem instead of default 'ext4'"
-    echo ""
-    echo " eg. $PNAME -f -x /dev/sdb /data01"
-    echo ""
-    echo " Note, use --force to avoid being prompted."
-    echo ""
-}
+usage="
+Format a block device as a raw disk.
+
+Synopsis: 
+  $PNAME [options] <device> <mountpoint>
+
+Options:
+  -f|--force   : Set force option on mkfs
+  -h|--help    : Show usage info and exit
+  -x|--use-xfs : Use XFS Filesytem instead of default 'ext4'
+ 
+eg. $PNAME -f -x /dev/sdb /data01
+Note, use --force to avoid being prompted.
+"
 
 # -----------------------------------
-
 
 while [ $# -gt 0 ]; do
     case "$1" in
         'help'|-h|--help)
-            usage
+            echo "$usage"
             exit 0
             ;;
         -f|--force)
@@ -65,7 +64,7 @@ done
 devname=${device##*\/}
 
 if [ -z "$device" ] || [ -z "$mount" ]; then
-    usage
+    echo "$usage"
     exit 1
 fi
 

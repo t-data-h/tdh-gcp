@@ -73,52 +73,52 @@ fi
 
 # -----------------------------------
 
-usage()
-{
-    echo ""
-    echo " Manage GCP Compute Engine instances: "
-    echo ""
-    echo "Usage: $TDH_PNAME [options] <action> <instance-name>"
-    echo "  -a|--async              : Use 'async' option with gcloud commands"
-    echo "  -A|--attach             : Init and attach data disk(s) on 'create'"
-    echo "  -b|--bootsize <xxGB>    : Size of instance boot disk"
-    echo "  -d|--disksize <xxGB>    : Size of attached volume(s)"
-    echo "  -D|--disknum   <n>      : Number of attached volumes, if more than 1"
-    echo "  -F|--ip-forward         : Enables IP Forwarding for the instance"
-    echo "  -h|--help               : Display usage and exit"
-    echo "  -i|--imagefamily <name> : Image family as 'ubuntu' or 'centos' (default)"
-    echo "  -k|--keep               : Sets --keep-disks=data on delete action"
-    echo "  -l|--list-types         : List available machine-types for a zone"
-    echo "     --disk-types         : List available disk types for a zone"
-    echo "     --dryrun             : Enable dryrun, no action is taken"
-    echo "  -N|--network <name>     : GCP Network name when not using default"
-    echo "  -n|--subnet  <name>     : Used with --network to define the subnet"
-    echo "  -p|--prefix  <name>     : Prefix name to use for instances"
-    echo "  -S|--ssd                : Use SSD as attached disk type"
-    echo "  -t|--type               : Machine type to use for instances"
-    echo "  -T|--tags  <tag1,..>    : A set of tags to use for instances"
-    echo "  -z|--zone  <name>       : Set GCP zone "
-    echo "  -v|--vga                : Attach a display device at create"
-    echo "  -X|--no-serial          : Don't enable logging to serial by default"
-    echo "  -V|--version            : Show version info and exit"
-    echo ""
-    echo " Where <action> is one of the following: "
-    echo "     create      :  Initialize new GCP instance"
-    echo "     start       :  Start an existing GCP instance"
-    echo "     stop        :  Stop a running instance"
-    echo "     delete      :  Delete an instance"
-    echo ""
-    echo "  Default Machine Type is '$mtype'"
-    echo "  Default Image is        '$image'"
-    echo "  Default Boot Disk size  '$bootsize'"
-    echo "  Default GCP Zone is     '$GCP_DEFAULT_ZONE'"
-    echo "  Default tags are set to '$prefix'"
-    echo ""
-    echo " The following environment variables are honored for overrides:"
-    echo "  GCP_MACHINE_TYPE, GCP_MACHINE_IMAGE, GCP_IMAGE_PROJECT, GCP_ZONE"
-    echo "  GCP_NETWORK, GCP_SUBNET"
-    echo ""
-}
+usage="
+Create and manage GCP Compute Engine instances.
+
+Synopsis:
+  $TDH_PNAME [options] <action> <instance> ...
+
+Options:
+  -a|--async              : Use 'async' option with gcloud commands
+  -A|--attach             : Init and attach data disk(s) on 'create'
+  -b|--bootsize <xxGB>    : Size of instance boot disk
+  -d|--disksize <xxGB>    : Size of attached volume(s)
+  -D|--disknum   <n>      : Number of attached volumes, if more than 1
+  -F|--ip-forward         : Enables IP Forwarding for the instance
+  -h|--help               : Display usage and exit
+  -i|--imagefamily <name> : Image family as 'ubuntu' or 'centos' (default)
+  -k|--keep               : Sets --keep-disks=data on delete action
+  -l|--list-types         : List available machine-types for a zone
+     --disk-types         : List available disk types for a zone
+     --dryrun             : Enable dryrun, no action is taken
+  -N|--network <name>     : GCP Network name when not using default
+  -n|--subnet  <name>     : Used with --network to define the subnet
+  -p|--prefix  <name>     : Prefix name to use for instances
+  -S|--ssd                : Use SSD as attached disk type
+  -t|--type               : Machine type to use for instances
+  -T|--tags  <tag1,..>    : A set of tags to use for instances
+  -z|--zone  <name>       : Set the GCP zone if not default. 
+  -v|--vga                : Attach a display device at create
+  -X|--no-serial          : Don't enable logging to serial by default
+  -V|--version            : Show version info and exit
+ 
+Where <action> is one of the following: 
+  create      :  Initialize new GCP instance
+  start       :  Start an existing GCP instance
+  stop        :  Stop a running instance
+  delete      :  Delete an instance
+ 
+  Default Machine Type is '$mtype'
+  Default Image is        '$image'
+  Default Boot Disk size  '$bootsize'
+  Default GCP Zone is     '$GCP_DEFAULT_ZONE'
+  Default tags are set to '$prefix'
+  
+The following environment variables are honored for overrides:
+  GCP_MACHINE_TYPE, GCP_MACHINE_IMAGE, GCP_IMAGE_PROJECT, GCP_ZONE
+  GCP_NETWORK, GCP_SUBNET
+"
 
 
 list_machine_types()
@@ -270,7 +270,7 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         'help'|-h|--help)
-            usage
+            echo "$usage"
             exit $rt
             ;;
         -d|--disksize)
@@ -355,7 +355,7 @@ done
 tdh_version
 
 if [ -z "$names" ]; then
-    usage
+    echo "$usage"
     exit 1
 fi
 
@@ -519,12 +519,9 @@ for name in $names; do
         is_running $name
         rt=$?
         ;;
-    help)
-        usage
-        ;;
     *)
         echo "Action Not Recognized! '$action'"
-        usage
+        echo "$usage"
         rt=1
         break
         ;;

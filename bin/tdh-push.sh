@@ -29,36 +29,38 @@ nocopy=0
 
 # -----------------------------------
 
-usage()
-{
-    echo ""
-    echo "$TDH_PNAME [options] [path] <archive_name> <host>"
-    echo "  -G|--use-gcp     : Use the GCloud API to scp the archive."
-    echo "  -h|--help        : Show usage info and exit."
-    echo "  -i  <identity>   : SSH identity (PEM) file."
-    echo "  -u|--user        : Username for scp action if not '$USER'."
-    echo "  -z|--zone <zone> : GCP Zone if not default (used with -G)."
-    echo "  -V|--version     : Show version info and exit."
-    echo ""
-    echo "  path             : is the directory to be archived (required)."
-    echo "  archive_name     : an alternate name for the tarball. The value "
-    echo "                     of 'mypkg' will result in 'mypkg.tar.gz'"
-    echo "                     By default, the target directory name is used."
-    echo "  host             : Name of target host. Override with TDH_PUSH_HOST"
-    echo ""
-    echo " The script intends that the archive will contain only the last"
-    echo "directory target. A path of a '/a/b/c' will create the archive "
-    echo "from 'b' with containing './c/' as the root directory."
-    echo ""
-    echo " The environment variable 'TDH_PUSH_HOST' is honored as the "
-    echo "default target to use. Otherwise, all three parameters are required. "
-    echo ""
-    echo " The script uses a 'tmp' path for both creating the archive locally"
-    echo "and landing on the target host.  This is defined by the environment "
-    echo "variable 'TDH_DIST_PATH'. The default is '/tmp/dist'. "
-    echo "The target path will be auto-created on the remote host."
-    echo ""
-}
+usage="
+Creates an archive (tarball) of a given path and pushes to a remote host.
+
+Synopsis:
+  $TDH_PNAME [options] [path] <archive_name> <host>
+
+Options:
+  -G|--use-gcp     : Use the GCloud API to scp the archive.
+  -h|--help        : Show usage info and exit.
+  -i  <identity>   : SSH identity (PEM) file.
+  -u|--user        : Username for scp action if not '$USER'.
+  -z|--zone <zone> : GCP Zone if not default (used with -G).
+  -V|--version     : Show version info and exit.
+ 
+  path             : is the directory to be archived (required).
+  archive_name     : an alternate name for the tarball. The value 
+                     of 'mypkg' will result in 'mypkg.tar.gz'
+                     By default, the target directory name is used.
+  host             : Name of target host. Override with TDH_PUSH_HOST
+ 
+ The script intends that the archive will contain only the last
+ directory target. A path of a '/a/b/c' will create the archive 
+ from 'b' with containing './c/' as the root directory.
+ 
+ The environment variable 'TDH_PUSH_HOST' is honored as the 
+ default target to use. Otherwise, all three parameters are required. 
+ 
+ The script uses a 'tmp' path for both creating the archive locally
+ and landing on the target host.  This is defined by the environment 
+ variable 'TDH_DIST_PATH'. The default is '/tmp/dist'. 
+ The target path will be auto-created on the remote host.
+ "
 
 
 # MAIN
@@ -71,7 +73,7 @@ scp="scp"
 while [ $# -gt 0 ]; do
     case "$1" in
         'help'|-h|--help)
-            usage
+            echo "$usage"
             exit $rt
             ;;
         -G|--use-gcp)
@@ -112,13 +114,13 @@ fi
 
 if [ -z "$host" ]; then
     echo "Error! TDH_PUSH_HOST not defined or provided."
-    usage
+    echo "$usage"
     exit 1
 fi
 
 if [ -z "$apath" ]; then
     echo "Invalid path given."
-    usage
+    echo "$usage"
     exit 1
 fi
 
