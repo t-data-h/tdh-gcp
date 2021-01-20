@@ -77,7 +77,7 @@ usage="
 Create and manage GCP Compute Engine instances.
 
 Synopsis:
-  $TDH_PNAME [options] <action> <instance-name>
+  $TDH_PNAME [options] <action> <instance> ...
 
 Options:
   -a|--async              : Use 'async' option with gcloud commands
