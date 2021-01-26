@@ -55,7 +55,6 @@ else, if a public key is provided, it is used as the master
 certificate and keygen is not run on the target host.
 "
 
-
 # -----------------------------------
 
 rt=0

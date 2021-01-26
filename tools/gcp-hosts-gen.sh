@@ -17,7 +17,7 @@ declare -a gary
 # -----------------------------------
 zone="$1"
 project=$( gcloud config configurations list | grep True | awk '{ print $4 }' )
-dom="c.${project}.internal"
+dom="c.${project}.internal"  # c. may not be a safe assumption
 cmd="gcloud compute instances list"
 
 if [ -n "$zone" ]; then

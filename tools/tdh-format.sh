@@ -22,7 +22,6 @@ usexfs=0
 
 # -----------------------------------
 
-
 usage="
 Format a block device as a raw disk.
 
@@ -118,18 +117,19 @@ sleep 3  # allow for kernel to settle on new device
 echo ""
 echo " -> Format complete"
 
-# Get UUID
 uuid=$( ls -l /dev/disk/by-uuid/ | grep $devname | awk '{ print $9 }' )
+
 if [ -z "$uuid" ]; then
     echo "$PNAME Error obtaining disk UUID from '/dev/disk/by-uuid'"
     exit 1
 fi
+
 echo "$device UUID='$uuid'"
 
 # add mount to fstab
 fstab=$(mktemp /tmp/tdh-fstab.XXXXXXXX)
-echo " -> Created fstab tmp file: '$fstab'"
 
+echo " -> Created fstab tmp file: '$fstab'"
 ( cp /etc/fstab $fstab )
 ( printf "UUID=$uuid %15s  %10s  defaults,noatime    1 2\n" $mount $fstype >> $fstab )
 ( sudo cp $fstab /etc/fstab; sudo chmod 644 /etc/fstab )

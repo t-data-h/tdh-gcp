@@ -47,6 +47,7 @@ Options:
   Hosts as a list is only supported for the client role.
 "
 
+# -----------------------------------
 
 read_password()
 {

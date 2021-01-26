@@ -120,6 +120,7 @@ The following environment variables are honored for overrides:
   GCP_NETWORK, GCP_SUBNET
 "
 
+# -----------------------------------
 
 list_machine_types()
 {

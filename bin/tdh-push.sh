@@ -60,8 +60,9 @@ Options:
  and landing on the target host.  This is defined by the environment 
  variable 'TDH_DIST_PATH'. The default is '/tmp/dist'. 
  The target path will be auto-created on the remote host.
- "
+"
 
+# -----------------------------------
 
 # MAIN
 #

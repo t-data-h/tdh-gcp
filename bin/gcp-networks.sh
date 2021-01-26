@@ -28,7 +28,6 @@ fi
 
 # -----------------------------------
 
-
 usage="
 Create and Manage GCP VPC Networks and Subnets.
 
@@ -55,6 +54,7 @@ Delete actions require that no existing resources use the
 given network|subnet.
 "
 
+# -----------------------------------
 
 ask()
 {
@@ -149,6 +149,7 @@ delete_subnet()
 }
 
 
+# -----------------------------------
 # MAIN
 #
 rt=0

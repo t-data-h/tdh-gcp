@@ -78,7 +78,6 @@ The following environment variables are honored for overrides:
   GCP_MACHINE_TYPE, GCP_ZONE, GCP_NETWORK, GCP_SUBNET
 "
 
-
 # -----------------------------------
 
 action=
