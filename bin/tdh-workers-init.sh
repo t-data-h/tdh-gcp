@@ -78,6 +78,7 @@ Options:
                           Default is '$mtype'.
   -T|--tags  <tag1,..>  : List of tags to use for instances.
   -x|--use-xfs          : Uses XFS as the data drive filesystem.
+  -V|--version          : Show version info and exit.
   -z|--zone  <name>     : Set GCP zone to use, if not gcloud default.
  
 Where <action> is 'run' (any other action enables '--dryrun') 
