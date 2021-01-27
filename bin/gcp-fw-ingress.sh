@@ -121,7 +121,7 @@ fi
 case "$action" in
 'create') 
 
-    if [[ -z "$cidr" || -z "$protoport" ]; then
+    if [[ -z "$cidr" || -z "$protoport" ]]; then
         echo "Error: create action is missing parameters."
         echo "$usage"
         exit 1
