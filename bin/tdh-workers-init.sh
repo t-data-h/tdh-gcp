@@ -20,6 +20,7 @@ mtype="n1-highmem-16"
 bootsize="$GCP_DEFAULT_BOOTSIZE"
 disksize="$GCP_DEFAULT_DISKSIZE"
 format="$TDH_FORMAT"
+imagef=
 network=
 subnet=
 
@@ -69,6 +70,7 @@ Options:
   -D|--disknum   <n>    : Number of attached DataNode volumes.
   -h|--help             : Display usage and exit.
      --dryrun           : Enable dryrun, no action is taken.
+  -i|--image   <name>   : Set image family as ubuntu (default) or centos.
   -N|--network <name>   : GCP Network name. Default is $network.
   -n|--subnet  <name>   : GCP Network subnet name. Default is $subnet.
   -p|--prefix  <name>   : Prefix name to use for instances.
@@ -114,6 +116,10 @@ while [ $# -gt 0 ]; do
             ;;
         -D|--disknum)
             disknum=$2
+            shift
+            ;;
+        -i|--image)
+            imagef="$2"
             shift
             ;;
         -p|--prefix)
@@ -211,6 +217,9 @@ for name in $names; do
     host="${prefix}-${name}"
     cmd="${gcpcompute} --prefix $prefix --type $mtype --bootsize $bootsize"
 
+    if [ -n "$imagef" ]; then
+        cmd="$cmd --image $imagef"
+    fi
     if [ -n "$network" ]; then
         cmd="$cmd --network $network --subnet $subnet"
     fi
