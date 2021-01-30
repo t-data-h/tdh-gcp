@@ -286,9 +286,9 @@ while [ $# -gt 0 ]; do
             ipf=1
             ;;
         -i|--image*)
-            if [[ $2 =~ ubuntu ]]; then
-                image=$GCP_UBUNTU_IMAGE
-                image_project="$GCP_UBUNTU_IMAGEPROJECT"
+            if [[ $2 =~ centos ]]; then
+                image=$GCP_CENTOS_IMAGE
+                image_project="$GCP_CENTOS_IMAGEPROJECT"
             fi
             shift
             ;;

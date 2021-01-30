@@ -305,7 +305,7 @@ for name in $names; do
     # prereqs
     printf "$C_CYN -> Install Prereqs $C_NC \n"
 
-    if [[ $imagef == "centos" ]]; then
+    if [[ $imagef =~ centos ]]; then
         echo "( $GSSH $host --command 'sudo systemctl stop firewalld; sudo systemctl disable firewalld' )"
 
         if [ $dryrun -eq 0 ]; then
