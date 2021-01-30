@@ -303,12 +303,14 @@ for name in $names; do
     fi
 
     # prereqs
-    # disable  iptables and cups
     printf "$C_CYN -> Install Prereqs $C_NC \n"
-    echo "( $GSSH $host --command 'sudo systemctl stop firewalld; sudo systemctl disable firewalld' )"
 
-    if [ $dryrun -eq 0 ]; then
-        ( $GSSH $host --command "sudo systemctl stop firewalld; sudo systemctl disable firewalld" )
+    if [[ $imagef == "centos" ]]; then
+        echo "( $GSSH $host --command 'sudo systemctl stop firewalld; sudo systemctl disable firewalld' )"
+
+        if [ $dryrun -eq 0 ]; then
+            ( $GSSH $host --command "sudo systemctl stop firewalld; sudo systemctl disable firewalld" )
+        fi
     fi
 
     echo "( $GSSH $host --command  sudo ./tdh-prereqs.sh )"
