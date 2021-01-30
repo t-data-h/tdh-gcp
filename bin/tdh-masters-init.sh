@@ -12,9 +12,9 @@ fi
 
 # -----------------------------------
 
-names="m01 m02 m03"
 prefix="$TDH_GCP_PREFIX"
 
+names=
 zone=
 mtype="$GCP_DEFAULT_MACHINETYPE"
 bootsize="$GCP_DEFAULT_BOOTSIZE"
@@ -28,15 +28,16 @@ gcpcompute="${tdh_path}/gcp-compute.sh"
 master_id="master-id_rsa.pub"
 master_id_file="${tdh_path}/../ansible/.ansible/${master_id}"
 
-dryrun=0
 attach=0
+disknum=1
+dryrun=0
 ssd=0
+xfs=0
 tags=
 action=
-rt=
 
-# -----------------------------------
-# default overrides
+# ----------------------------------
+# Default overrides
 
 if [ -n "$GCP_ZONE" ]; then
     zone="$GCP_ZONE"
@@ -57,20 +58,21 @@ fi
 # -----------------------------------
 
 usage="
-A script for creating TDH Master instances on GCP.
+A script for creating TDH instances on GCP.
 
 Synopsis:
   $TDH_PNAME [options] <action> host1 host2 ...
 
 Options:
-  -A|--attach           : Create an attached volume.
-  -b|--bootsize <xxGB>  : Size of boot disk, Default is $bootsize.
-  -d|--disksize <xxGB>  : Size of attached disk, Default is $disksize.
+  -A|--attach           : Create attached volumes.
+  -b|--bootsize <xxGB>  : Size of boot disk in GB, Default is $bootsize.
+  -d|--disksize <xxGB>  : Size of attached volume(s), Default is $disksize.
+  -D|--disknum   <n>    : Number of attached DataNode volumes.
   -h|--help             : Display usage and exit.
      --dryrun           : Enable dryrun, no action is taken.
   -i|--image   <name>   : Set image family as ubuntu (default) or centos.
-  -N|--network <name>   : Define a GCP Network to use for instances.
-  -n|--subnet  <name>   : Used with --network to define the subnet.
+  -N|--network <name>   : GCP Network name. Default is $network.
+  -n|--subnet  <name>   : GCP Network subnet name. Default is $subnet.
   -p|--prefix  <name>   : Prefix name to use for instances.
                           Default prefix is '$prefix'.
   -S|--ssd              : Use SSD as attached disk type.
@@ -93,6 +95,7 @@ Will dryrun 3 master nodes: $prefix-m01, $prefix-m02, and $prefix-m03
 # MAIN
 #
 rt=0
+chars=( {b..z} )
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -111,6 +114,10 @@ while [ $# -gt 0 ]; do
             disksize="$2"
             shift
             ;;
+        -D|--disknum)
+            disknum=$2
+            shift
+            ;;
         -i|--image)
             imagef="$2"
             shift
@@ -122,12 +129,12 @@ while [ $# -gt 0 ]; do
         --dryrun|--dry-run)
             dryrun=1
             ;;
-        -n|--subnet)
-            subnet="$2"
-            shift
-            ;;
         -N|--network)
             network="$2"
+            shift
+            ;;
+        -n|--subnet)
+            subnet="$2"
             shift
             ;;
         -S|-ssd)
@@ -155,26 +162,26 @@ while [ $# -gt 0 ]; do
         *)
             action="${1,,}"
             shift
-            namelist="$@"
+            names="$@"
             shift $#
             ;;
     esac
     shift
 done
 
-if [ -z "$action" ]; then
+if [[ -z "$action" || -z "$names" ]]; then
     tdh_version
     echo "$usage"
     exit 1
 fi
 
 if [ -n "$network" ] && [ -z "$subnet" ]; then
-    echo "ERROR, Subnet must be provided with --network"
+    echo "Error, Subnet must be provided with --network"
     exit 1
 fi
 
 if [[ ! -e ${tdh_path}/../tools/${format} ]]; then
-    echo "ERROR, cannot locate '$format', is this being run from tdh-gcp root?"
+    echo "Error, cannot locate '$format', is this being run from tdh-gcp root?"
     exit 2
 fi
 
@@ -194,20 +201,13 @@ if [ -n "$zone" ]; then
     GSCP="$GSCP --zone $zone"
 fi
 
-if [ -n "$namelist" ]; then
-    names="$namelist"
-else
-    echo "Using default of 3 master instances"
-fi
 
-
-echo "Creating master instances '$mtype' for { $names }"
+echo "-> Creating instances '$mtype' for { $names }"
 echo ""
 
-# Create instance
 for name in $names; do
     host="${prefix}-${name}"
-    cmd="${tdh_path}/gcp-compute.sh --prefix $prefix --type $mtype --bootsize $bootsize"
+    cmd="${gcpcompute} --prefix $prefix --type $mtype --bootsize $bootsize"
 
     if [ -n "$imagef" ]; then
         cmd="$cmd --image $imagef"
@@ -216,29 +216,29 @@ for name in $names; do
         cmd="$cmd --network $network --subnet $subnet"
     fi
     if [ -n "$zone" ]; then
-        cmd="$cmd --zone $zone"
+        cmd="$cmd --zone ${zone}"
     fi
     if [ $dryrun -gt 0 ]; then
-        cmd="$cmd --dryrun"
+        cmd="${cmd} --dryrun"
     fi
     if [ $attach -gt 0 ]; then
-        cmd="$cmd --attach --disksize $disksize"
+        cmd="${cmd} --attach --disksize $disksize --disknum $disknum"
     fi
     if [ $ssd -gt 0 ]; then
-        cmd="$cmd --ssd"
+        cmd="${cmd} --ssd"
     fi
     if [ -n "$tags" ]; then
         cmd="$cmd --tags $tags"
     fi
 
-    cmd="$cmd create $name"
+    cmd="${cmd} create ${name}"
     echo "( $cmd )"
 
     ( $cmd )
 
     rt=$?
     if [ $rt -gt 0 ]; then
-        echo "Error in GCP initialization of $host"
+        echo "$PNAME Error in GCP initialization of $host"
         break
     fi
 done
@@ -274,45 +274,56 @@ for name in $names; do
     #
     # Device format and mount
     if [ $attach -gt 0 ]; then
-        device="/dev/sdb"
-        mountpoint="/data01"
-        cmd="./${format}"
-
-        if [ $xfs -eq 1 ]; then
-            cmd="$cmd --use-xfs"
-        fi
-        cmd="$cmd -f $device $mountpoint"
-
-        echo " -> Formatting and Mount of attached disk"
-        echo "( $GSSH $host --command '$cmd' )"
+        echo " -> Formatting additional volume(s)"
         if [ $dryrun -eq 0 ]; then
             ( $GSCP ${tdh_path}/../tools/${format} ${host}: )
             ( $GSSH $host --command "chmod +x $format" )
-            ( $GSSH $host --command "$cmd" )
         fi
 
-        rt=$?
-        if [ $rt -gt 0 ]; then
-            echo "Error in $format for $host"
-            break
-        fi
+        for (( i=0; i<$disknum; )); do
+            device="/dev/sd${chars[i++]}"
+            volnum=$(printf "%02d" $i)
+            mountpt="/data${volnum}"
+
+            cmd="./${format}"
+
+            if [ $xfs -eq 1 ]; then
+                cmd="$cmd --use-xfs"
+            fi
+            cmd="$cmd -f $device $mountpt"
+
+            echo "( $GSSH $host --command '$cmd' )"
+
+            if [ $dryrun -eq 0 ]; then
+                ( $GSSH $host --command "$cmd" )
+            fi
+
+            rt=$?
+            if [ $rt -gt 0 ]; then
+                echo "Error in $format for $host"
+                break
+            fi
+        done
     fi
 
-    # prereq's
+    # prereqs
     # disable  iptables and cups
-    echo " -> Prereqs"
-    echo "( $GSSH $host --command 'sudo systemctl stop firewalld; sudo systemctl disable firewalld' )"
+    echo " -> Install Prereqs"
+    echo "( $GSSH $host --command 'sudo systemctl stop firewalld; sudo systemctl disable firewalld; \
+        sudo service cups stop; sudo chkconfig cups off' )"
+
     if [ $dryrun -eq 0 ]; then
-        ( $GSSH $host --command "sudo systemctl stop firewalld; sudo systemctl disable firewalld" )
+        ( $GSSH $host --command "sudo systemctl stop firewalld; sudo systemctl disable firewalld; \
+        sudo service cups stop; sudo chkconfig cups off" )
     fi
 
-    echo "( $GSSH $host --command sudo ./tdh-prereqs.sh )"
+    echo "( $GSSH $host --command  sudo ./tdh-prereqs.sh )"
+
     if [ $dryrun -eq 0 ]; then
         ( $GSCP ${tdh_path}/../etc/bashrc ${host}:.bashrc )
         ( $GSCP ${tdh_path}/../tools/tdh-prereqs.sh ${host}: )
         ( $GSSH $host --command 'chmod +x tdh-prereqs.sh' )
         ( $GSSH $host --command './tdh-prereqs.sh' )
-        ( $GSSH $host --command 'sudo yum install -y ansible ansible-lint' )
     fi
 
     rt=$?
@@ -346,22 +357,10 @@ for name in $names; do
         echo "( $GSSH $host --command \"cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys\" )"
 
         if [ $dryrun -eq 0 ]; then
-            echo "-> Primary Master Host is '$host'"
+            echo "-> Primary host is '$host'"
             ( $GSCP ${host}:.ssh/id_rsa.pub ${master_id_file} )
             ( $GSSH $host --command "cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys" )
         fi
-    fi
-
-    #
-    # push self for ansible
-    cmd="${tdh_path}/${TDH_PUSH} -G"
-    if [ -n "$zone" ]; then
-        cmd="$cmd --zone $zone"
-    fi
-
-    echo "( ${cmd} ${tdh_path}/.. tdh-gcp $host )"
-    if [ $dryrun -eq 0 ]; then
-        ( $cmd ${tdh_path}/.. tdh-gcp $host )
     fi
 
     echo "-> Initialization complete for $host"

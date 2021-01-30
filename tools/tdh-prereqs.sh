@@ -31,7 +31,6 @@ fi
 
 # -----------------------------------
 # Ubuntu
-
 if [[ "$ID" =~ "ubuntu" ]]; then
 
     if [ -z "$prereqs" ]; then 

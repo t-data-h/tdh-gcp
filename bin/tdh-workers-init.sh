@@ -61,7 +61,7 @@ usage="
 Script for creating TDH Worker nodes on GCP.
 
 Synopsis:
-  $TDH_PNAME [options] <action>  host1 host2 ...
+  $TDH_PNAME [options] <action> host1 host2 ...
 
 Options:
   -A|--attach           : Create attached volumes.
@@ -192,7 +192,7 @@ if [ "$action" == "run" ] && [ $dryrun -eq 0 ]; then
     dryrun=0
 else
     echo "Action provided is: '$action'. Use 'run' to execute"
-    dryrun=1  # action -ne run
+    dryrun=1
     echo "  <DRYRUN> enabled"
 fi
 
@@ -258,7 +258,7 @@ fi
 
 
 echo ""
-echo " -> Waiting for last host to respond. ."
+echo -n " -> Waiting for last host '$host' to respond. . "
 
 if [ $dryrun -eq 0 ]; then
     wait_for_gcphost "$host"
@@ -277,6 +277,9 @@ fi
 for name in $names; do
     host="${prefix}-${name}"
 
+    echo ""
+    echo " => Bootstrapping host '$host'"
+    #
     # Device format and mount
     if [ $attach -gt 0 ]; then
         echo " -> Formatting additional volume(s)"
