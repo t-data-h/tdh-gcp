@@ -80,34 +80,34 @@ Synopsis:
   $TDH_PNAME [options] <action> <instance> ...
 
 Options:
-  -a|--async              : Use 'async' option with gcloud commands
-  -A|--attach             : Init and attach data disk(s) on 'create'
-  -b|--bootsize <xxGB>    : Size of instance boot disk
-  -d|--disksize <xxGB>    : Size of attached volume(s)
-  -D|--disknum   <n>      : Number of attached volumes, if more than 1
+  -a|--async              : Use 'async' option with gcloud commands.
+  -A|--attach             : Init and attach data disk(s) on 'create'.
+  -b|--bootsize <xxGB>    : Size of instance boot disk.
+  -d|--disksize <xxGB>    : Size of attached volume(s).
+  -D|--disknum   <n>      : Number of attached volumes, if more than 1.
   -F|--ip-forward         : Enables IP Forwarding for the instance
-  -h|--help               : Display usage and exit
-  -i|--imagefamily <name> : Image family as 'ubuntu' or 'centos' (default)
-  -k|--keep               : Sets --keep-disks=data on delete action
-  -l|--list-types         : List available machine-types for a zone
-     --disk-types         : List available disk types for a zone
-     --dryrun             : Enable dryrun, no action is taken
-  -N|--network <name>     : GCP Network name when not using default
-  -n|--subnet  <name>     : Used with --network to define the subnet
-  -p|--prefix  <name>     : Prefix name to use for instances
+  -h|--help               : Display usage and exit.
+  -i|--imagefamily <name> : Image family as 'ubuntu' (default) or 'centos'.
+  -k|--keep               : Sets --keep-disks=data on delete action.
+  -l|--list-types         : List available machine-types for a zone.
+     --disk-types         : List available disk types for a zone.
+     --dryrun             : Enable dryrun, no action is taken.
+  -N|--network <name>     : GCP Network name when not using default.
+  -n|--subnet  <name>     : Used with --network to define the subnet.
+  -p|--prefix  <name>     : Prefix to use for instance names.
   -S|--ssd                : Use SSD as attached disk type
-  -t|--type               : Machine type to use for instances
-  -T|--tags  <tag1,..>    : A set of tags to use for instances
-  -z|--zone  <name>       : Set the GCP zone if not default. 
-  -v|--vga                : Attach a display device at create
-  -X|--no-serial          : Don't enable logging to serial by default
-  -V|--version            : Show version info and exit
+  -t|--type               : Machine type to use for instances.
+  -T|--tags  <tag1,..>    : A set of tags to use for instances.
+  -z|--zone  <name>       : Set the GCP zone, default is '$zone'. 
+  -v|--vga                : Attach a display device at create.
+  -X|--no-serial          : Don't enable logging to serial by default.
+  -V|--version            : Show version info and exit.
  
 Where <action> is one of the following: 
-  create      :  Initialize new GCP instance
-  start       :  Start an existing GCP instance
-  stop        :  Stop a running instance
-  delete      :  Delete an instance
+  create      :  Initialize new GCP instance(s)
+  start       :  Start existing GCP instance(s)
+  stop        :  Stop running instance(s).
+  delete      :  Delete instance(s)
  
   Default Machine Type is '$mtype'
   Default Image is        '$image'

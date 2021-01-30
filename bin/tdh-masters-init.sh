@@ -368,9 +368,5 @@ for name in $names; do
     echo ""
 done
 
-if [ -e "$pwfile" ] && [ $dryrun -eq 0 ]; then
-    ( rm $pwfile )
-fi
-
 echo "$TDH_PNAME finished"
 exit $rt
