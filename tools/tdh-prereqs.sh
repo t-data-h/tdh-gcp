@@ -13,9 +13,11 @@ PNAME=${0##*\/}
 
 yum_prereqs="wget yum-utils coreutils rng-tools bind-utils net-tools iputils ethtool epel-release"
 apt_prereqs="wget coreutils dnsutils rng-tools iputils-arping ethtool"
+
 cloudsdk="/etc/yum.repos.d/google-cloud.repo"
 gcp=0
 rt=0
+cmd= 
 
 if [ -n "$TDH_PREREQS" ]; then
     prereqs="$TDH_PREREQS"
@@ -27,42 +29,56 @@ fi
 
 . /etc/os-release
 
+# -----------------------------------
+# Ubuntu
+
 if [[ "$ID" =~ "ubuntu" ]]; then
+
     if [ -z "$prereqs" ]; then 
         prereqs="$apt_prereqs"
     fi
-    ( sudo apt install $prereqs )
-    exit $?
-fi
 
-if [ -z "$prereqs" ]; then
-    prereqs="$yum_prereqs"
-fi
+    cmd="sudo apt install -y $prereqs"
+
+    # update first! (cloud ubuntu images needs this)
+    if [ $gcp -eq 1 ]; then
+        ( sudo apt update -y )
+        ( sudo apt upgrade -y )
+    fi
+
+    ( $cmd )
+    rt=$?
 
 # -----------------------------------
+# RHEL / CentOS
+else
 
-cmd="sudo yum install -y"
+    if [ -z "$prereqs" ]; then
+        prereqs="$yum_prereqs"
+    fi
 
-# Disable cloud sdk repo check
-if [ $gcp -eq 1 ]; then
-    cmd="$cmd --disablerepo=google-cloud-sdk"
-fi
+    cmd="sudo yum install -y"
 
-cmd="$cmd $prereqs"
-
-( $cmd )
-
-rt=$?
-
-if [ $rt -eq 0 ]; then
+    # Disable cloud sdk repo check
     if [ $gcp -eq 1 ]; then
-        echo "Disabling GCP Repo"
-        ( sudo yum-config-manager --disable google-cloud-sdk )
+        cmd="$cmd --disablerepo=google-cloud-sdk"
+    fi
+
+    cmd="$cmd $prereqs"
+
+    ( $cmd )
+    rt=$?
+
+    if [ $rt -eq 0 ]; then
+        if [ $gcp -eq 1 ]; then
+            echo "$PNAME Disabling GCP Repo"
+            ( sudo yum-config-manager --disable google-cloud-sdk )
+        fi
     fi
 fi
 
 if [ $rt -gt 0 ]; then
-    echo "Error in install."
+    echo " -> Error in install."
 fi
 
 echo "$PNAME finished."
