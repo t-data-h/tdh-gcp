@@ -15,7 +15,7 @@ fi
 prefix="$TDH_GCP_PREFIX"
 
 names=
-zone=
+zone="$GCP_DEFAULT_ZONE"
 mtype="$GCP_DEFAULT_MACHINETYPE"
 bootsize="$GCP_DEFAULT_BOOTSIZE"
 disksize="$GCP_DEFAULT_DISKSIZE"
@@ -67,21 +67,21 @@ Options:
   -A|--attach           : Create attached volumes.
   -b|--bootsize <xxGB>  : Size of boot disk in GB, Default is $bootsize.
   -d|--disksize <xxGB>  : Size of attached volume(s), Default is $disksize.
-  -D|--disknum   <n>    : Number of attached DataNode volumes.
+  -D|--disknum   <n>    : Number of additional attached volumes.
   -h|--help             : Display usage and exit.
      --dryrun           : Enable dryrun, no action is taken.
-  -i|--image   <name>   : Set image family as ubuntu (default) or centos.
-  -N|--network <name>   : GCP Network name. Default is $network.
-  -n|--subnet  <name>   : GCP Network subnet name. Default is $subnet.
+  -i|--image   <name>   : Set image family as 'ubuntu' (default) or 'centos'.
+  -N|--network <name>   : GCP Network name.
+  -n|--subnet  <name>   : GCP Network subnet name. 
   -p|--prefix  <name>   : Prefix name to use for instances.
                           Default prefix is '$prefix'.
   -S|--ssd              : Use SSD as attached disk type.
   -t|--type             : Machine type to use for instances.
                           Default is '$mtype'.
-  -T|--tags <tag1,..>   : List of tags to use for instances.
+  -T|--tags <tag1,..>   : Set of tags to use for instances.
   -x|--use-xfs          : Use the XFS filesystem for attached disks.
   -V|--version          : Show usage info and exit.
-  -z|--zone <name>      : Set GCP zone to use if not gcloud default.
+  -z|--zone <name>      : Set GCP zone to use, default is '$zone'.
   
 Where <action> is 'run'. Any other action enables '--dryrun' 
 followed by a list of names that become '\$prefix-\$name'.
@@ -191,9 +191,9 @@ tdh_version
 if [ "$action" == "run" ] && [ $dryrun -eq 0 ]; then
     dryrun=0
 else
-    echo "Action provided is: '$action'. Use 'run' to execute"
+    printf "$C_CYN -> Action provided is: ${C_NC}'%s'. ${C_CYN}Use${C_NC} 'run' ${C_CYN}to execute. $C_NC \n" $action
     dryrun=1
-    echo "  <DRYRUN> enabled"
+    printf " $C_YEL <DRYRUN> enabled $C_NC \n"
 fi
 
 if [ -n "$zone" ]; then
@@ -201,9 +201,8 @@ if [ -n "$zone" ]; then
     GSCP="$GSCP --zone $zone"
 fi
 
-
-echo "-> Creating instances '$mtype' for { $names }"
-echo ""
+printf "$C_CYN -> Creating instance(s) ${C_NC}${C_WHT}'%s'${C_NC}${C_CYN}\
+ for ${C_NC}{${C_WHT} ${names} ${C_NC}} \n\n" $mtype
 
 for name in $names; do
     host="${prefix}-${name}"
@@ -248,15 +247,13 @@ if [ $rt -gt 0 ]; then
     exit $rt
 fi
 
-
-echo ""
-echo -n " -> Waiting for last host '$host' to respond. . "
+printf "\n${C_CYN} -> Waiting for last host ${C_NC}${C_WHT}'%s'${C_NC}${C_CYN} to respond ${C_NC}. . " $host
 
 if [ $dryrun -eq 0 ]; then
     wait_for_gcphost "$host"
     rt=$?
 else
-    echo "  <DRYRUN skipped>"
+    printf "$C_YEL  <DRYRUN skipped> $C_NC \n"
 fi
 echo ""
 
@@ -269,12 +266,11 @@ fi
 for name in $names; do
     host="${prefix}-${name}"
 
-    echo ""
-    echo " => Bootstrapping host '$host'"
+    printf "\n${C_CYN} -> Bootstrapping host ${C_WHT}'%s' ${C_NC} \n" $host
     #
     # Device format and mount
     if [ $attach -gt 0 ]; then
-        echo " -> Formatting additional volume(s)"
+        printf "${C_CYN} -> Formatting additional volume(s) ${C_NC}"
         if [ $dryrun -eq 0 ]; then
             ( $GSCP ${tdh_path}/../tools/${format} ${host}: )
             ( $GSSH $host --command "chmod +x $format" )
@@ -308,13 +304,11 @@ for name in $names; do
 
     # prereqs
     # disable  iptables and cups
-    echo " -> Install Prereqs"
-    echo "( $GSSH $host --command 'sudo systemctl stop firewalld; sudo systemctl disable firewalld; \
-        sudo service cups stop; sudo chkconfig cups off' )"
+    printf "$C_CYN -> Install Prereqs $C_NC \n"
+    echo "( $GSSH $host --command 'sudo systemctl stop firewalld; sudo systemctl disable firewalld' )"
 
     if [ $dryrun -eq 0 ]; then
-        ( $GSSH $host --command "sudo systemctl stop firewalld; sudo systemctl disable firewalld; \
-        sudo service cups stop; sudo chkconfig cups off" )
+        ( $GSSH $host --command "sudo systemctl stop firewalld; sudo systemctl disable firewalld" )
     fi
 
     echo "( $GSSH $host --command  sudo ./tdh-prereqs.sh )"
@@ -334,27 +328,27 @@ for name in $names; do
 
     #
     # ssh
-    echo " -> Configure ssh host keys"
+    printf "$C_CYN -> Configure ssh host keys $C_NC \n"
 
-    echo "( $GSSH $host --command \"ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa; \
+    echo "( $GSSH ${host} --command \"ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa; \
       cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys\" )"
 
     if [ $dryrun -eq 0 ]; then
-        ( $GSSH $host --command "ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa; \
+        ( $GSSH ${host} --command "ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa; \
           cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys" )
     fi
 
     if [ -e "$master_id_file" ]; then
         echo "( $GSCP ${master_id_file} ${host}:.ssh/ )"
-        echo "( $GSSH $host --command \"cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys\" )"
+        echo "( $GSSH ${host} --command \"cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys\" )"
 
         if [ $dryrun -eq 0 ]; then
             ( $GSCP ${master_id_file} ${host}:.ssh/ )
-            ( $GSSH $host --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys" )
+            ( $GSSH ${host} --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys" )
         fi
     else
         echo "( $GSCP ${host}:.ssh/id_rsa.pub ${master_id_file} )"
-        echo "( $GSSH $host --command \"cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys\" )"
+        echo "( $GSSH ${host} --command \"cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys\" )"
 
         if [ $dryrun -eq 0 ]; then
             echo "-> Primary host is '$host'"
@@ -363,9 +357,8 @@ for name in $names; do
         fi
     fi
 
-    echo "-> Initialization complete for $host"
-    echo ""
+    printf "${C_CYN} -> Initialization complete for ${C_WHT}%s${C_NC} \n" $host
 done
 
-echo "$TDH_PNAME finished"
+echo "$TDH_PNAME finished."
 exit $rt

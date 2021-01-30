@@ -382,15 +382,14 @@ if [ -z "$zone" ]; then
     zone="$GCP_DEFAULT_ZONE"
 fi
 
-echo ""
-echo "  GCP Zone = '$zone'"
-echo "  Network  = '$network'"
-echo "  Subnet   = '$subnet'"
+printf "\n${C_CYN}  GCP Zone ${C_NC}= ${C_WHT}'$zone'${C_NC}\n"
+printf "${C_CYN}  Network  ${C_NC}= ${C_WHT}'$network'${C_NC}\n"
+printf "${C_CYN}  Subnet   ${C_NC}= ${C_WHT}'$subnet'${C_NC}\n\n"
 
 zone_is_valid $zone
 rt=$?
 if [ $rt -ne 0 ]; then
-    echo "Error, provided zone '$zone' not valid"
+    echo "Error, provided zone '$zone' is not valid"
     exit $rt
 fi
 
@@ -438,8 +437,7 @@ for name in $names; do
 
         cmd="$cmd --tags ${tags} ${name}"
 
-        echo ""
-        echo "( $cmd )"
+        printf "\n( $cmd ) \n"
 
         if [ $dryrun -eq 0 ]; then
             ( $cmd )
@@ -447,7 +445,7 @@ for name in $names; do
         fi
 
         if [ $rt -ne 0 ]; then
-            echo "Error in create_instance()"
+            echo "$TDH_PNAME Error in create_instance"
             exit $rt
         fi
 
@@ -529,5 +527,5 @@ for name in $names; do
     esac
 done
 
-echo "$TDH_PNAME Finished."
+printf "${C_WHT}${TDH_PNAME} Finished. ${C_NC} \n"
 exit $rt

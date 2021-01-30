@@ -37,13 +37,11 @@ if [[ "$ID" =~ "ubuntu" ]]; then
         prereqs="$apt_prereqs"
     fi
 
-    cmd="sudo apt install -y $prereqs"
+    cmd="sudo apt-get install -y $prereqs"
 
     # update first! (cloud ubuntu images needs this)
-    if [ $gcp -eq 1 ]; then
-        ( sudo apt update -y )
-        ( sudo apt upgrade -y )
-    fi
+    ( sudo apt-get update -y )
+    ( sudo apt-get upgrade -y )
 
     ( $cmd )
     rt=$?

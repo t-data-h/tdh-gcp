@@ -8,7 +8,7 @@ export TDH_GCP_CONFIG=1
 
 TDH_PNAME=${0##*\/}
 
-TDH_GCP_VERSION="v21.02"
+TDH_GCP_VERSION="v21.02.1"
 TDH_GCP_PREFIX="tdh"
 
 GCP_DEFAULT_MACHINETYPE="n1-standard-4"
@@ -39,10 +39,19 @@ TDH_FORMAT="tdh-format.sh"
 TDH_PUSH="tdh-push.sh"
 TDH_PREREQS="tdh-prereqs.sh"
 
+C_RED='\e[31m\e[1m'
+C_GRN='\e[32m\e[1m'
+C_YEL='\e[93m'  # 33 dim, 93 bright
+C_BLU='\e[34m\e[1m'
+C_MAG='\e[95m'
+C_CYN='\e[96m'
+C_WHT='\e[97m\e[1m'
+C_NC='\e[0m'
+
 # -----------------------------------
 
 function tdh_version() {
-    printf "$TDH_PNAME: (tdh-gcp) $TDH_GCP_VERSION\n"
+    printf "${C_WHT}${TDH_PNAME}:${C_NC} (tdh-gcp) ${C_WHT}${TDH_GCP_VERSION}${C_NC}\n"
 }
 
 
