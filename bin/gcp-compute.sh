@@ -80,34 +80,34 @@ Synopsis:
   $TDH_PNAME [options] <action> <instance> ...
 
 Options:
-  -a|--async              : Use 'async' option with gcloud commands
-  -A|--attach             : Init and attach data disk(s) on 'create'
-  -b|--bootsize <xxGB>    : Size of instance boot disk
-  -d|--disksize <xxGB>    : Size of attached volume(s)
-  -D|--disknum   <n>      : Number of attached volumes, if more than 1
+  -a|--async              : Use 'async' option with gcloud commands.
+  -A|--attach             : Init and attach data disk(s) on 'create'.
+  -b|--bootsize <xxGB>    : Size of instance boot disk.
+  -d|--disksize <xxGB>    : Size of attached volume(s).
+  -D|--disknum   <n>      : Number of attached volumes, if more than 1.
   -F|--ip-forward         : Enables IP Forwarding for the instance
-  -h|--help               : Display usage and exit
-  -i|--imagefamily <name> : Image family as 'ubuntu' or 'centos' (default)
-  -k|--keep               : Sets --keep-disks=data on delete action
-  -l|--list-types         : List available machine-types for a zone
-     --disk-types         : List available disk types for a zone
-     --dryrun             : Enable dryrun, no action is taken
-  -N|--network <name>     : GCP Network name when not using default
-  -n|--subnet  <name>     : Used with --network to define the subnet
-  -p|--prefix  <name>     : Prefix name to use for instances
+  -h|--help               : Display usage and exit.
+  -i|--imagefamily <name> : Image family as 'ubuntu' (default) or 'centos'.
+  -k|--keep               : Sets --keep-disks=data on delete action.
+  -l|--list-types         : List available machine-types for a zone.
+     --disk-types         : List available disk types for a zone.
+     --dryrun             : Enable dryrun, no action is taken.
+  -N|--network <name>     : GCP Network name when not using default.
+  -n|--subnet  <name>     : Used with --network to define the subnet.
+  -p|--prefix  <name>     : Prefix to use for instance names.
   -S|--ssd                : Use SSD as attached disk type
-  -t|--type               : Machine type to use for instances
-  -T|--tags  <tag1,..>    : A set of tags to use for instances
-  -z|--zone  <name>       : Set the GCP zone if not default. 
-  -v|--vga                : Attach a display device at create
-  -X|--no-serial          : Don't enable logging to serial by default
-  -V|--version            : Show version info and exit
+  -t|--type               : Machine type to use for instances.
+  -T|--tags  <tag1,..>    : A set of tags to use for instances.
+  -z|--zone  <name>       : Set the GCP zone, default is '$zone'. 
+  -v|--vga                : Attach a display device at create.
+  -X|--no-serial          : Don't enable logging to serial by default.
+  -V|--version            : Show version info and exit.
  
 Where <action> is one of the following: 
-  create      :  Initialize new GCP instance
-  start       :  Start an existing GCP instance
-  stop        :  Stop a running instance
-  delete      :  Delete an instance
+  create      :  Initialize new GCP instance(s)
+  start       :  Start existing GCP instance(s)
+  stop        :  Stop running instance(s).
+  delete      :  Delete instance(s)
  
   Default Machine Type is '$mtype'
   Default Image is        '$image'
@@ -286,9 +286,9 @@ while [ $# -gt 0 ]; do
             ipf=1
             ;;
         -i|--image*)
-            if [[ $2 =~ ubuntu ]]; then
-                image=$GCP_UBUNTU_IMAGE
-                image_project="$GCP_UBUNTU_IMAGEPROJECT"
+            if [[ $2 =~ centos ]]; then
+                image=$GCP_CENTOS_IMAGE
+                image_project="$GCP_CENTOS_IMAGEPROJECT"
             fi
             shift
             ;;
@@ -382,15 +382,14 @@ if [ -z "$zone" ]; then
     zone="$GCP_DEFAULT_ZONE"
 fi
 
-echo ""
-echo "  GCP Zone = '$zone'"
-echo "  Network  = '$network'"
-echo "  Subnet   = '$subnet'"
+printf "\n${C_CYN}  GCP Zone ${C_NC}= ${C_WHT}'$zone'${C_NC}\n"
+printf "${C_CYN}  Network  ${C_NC}= ${C_WHT}'$network'${C_NC}\n"
+printf "${C_CYN}  Subnet   ${C_NC}= ${C_WHT}'$subnet'${C_NC}\n\n"
 
 zone_is_valid $zone
 rt=$?
 if [ $rt -ne 0 ]; then
-    echo "Error, provided zone '$zone' not valid"
+    echo "Error, provided zone '$zone' is not valid"
     exit $rt
 fi
 
@@ -438,8 +437,7 @@ for name in $names; do
 
         cmd="$cmd --tags ${tags} ${name}"
 
-        echo ""
-        echo "( $cmd )"
+        printf "\n( $cmd ) \n"
 
         if [ $dryrun -eq 0 ]; then
             ( $cmd )
@@ -447,7 +445,7 @@ for name in $names; do
         fi
 
         if [ $rt -ne 0 ]; then
-            echo "Error in create_instance()"
+            echo "$TDH_PNAME Error in create_instance"
             exit $rt
         fi
 
@@ -529,5 +527,5 @@ for name in $names; do
     esac
 done
 
-echo "$TDH_PNAME Finished."
+printf "${C_WHT}${TDH_PNAME} Finished. ${C_NC} \n"
 exit $rt

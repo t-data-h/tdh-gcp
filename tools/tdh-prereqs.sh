@@ -12,7 +12,7 @@ PNAME=${0##*\/}
 # -----------------------------------
 
 yum_prereqs="wget yum-utils coreutils rng-tools bind-utils net-tools iputils ethtool epel-release"
-apt_prereqs="wget coreutils dnsutils rng-tools iputils-arping ethtool"
+apt_prereqs="wget coreutils dnsutils net-tools rng-tools iputils-arping ethtool"
 
 cloudsdk="/etc/yum.repos.d/google-cloud.repo"
 gcp=0
@@ -31,20 +31,17 @@ fi
 
 # -----------------------------------
 # Ubuntu
-
 if [[ "$ID" =~ "ubuntu" ]]; then
 
     if [ -z "$prereqs" ]; then 
         prereqs="$apt_prereqs"
     fi
 
-    cmd="sudo apt install -y $prereqs"
+    cmd="sudo apt-get install -y $prereqs"
 
     # update first! (cloud ubuntu images needs this)
-    if [ $gcp -eq 1 ]; then
-        ( sudo apt update -y )
-        ( sudo apt upgrade -y )
-    fi
+    ( sudo apt-get update -y )
+    ( sudo apt-get upgrade -y )
 
     ( $cmd )
     rt=$?

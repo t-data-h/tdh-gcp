@@ -11,7 +11,7 @@ The compute instances are managed by a set of scripts for initializing the
 master and worker node instances. The scripts wrap the Google Cloud API via
 the *gcloud* CLI tool and accordingly, the Google Cloud SDK should be installed
 for creating GCP-based instances, though GCP is not a strict requirement for
-some of the bootstrapping scripts provided.
+some of the bootstrapping scripts provided. 
 
 Ansible playbooks are used for installing or updating/upgrading a TDH
 cluster. Refer to the `README.md` located in *./ansible*. The playbooks
