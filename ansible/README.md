@@ -135,8 +135,9 @@ Deploying TDH comes down to three steps.
 The first step is to distribute the various assets. From the ansible server,
 this happens via the playbook *tdh-distribute.yml*. This play looks for specific
 assets from an input path to distribute to hosts. This input path defaults
-to *~/tmp/dist* and will push assets to /tmp/TDH. These values are configured as
-part of the common role *vars* or more specifically *roles/common/vars/main.yml*.
+to */tmp/dist* on the Ansible Server and will push assets to /tmp/TDH on the 
+inventory hosts. These values are configured as part of the common *vars* 
+or more specifically *roles/common/vars/main.yml*.
 
 There are 4 packages that are expected by the deploy playbook:
 
