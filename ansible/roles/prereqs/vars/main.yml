@@ -19,6 +19,7 @@ yum_install_packages:
   - unzip
   - wget
   - rng-tools
+  - rsync
   - openssl-devel
   - zlib-devel
   - krb5-devel
@@ -41,8 +42,11 @@ apt_install_packages:
   - python3-pymysql
   - bzip2
   - unzip
+  - automake
+  - make
   - wget
   - rng-tools
+  - rsync
   - openssl
   - zlib1g-dev
   - selinux-utils
