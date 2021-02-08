@@ -32,24 +32,19 @@ fi
 # -----------------------------------
 # Ubuntu
 if [[ "$ID" =~ "ubuntu" ]]; then
-
     if [ -z "$prereqs" ]; then 
         prereqs="$apt_prereqs"
     fi
 
-    cmd="sudo apt-get install -y $prereqs"
-
-    # update first! (cloud ubuntu images needs this)
+    # update first! (cloud ubuntu images need this)
     ( sudo apt-get update -y )
     ( sudo apt-get upgrade -y )
-
-    ( $cmd )
+    ( sudo apt-get install -y $prereqs )
     rt=$?
 
 # -----------------------------------
 # RHEL / CentOS
 else
-
     if [ -z "$prereqs" ]; then
         prereqs="$yum_prereqs"
     fi

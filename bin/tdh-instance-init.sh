@@ -83,7 +83,7 @@ Options:
   -V|--version          : Show usage info and exit.
   -z|--zone <name>      : Set GCP zone to use, default is '$zone'.
   
-Where <action> is 'run'. Any other action enables '--dryrun' 
+Where <action> is 'run' or 'reset'. Any other action enables '--dryrun' 
 followed by a list of names that become '\$prefix-\$name'.
   
 eg. '$TDH_PNAME test m01 m02 m03'
@@ -188,8 +188,29 @@ fi
 echo ""
 tdh_version
 
-if [ "$action" == "run" ] && [ $dryrun -eq 0 ]; then
+if [[ "$action" == "run" && $dryrun -eq 0 ]]; then
     dryrun=0
+elif [ "$action" == "reset" ]; then
+    for name in $names; do
+        ( echo $name | grep "^${prefix}-" >/dev/null 2>&1 )
+        if [ $? -ne 0 ]; then
+            name="${prefix}-${name}"
+        fi
+
+        nf=$( ssh-keygen -f ${HOME}/.ssh/known_hosts -R "$name" >/dev/null  )
+        if [ $? -eq 0 ]; then
+            if [ -z "$nf" ]; then
+                echo "Host $name removed from ${HOME}/.ssh/known_hosts"
+            else
+                echo "$nf"
+            fi
+        fi
+    done
+    if [ -f $master_id_file ]; then
+        echo "Removing master id file '$master_id_file'"
+        ( unlink $master_id_file )
+    fi
+    exit $?
 else
     printf "$C_CYN -> Action provided is: ${C_NC}'%s'. ${C_CYN}Use${C_NC} 'run' ${C_CYN}to execute. $C_NC \n" $action
     dryrun=1

@@ -407,11 +407,9 @@ if [ $attach -eq 1 ] && [ $volnum -gt 1 ]; then
 fi
 
 for name in $names; do
-    if [ -n "$prefix" ]; then
-        ( echo $name | grep "^${prefix}-" >/dev/null 2>&1 )
-        if [ $? -ne 0 ]; then
-            name="${prefix}-${name}"
-        fi
+    ( echo $name | grep "^${prefix}-" >/dev/null 2>&1 )
+    if [ $? -ne 0 ]; then
+        name="${prefix}-${name}"
     fi
 
     case "$action" in
