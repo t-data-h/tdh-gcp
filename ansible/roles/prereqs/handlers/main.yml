@@ -5,4 +5,5 @@
 
 - name: selinux_setenforce
   become: true
+  ignore_errors: true
   shell: "setenforce 0"

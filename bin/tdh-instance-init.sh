@@ -169,7 +169,7 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-if [[ -z "$action" || -z "$names" ]]; then
+if [[ -z "$action" ]]; then
     tdh_version
     echo "$usage"
     exit 1
@@ -190,6 +190,11 @@ tdh_version
 
 if [[ "$action" == "run" && $dryrun -eq 0 ]]; then
     dryrun=0
+    if [ -z "$names" ]; then
+        echo "Error, no hosts list provided."
+        echo "$usage"
+        exit 1
+    fi
 elif [ "$action" == "reset" ]; then
     for name in $names; do
         ( echo $name | grep "^${prefix}-" >/dev/null 2>&1 )

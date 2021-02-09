@@ -1,5 +1,5 @@
-TDH GCP Ansible Framework
-=========================
+TDH Ansible 
+============
 
 Ansible playbooks for distributing and configuring a TDH environment.
 The environment is defined by the inventory files located in
