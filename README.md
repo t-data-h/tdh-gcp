@@ -77,17 +77,17 @@ Additional support scripts used for various environment bootstrapping.
     => result: gcloud compute scp tdh-anaconda3.tar.gz tdh-m01:tmp/dist/
   ```
 
-* tdh-remote-format.sh:
-
-  The GCP instance scripts format attached drives at create, however
-  for situations where the instances are not created by those scripts (like
-  non-GCP hosts), this script will format and mount a sequential set of
-  attached storage via ssh.
-
 * ssh-hostkey-provision.sh:
 
   Script for remotely configuring a cluster of hosts for passwordless login
   via a master host.
+
+* tdh-remote-format.sh:
+
+  The GCP instance scripts format attached drives at create, however
+  for situations where the instances are not created by those scripts, 
+  this script will format and mount a sequential set of attached 
+  storage via ssh.
 
 * tdh-mysql-install.sh: (deprecated)
 
