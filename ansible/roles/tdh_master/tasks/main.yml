@@ -89,6 +89,7 @@
       shell: '{{ tdh_install_path }}/sbin/00-hdfs-format.sh'
       when: inventory_hostname in groups['master01']
     when: nndir.stat.exists == false
+
   - name: TDH Provisioning - 07-spark-provision
     shell: '{{ tdh_install_path }}/sbin/07-spark-provision.sh'
   - name: TDH Provisioning - 09-kafka-provision

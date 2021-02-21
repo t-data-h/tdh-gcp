@@ -80,6 +80,21 @@
     file:
       path: '{{ tdh_config_dropfile }}'
       state: absent
+  - name: Configure core-site s3 endpoint
+    replace:
+      path: '{{ tdh_install_path }}/hadoop/etc/hadoop/core-site.xml'
+      regexp: '%% S3_ENDPOINT %%'
+      replace: '{{ s3_endpoint }}'
+  - name: Configure core-site s3 access key
+    replace:
+      path: '{{ tdh_install_path }}/hadoop/etc/hadoop/core-site.xml'
+      regexp: '%% S3_ACCESS_KEY %%'
+      replace: '{{ s3_access_key }}'
+  - name: Configure core-site s3 secret key
+    replace:
+      path: '{{ tdh_install_path }}/hadoop/etc/hadoop/core-site.xml'
+      regexp: '%% S3_SECRET_KEY %%'
+      replace: '{{ s3_secret_key }}'
   tags: [ tdh-config ]
   when: tdhconfigstat.stat.exists and tdhstat.stat.exists
 
