@@ -34,19 +34,13 @@ are idempotent and are not GCP specific.
   intention is to deploy on a specific network, this script is first run to
   define the subnet and associated address range in CIDR Format.
 
-* tdh-masters-init.sh:
+* tdh-instance-init.sh:
 
-  Wraps `gcp-copmpute.sh` with defaults for initializing TDH master hosts.
+  Wraps `gcp-copmpute.sh` with defaults for initializing TDH master/worker hosts.
   Ansible is then used to deploy and configure the cluster. The first master 
   is commonly used as the primary management node for running Ansible. The
   the script will use the `master_id` file as the Ansible Server ssh public key.
   The first host's key is generated and used as the master if none is provided.
-
-* tdh-workers-init.sh:  
-
-  Builds TDH worker nodes in similarly to the masters init, but generally
-  of a different machine type. Installs a few prerequisites like `wget` that 
-  may be needed prior to running Ansible.
 
 * gke-init.sh:
 
@@ -56,14 +50,6 @@ are idempotent and are not GCP specific.
 ## Utility Scripts 
 
 Additional support scripts used for various environment bootstrapping.
-
-* tdh-mysql-install.sh:
-
-  Bootstraps a Mysql 5.7 Server instance (on given master hosts). It takes
-  care of an initial install of the mysql server and client, setting the root
-  password as well as ensuring `server-id` is set in accordance to the number
-  of masters. This script is being deprecated in favor of a separate Ansible
-  playbook for deploying MySQL. 
 
 * tdh-push.sh
 
@@ -85,8 +71,8 @@ Additional support scripts used for various environment bootstrapping.
     => result: gcloud compute scp tdh-gcp.tar.gz tdh-m01:tmp/dist/
   $ ./bin/gcp-push.sh -G ../tdh-mgr
     => result: gcloud compute scp tdh-mgr.tar.gz tdh-m01:tmp/dist/
-  $ ./bin/gcp-push.sh -G ../tdh-config/gcpwest1 tdh-conf
-    => result: gcloud compute scp tdh-conf.tar.gz tdh-m01:tmp/dist/
+  $ ./bin/gcp-push.sh -G ../tdh-config/gcpwest1 tdh-cluster-conf
+    => result: gcloud compute scp tdh-cluster-conf.tar.gz tdh-m01:tmp/dist/
   $ ./bin/gcp-push.sh -G /opt/python/anaconda3 tdh-anaconda3
     => result: gcloud compute scp tdh-anaconda3.tar.gz tdh-m01:tmp/dist/
   ```
@@ -102,6 +88,14 @@ Additional support scripts used for various environment bootstrapping.
 
   Script for remotely configuring a cluster of hosts for passwordless login
   via a master host.
+
+* tdh-mysql-install.sh: (deprecated)
+
+  Bootstraps a Mysql 5.7 Server instance (on given master hosts). It takes
+  care of an initial install of the mysql server and client, setting the root
+  password as well as ensuring `server-id` is set in accordance to the number
+  of masters. This script is *deprecated* in favor of a separate Ansible
+  playbook for deploying MySQL. 
 
 ## Support scripts:
 
@@ -131,9 +125,13 @@ instances have already been created.
 
   Convenience script for adding ingress fw rules.
 
+<br>
+
 ---
 
-## Running the instance scripts:
+<br>
+
+## Running the instance script:
 
 The scripts rely on relative path to each other and should be run from
 the parent `tdh-gcp` directory. Below are some examples of creating master
@@ -142,8 +140,8 @@ and worker nodes.
 
 - Create three master nodes, first with a test run, using the default network:
   ```
-  ./bin/tdh-masters-init.sh -t 'n1-standard-2' test m01 m02 m03
-  ./bin/tdh-masters-init.sh -t 'n1-standard-4' run m01 m02 m03
+  ./bin/tdh-instance-init.sh -t 'n1-standard-2' test m01 m02 m03
+  ./bin/tdh-instance-init.sh -t 'n1-standard-4' run m01 m02 m03
   ```
 
   Note the creation of the file `./ansible/.ansible/master-id_rsa.pub` which 
@@ -152,7 +150,7 @@ and worker nodes.
 
 - Create four worker nodes, with 256G boot drive as SSD and default machine-type.
   ```
-  ./bin/tdh-workers-init.sh -b 256GB -S run d01 d02 d03 d04
+  ./bin/tdh-instance-init.sh -b 256GB -S run d01 d02 d03 d04
   ```
 
 - This example first creates a new GCP Network and Subnet for the cluster,
@@ -160,10 +158,42 @@ and worker nodes.
   ```
   ./bin/gcp-networks.sh --addr 172.16.200.0/24 create tdh-net tdh-subnet-200
 
-  ./bin/tdh-masters-init.sh --network tdh-net --subnet tdh-subnet-200 --pwfile mysqlpw.txt --tags tdh --type n1-standard-4 run m01 m02 m03
+  ./bin/tdh-instance-init.sh --network tdh-net --subnet tdh-subnet-200 \
+    --tags tdh --type n1-standard-4 run m01 m02 m03
 
-  ./bin/tdh-workers-init.sh --network tdh-net --subnet tdh-subnet-200 --tags tdh --type n1-highmem-4 --attach --disksize 256GB --use-xfs run d01 d02 d03 d04
+  ./bin/tdh-instance-init.sh --network tdh-net --subnet tdh-subnet-200 \
+    --tags tdh --type n1-highmem-4 --attach --disksize 256GB \
+    --use-xfs run d01 d02 d03 d04
   ```
+
+<br>
+
+---
+
+<br>
+
+## Environment Variables
+
+ Most of the various scripts support overriding defaults via the command-line
+or by environment variable.  Some defaults, such as GCP region and zone are
+taken from the active GCloud API configuration. Note that options provided at
+script run-time take precedence over environment variables.
+
+The precedence order is:   `default < env-var < cmd-line`.
+
+| Environment Variable |  Description  |
+| -------------------- | ------------- |
+| `GCP_REGION`         | Override the default region, most scripts (except networks) rely on the zone only.
+| `GCP_ZONE`           | Override the default zone (set in gcloud api).
+| `GCP_MACHINE_TYPE`   | Provided via the `--type` cmdline parameter, it can alternatively be provided by the environment.
+| `GCP_MACHINE_IMAGE`  | Override the default machine image of `centos-7`.
+| `GCP_IMAGE_PROJECT`  | Override the default Image Project of `centos-cloud`.
+| `GCP_NETWORK`        | The network to use for create operations.
+| `GCP_SUBNET`         | The Network Subnet to use for create operations.
+| `TDH_PUSH_HOST`      | Host to use for push operations used by *tdh-push.sh*.
+| `TDH_DIST_PATH`      | The distribution path for binary packages. Utilized by *tdh-push.sh*.
+| `TDH_PREREQS`        | List of package prerequistes to be installed.
+
 
 <br>
 
@@ -185,7 +215,7 @@ Ideal Memory values for a not too small, usable cluster:
 *  HBase RegionServers = 8 to 20 Gb depending
 
 
-Small dev layout with minimal values:
+### Small dev layout with minimal values:
 
 **Master 01**:
 
@@ -245,30 +275,3 @@ Small dev layout with minimal values:
 $ gcloud compute instances set-machine-type tdh-d01 \
   --machine-type n1-highmem-16
 ```
-
-<br>
-
----
-
-## Environment Variables
-
- Most of the various scripts support overriding defaults via the command-line
-or by environment variable.  Some defaults, such as GCP region and zone are
-taken from the active GCloud API configuration. Note that options provided at
-script run-time take precedence over environment variables.
-
-The precedence order is:   `default < env-var < cmd-line`.
-
-| Environment Variable |  Description  |
-| -------------------- | ------------- |
-| `GCP_REGION`         | Override the default region, most scripts (except networks) rely on the zone only.
-| `GCP_ZONE`           | Override the default zone (set in gcloud api).
-| `GCP_MACHINE_TYPE`   | Provided via the `--type` cmdline parameter, it can alternatively be provided by the environment.
-| `GCP_MACHINE_IMAGE`  | Override the default machine image of `centos-7`.
-| `GCP_IMAGE_PROJECT`  | Override the default Image Project of `centos-cloud`.
-| `GCP_NETWORK`        | The network to use for create operations.
-| `GCP_SUBNET`         | The Network Subnet to use for create operations.
-| `TDH_PUSH_HOST`      | Host to use for push operations used by *tdh-push.sh*.
-| `TDH_DIST_PATH`      | The distribution path for binary packages. Utilized by *tdh-push.sh*.
-| `TDH_PREREQS`        | List of package prerequistes to be installed.
-
