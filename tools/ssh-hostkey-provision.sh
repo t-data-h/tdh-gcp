@@ -44,7 +44,7 @@ Options:
   -u|--user   <user>   : Name of remote user, if not '$user'.
   -i  <identity>       : SSH Identity file for connecting to hosts.
   -M  <master_id>      : SSH public key of an existing master.
-  -t  <keytype>        : Master key type RSA or ed25519, default is '$mktype'.
+  -t  <keytype>        : Master key type RSA or ed25519 (default).
   <hosts_file>         : File containing the list of hosts and IPs
   [master_host]        : Defines the master host of cluster.
  
