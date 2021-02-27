@@ -31,6 +31,8 @@ mysql_repl_user: 'replpw'
 mysql_hive_user: 'hive'
 mysql_hive_db: 'metastore'
 
+s3_endpoint: ''
+
 tdh_mysql_master_hosts:
   - '{{ mysql_master_hostname }}'
   - '{{ mysql_slave_hostname }}'

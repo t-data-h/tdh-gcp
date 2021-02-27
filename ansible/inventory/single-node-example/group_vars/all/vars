@@ -30,6 +30,8 @@ mysql_repl_user: 'tdhrepl'
 mysql_hive_user: 'hive'
 mysql_hive_db: 'metastore'
 
+s3_endpoint: 'http://localhost:9000'
+
 tdh_mysql_master_hosts:
   - '{{ mysql_master_hostname }}'
 

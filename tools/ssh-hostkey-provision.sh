@@ -25,6 +25,7 @@ cert=
 master=
 master_ip=
 master_id=
+mktype="ed25519"
 idfile=
 
 # -----------------------------------
@@ -32,7 +33,7 @@ idfile=
 usage="
 SSH HostKey provisioning for a group of hosts where one host needs the 
 keys to all other hosts. Intended to automate 'ssh-copy-id' without having 
-to move a private key around.
+to move a private key around (eg. cloud-based instances).
 
 Synopsis:
   $TDH_PNAME [options] <hosts_file> [master_host]
@@ -43,6 +44,7 @@ Options:
   -u|--user   <user>   : Name of remote user, if not '$user'.
   -i  <identity>       : SSH Identity file for connecting to hosts.
   -M  <master_id>      : SSH public key of an existing master.
+  -t  <keytype>        : Master key type RSA or ed25519 (default).
   <hosts_file>         : File containing the list of hosts and IPs
   [master_host]        : Defines the master host of cluster.
  
@@ -77,6 +79,10 @@ while [ $# -gt 0 ]; do
             master_id="$2"
             shift
             ;;
+        -t|--keytype)
+            mktype="${2,,}"
+            shift
+            ;;
         -u|--user)
             user="$2"
             shift
@@ -100,13 +106,20 @@ if [ -z "$pubhosts" ]; then
 fi
 
 if [[ -z "$master" && -z "$master_id" ]]; then
-    echo "$PNAME Error: No Master is defined"
+    echo "$TDH_PNAME Error: No Master is defined"
     exit 1
 fi
 
 if [ -n "$master_id" ] && [ ! -r "$master_id" ]; then
     echo "$TDH_PNAME Error reading master_id '$master_id'"
     exit 1
+fi
+
+if [[ "$mktype" == "rsa" || "$mktype" == "ed25519" ]]; then 
+    echo " -> Master key type set to '$mktype'"
+else
+    echo "$TDH_PNAME Error, unknown or unsupported key type"
+    exit 2
 fi
 
 if [ -n "$ident" ]; then
@@ -121,7 +134,7 @@ fi
 
 if [ -z "$master_id" ]; then
     master_ip=$( cat $pubhosts 2>/dev/null | grep $master | awk '{ print $1 }' )
-    master_id="master-$master-id_ed25519.pub"
+    master_id="master-$master-id_${mktype}.pub"
 
     if [ -z "$master_ip" ]; then
         echo " -> Error determining master IP, hosts file correct?"
@@ -141,9 +154,9 @@ if [ -z "$master_id" ]; then
     fi
 
     # keygen for master host
-    ( ssh -oStrictHostKeyChecking=no ${user}@${master} "ssh-keygen -t ed25519 -a 100 -N '' -f ~/.ssh/id_ed25519"  )
+    ( ssh -oStrictHostKeyChecking=no ${user}@${master} "ssh-keygen -t $mktype -a 100 -N '' -f ~/.ssh/id_$mktype"  )
     # acquire our master id
-    ( scp -oStrictHostKeyChecking=no ${user}@${master}:.ssh/id_ed25519.pub ./${master_id} )
+    ( scp -oStrictHostKeyChecking=no ${user}@${master}:.ssh/id_${mktype}.pub ./${master_id} )
     ( ssh -oStrictHostKeyChecking=no ${user}@${master} "ssh-keyscan -H $master >> .ssh/known_hosts" )
 fi
 
