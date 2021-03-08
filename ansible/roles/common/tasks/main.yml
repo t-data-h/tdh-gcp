@@ -1,6 +1,5 @@
 ---
-# TDH Ansible Common Role
-#
+
 - name: Check for TDH tarball drop
   stat:
     path: '{{ tdh_dropfile }}'

@@ -23,6 +23,9 @@ Create the following yaml file as *inventory/ENV/group_vars/all/vault*:
 mysql_root_password: 'rootpw'
 mysql_repl_password' 'replpw'
 mysql_hive_password: 'hivepw'
+
+s3_access_key: 'minio'
+s3_secret_key: 'minio123'
 ```
 
 The *vault* file is encrypted via the command:
@@ -62,6 +65,7 @@ file *inventory/$env/group_vars/all/vars*.
 | mysql_hive_user | Name of the hive user |
 | mysql_hive_db   | Name of the db for the Hive Metastore |
 | mysql_hive_schemafile | Only adjust this for different versions of hive |
+| s3_endpoint     | Name of an S3 Endpoint to configure for HDFS (eg. minio) |
 | tdh_mysql_master_hosts | Should already be set to a list of the master and slaves |
 | tdh_mysql_client_hosts | All nodes in the cluster that we wish to install mysql client libs |
 
@@ -105,6 +109,8 @@ mysql_repl_user: 'tdhrepl'
 mysql_hive_user: 'hive'
 mysql_hive_db: 'metastore'
 
+s3_endpoint: 'http://tdh-gk01:9000'
+
 tdh_mysql_master_hosts:
   - '{{ mysql_master_hostname }}'
   - '{{ mysql_slave_hostname }}'
@@ -129,6 +135,7 @@ Deploying TDH comes down to three steps.
 1. Distribute the Assets to nodes
 2. Deploy Assets and Configuration
 3. Run any post-install steps.
+
 
 ## Distributing Assets:
 
@@ -256,6 +263,7 @@ To perform these steps, however, the cluster should first be started via
 *tdh-mgr*. If the Ansible steps succeeded and the cluster configuration 
 deployed, start HDFS with the `hadoop-init.sh start` command and then run 
 the post-install step. 
+
 
 ## Post-Install:
 

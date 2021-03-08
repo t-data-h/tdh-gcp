@@ -7,4 +7,5 @@ mysql_repl_password: 'replsql'
 hive_password: 'tdhhive'
 hue_password: 'tdhhue'
 
-
+s3_access_key: 'minio'
+s3_secret_key: 'minio123'

@@ -98,7 +98,7 @@
   - name: Configure Metastore password
     replace:
       path: '{{ tdh_install_path }}/hive/conf/hive-site.xml'
-      regexp: 'chhive'
+      regexp: '%% MYSQL_HIVE_PASSWORD %%'
       replace: '{{ mysql_hive_password }}'
   tags: [ tdh-config ]
   when: tdhstat.stat.exists

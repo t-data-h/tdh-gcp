@@ -6,11 +6,11 @@ if [ -f /etc/bashrc ]; then
 fi
 
 export PS1="$(whoami){$(hostname -s)}$ "
-export JAVA_HOME="/usr/lib/jvm/java"
+export JAVA_HOME="/usr/lib/jvm/default-java"
 export HADOOP_CONF_DIR="/etc/hadoop/conf"
-
 export TDH_ECOSYSTEM_INITS="hadoop-init.sh zookeeper-init.sh hbase-init.sh \
 hive-init.sh kafka-init.sh spark-history-init.sh"
+
 
 if [ -f "/etc/hadoop/tdh-env-user.sh" ]; then
     . "/etc/hadoop/tdh-env-user.sh"
@@ -18,10 +18,12 @@ elif [ -f "/opt/TDH/etc/tdh-env-user.sh" ]; then
     . "/opt/TDH/etc/tdh-env-user.sh"
 fi
 
+
 if [ -n "$TDH_VERSION" ]; then
     getBrokers
     getZookeepers
 fi
+
 
 function hconf()
 {
