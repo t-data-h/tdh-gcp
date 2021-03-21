@@ -58,7 +58,7 @@ fi
 # -----------------------------------
 
 usage="
-A script for creating TDH instances on GCP.
+A tool for creating TDH instances on GCP.
 
 Synopsis:
   $TDH_PNAME [options] <action> host1 host2 ...

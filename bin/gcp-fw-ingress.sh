@@ -33,7 +33,7 @@ fi
 # -----------------------------------
 
 usage="
-Convenience script to manipulate GCP firewall rules for ingress access.
+Tool to manipulate GCP firewall rules for ingress access.
 
 Synopsis:
   $TDH_NAME [options] <action> <name> [cidr] [proto:port]

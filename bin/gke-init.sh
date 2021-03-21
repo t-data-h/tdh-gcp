@@ -47,7 +47,7 @@ fi
 # -----------------------------------
 
 usage="
-Script for initializing a GKE cluster.
+Tool for initializing a GKE cluster.
 
 Synopsis:
   $TDH_PNAME [options] <action> <cluster_name>
