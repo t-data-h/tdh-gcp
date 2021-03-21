@@ -1,14 +1,14 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 #  TDH-GCP Configuration sourced by bash scripts
 #
 #  @author Timothy C. Arland <tcarland@gmail.com>
 #
-export TDH_GCP_CONFIG=1
+export TDH_GCP_ENV=1
 
 TDH_PNAME=${0##*\/}
 
-TDH_GCP_VERSION="v21.03"
+TDH_GCP_VERSION="v21.03.17"
 TDH_GCP_PREFIX="tdh"
 
 GCP_DEFAULT_MACHINETYPE="n1-standard-4"

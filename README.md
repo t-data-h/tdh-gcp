@@ -17,6 +17,11 @@ Ansible playbooks are used for installing or updating/upgrading a TDH
 cluster. Refer to the `README.md` located in *./ansible*. The playbooks
 are idempotent and are not GCP specific.
 
+## Configuration
+
+The `tdh-gcp-env.sh` script provides the input configuration and defaults to
+the various *instance* scripts and some *utility* scripts as well. The scripts
+rely on relative directory to locate the configuration.
 
 ## Instance scripts:
 

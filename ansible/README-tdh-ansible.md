@@ -18,10 +18,10 @@ Wrapper scripts are provided to run the various stages:
 ## Setting environment inventory and passwords
 
 Create the following yaml file as *inventory/ENV/group_vars/all/vault*:
-```
+```yaml
 ---
 mysql_root_password: 'rootpw'
-mysql_repl_password' 'replpw'
+mysql_repl_password: 'replpw'
 mysql_hive_password: 'hivepw'
 
 s3_access_key: 'minio'
@@ -36,7 +36,7 @@ and decrypted similarly using the 'decrypt' command. The password can
 be stored in a password vault file of *.ansible/.ansible_vault* as 
 defined in the ansible.cfg file given that the .ansible directory is 
 untracked via *.gitignore*.
-```
+```bash
 echo 'myvaultpw' > .ansible/.ansible_vault
 chmod 400 !$
 ```
@@ -71,7 +71,7 @@ file *inventory/$env/group_vars/all/vars*.
 
 
 The following example demonstrates the typical vars file in YAML format:
-```
+```yaml
 ---
 tdh_env: 'my-env'
 
@@ -204,7 +204,7 @@ cluster deployment/env and the related ecosystem configurations.
   The [ *tdh-config/envname* ] path would make up the root of the tdh-cluster-conf
   package. As shown above, the configuration for the central1 cluster would be
   pushed as the *tdh-cluster-conf* package with the following command:
-  ```
+  ```bash
   export TDH_PUSH_HOST="tdh-m01"
   ./bin/tdh-push.sh --use-gcp --zone us-central1-b \
     ../tdh-config/gcp-central1 tdh-cluster-conf
@@ -220,7 +220,7 @@ cluster deployment/env and the related ecosystem configurations.
 * **TDH-ANACONDA3** is an optional package for pushing a python3 environment 
   to the cluster. As an example, we can push a locally maintained anaconda 
   distribution by using the push script:
-   ```
+   ```sh
    ./bin/tdh-push.sh -G /opt/python/anaconda3 tdh-anaconda3 $TDH_PUSH_HOST
    ```
 
@@ -269,7 +269,7 @@ the post-install step.
 
 Run the post-install playbook once HDFS is operational. This seeds the 
 required HDFS directories for Hive, HBase, and Spark.
-```
+```sh
 $ source ~/.bashrc
 $ ansible-playbook -i inventory/$GCP_ENV/hosts tdh-postinstall.yml
 ```
