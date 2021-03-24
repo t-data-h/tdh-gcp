@@ -36,6 +36,8 @@ if [[ "$ID" =~ "ubuntu" ]]; then
         prereqs="$apt_prereqs"
     fi
 
+    export DEBIAN_FRONTEND=noninteractive
+
     # update first! (cloud ubuntu images need this)
     ( sudo apt-get update -y )
     ( sudo apt-get upgrade -y )

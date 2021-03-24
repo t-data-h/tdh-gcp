@@ -6,8 +6,8 @@
 #
 tdh_path=$(dirname "$(readlink -f "$0")")
 
-if [ -f ${tdh_path}/../bin/tdh-gcp-config.sh ]; then
-    . ${tdh_path}/../bin/tdh-gcp-config.sh
+if [ -f ${tdh_path}/../bin/tdh-gcp-env.sh ]; then
+    . ${tdh_path}/../bin/tdh-gcp-env.sh
 fi
 
 # -----------------------------------
@@ -33,7 +33,7 @@ fi
 # -----------------------------------
 
 usage="
-Convenience script to manipulate GCP firewall rules for ingress access.
+Tool to manipulate GCP firewall rules for ingress access.
 
 Synopsis:
   $TDH_NAME [options] <action> <name> [cidr] [proto:port]

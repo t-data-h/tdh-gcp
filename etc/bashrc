@@ -8,14 +8,15 @@ fi
 export PS1="$(whoami){$(hostname -s)}$ "
 export JAVA_HOME="/usr/lib/jvm/default-java"
 export HADOOP_CONF_DIR="/etc/hadoop/conf"
+export TDH_ENV="tdh-env.sh"
 export TDH_ECOSYSTEM_INITS="hadoop-init.sh zookeeper-init.sh hbase-init.sh \
 hive-init.sh kafka-init.sh spark-history-init.sh"
 
 
-if [ -f "/etc/hadoop/tdh-env-user.sh" ]; then
-    . "/etc/hadoop/tdh-env-user.sh"
-elif [ -f "/opt/TDH/etc/tdh-env-user.sh" ]; then
-    . "/opt/TDH/etc/tdh-env-user.sh"
+if [ -f "/etc/hadoop/$TDH_ENV" ]; then
+    . "/etc/hadoop/$TDH_ENV"
+elif [ -f "/opt/TDH/etc/$TDH_ENV" ]; then
+    . "/opt/TDH/etc/$TDH_ENV"
 fi
 
 

@@ -13,6 +13,6 @@ ifdef TCAMAKE_PREFIX
 	$(CP) bin/gcp-fw-ingress.sh ${TCAMAKE_PREFIX}/bin/
 	$(CP) bin/gcp-networks.sh ${TCAMAKE_PREFIX}/bin/
 	$(CP) bin/gke-init.sh ${TCAMAKE_PREFIX}/bin/
-	$(CP) bin/tdh-gcp-config.sh ${TCAMAKE_PREFIX}/bin/
+	$(CP) bin/tdh-gcp-env.sh ${TCAMAKE_PREFIX}/bin/
 	$(CP) bin/tdh-push.sh ${TCAMAKE_PREFIX}/bin/
 endif

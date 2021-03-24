@@ -6,8 +6,8 @@
 #
 tdh_path=$(dirname "$(readlink -f "$0")")
 
-if [ -f ${tdh_path}/../bin/tdh-gcp-config.sh ]; then
-    . ${tdh_path}/../bin/tdh-gcp-config.sh
+if [ -f ${tdh_path}/../bin/tdh-gcp-env.sh ]; then
+    . ${tdh_path}/../bin/tdh-gcp-env.sh
 fi
 
 # -----------------------------------
@@ -58,7 +58,7 @@ fi
 # -----------------------------------
 
 usage="
-A script for creating TDH instances on GCP.
+A tool for creating TDH instances on GCP.
 
 Synopsis:
   $TDH_PNAME [options] <action> host1 host2 ...
