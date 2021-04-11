@@ -8,17 +8,16 @@ thread_cache_size       = 64
 query_cache_limit       = 8M
 query_cache_size        = 64M
 query_cache_type        = 1
-
+max_connections         = 550
 read_buffer_size        = 2M
 read_rnd_buffer_size    = 16M
 sort_buffer_size        = 8M
 join_buffer_size        = 8M
 
-max_connections = 550
-
 default-storage-engine = innodb
 transaction-isolation = READ-COMMITTED
 binlog_format = mixed
+bind-address = 0.0.0.0
 
 log-bin=mysql-bin
 max_binlog_size = 500M
@@ -26,8 +25,6 @@ expire_logs_days = 10
 server-id=1
 
 symbolic-links = 0
-
-#log_bin=/var/lib/mysql/mysql_binary_log
 
 datadir=/var/lib/mysql
 socket=/var/lib/mysql/mysql.sock
@@ -42,6 +39,15 @@ innodb_thread_concurrency           = 8
 innodb_flush_method                 = O_DIRECT
 innodb_log_file_size                = 512M
 innodb_large_prefix
+
+#binlog_do_db           = include_database_name
+#binlog_ignore_db       = include_database_name
+
+# For generating SSL certificates I recommend the OpenSSL GUI "tinyca".
+# ssl-ca=/etc/mysql/cacert.pem
+# ssl-cert=/etc/mysql/server-cert.pem
+# ssl-key=/etc/mysql/server-key.pem
+
 
 [mysqld_safe]
 log-error=/var/log/mysqld.log

@@ -129,7 +129,7 @@ if [ -z "$hosts" ]; then
 fi
 
 if [ $dtype -gt 3 ]; then
-    echo "$TDH_PNAME Error DiskType out of range"
+    echo "$TDH_PNAME Error, DiskType out of range"
     exit 1
 fi
 
@@ -138,7 +138,7 @@ if [ $dtype -ne 1 ]; then
 fi
 
 if [ $volnum -gt $maxvols ]; then
-    echo "Error, --disknum '$volnum' greater than maximum allowed '$maxvols'"
+    echo "$TDH_PNAME Error, --disknum '$volnum' greater than maximum allowed: '$maxvols'"
     exit 1
 fi
 

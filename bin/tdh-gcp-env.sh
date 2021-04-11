@@ -35,9 +35,9 @@ fi
 GSSH="gcloud compute ssh"
 GSCP="gcloud compute scp"
 
+TDH_PREREQS="tdh-prereqs.sh"
 TDH_FORMAT="tdh-format.sh"
 TDH_PUSH="tdh-push.sh"
-TDH_PREREQS="tdh-prereqs.sh"
 
 C_RED='\e[31m\e[1m'
 C_GRN='\e[32m\e[1m'
@@ -75,7 +75,7 @@ function wait_for_gcphost() {
 
     for x in {1..5}; do
         yf=$( $cmd --command 'uname -n' 2>/dev/null )
-        if [[ $yf == $host ]]; then  # " It's ALIIIIVE!!!"
+        if [[ $yf == $host ]]; then  
             rt=0
             break
         fi
