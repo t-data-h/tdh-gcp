@@ -99,7 +99,7 @@ delete_network()
     local net="$1"
     local rtn=0
 
-    echoe "( gcloud compute networks delete $net )"
+    echo "( gcloud compute networks delete $net )"
     if [ $dryrun -eq 0 ]; then
         ( gcloud compute networks delete $net )
         rtn=$?
@@ -269,14 +269,16 @@ create)
     ( $gfw list --filter="name=($rule_name)" 2>/dev/null | grep "$rule_name" )
 
     if [ $? -ne 0 ]; then
-        cmd="$gfw create $rule_name --network $network --action allow"
-        cmd="$cmd --direction ingress --source-ranges $addr --rules all"
+        args=("--network $network" "--action allow" "--direction ingress"
+              "--source-ranges $addr" "--rules all")
 
         echo "Creating fw-rule '$rule_name': "
-        echo "( $cmd )"
+        echo "( $gfw create $rule_name ${args[@]} )"
 
         if [ $dryrun -eq 0 ]; then
-            ( $cmd )
+
+            ( $gfw create $rule_name ${args[@]} )
+
             rt=$?
             if [ $rt -ne 0 ]; then
                 echo "Error creating firewall-rules"

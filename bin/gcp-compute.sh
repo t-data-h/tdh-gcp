@@ -106,7 +106,7 @@ list_disk_types()
 }
 
 
-is_running()
+vm_is_running()
 {
     local name="$1"
     local rt=1
@@ -154,19 +154,18 @@ stop_instance()
     local zone="$2"
     local async=$3
     local dryrun=$4
-
-    local cmd="gcloud compute instances stop $name --zone $zone"
+    local args=("--zone" $zone)
 
     if [ $async -eq 1 ]; then
-        cmd="$cmd --async"
+        args+=("--async")
     fi
 
     echo ""
     echo "-> stop_instance() "
-    echo "( $cmd )"
+    echo "( gcloud compute instances stop $name ${args[@]} )"
 
     if [ $dryrun -eq 0 ]; then
-        ( $cmd )
+        ( gcloud compute instances stop $name ${args[@]} )
     fi
 
     return $?
@@ -200,21 +199,21 @@ create_disk()
     local ssd=$3
     local dryrun=$4
     local rt=0
+    local args=("--zone" $zone "--size=$volsize")
 
-    cmd="gcloud compute disks create --zone $zone"
-
-    if [ $ssd -eq 1 ]; then
-        cmd="$cmd --type=pd-ssd"
+    if [[ -z "$volname" || -z "$volsize" ]]; then
+        return 1
     fi
-
-    cmd="$cmd --size=${volsize} ${volname}"
+    if [ $ssd -eq 1 ]; then
+        args+=("--type=pd-ssd")
+    fi
 
     echo ""
     echo "-> create_disk() "
-    echo "( $cmd )"
+    echo "( gcloud compute disks create ${args[@]} $volname )"
 
     if [ $dryrun -eq 0 ]; then
-        ( $cmd )
+        ( gcloud compute disks create ${args[@]} $volname )
         rt=$?
     fi
 
@@ -338,7 +337,7 @@ fi
 
 if [ -z "$network" ]; then
     if [ -n "$subnet" ]; then
-        echo "Error, subnet defined without network"
+        echo "$TDH_PNAME Error, subnet defined without network"
         exit 1
     fi
     network="default"
@@ -346,7 +345,7 @@ if [ -z "$network" ]; then
 fi
 
 if [ -n "$network" ] && [ -z "$subnet" ]; then
-    echo "Error, subnet not defined; it is required with --network"
+    echo "$TDH_PNAME Error, subnet not defined; it is required with --network"
     exit 1
 fi
 
@@ -361,19 +360,19 @@ printf "${C_CYN}  Subnet   ${C_NC}= ${C_WHT}'$subnet'${C_NC}\n\n"
 zone_is_valid $zone
 rt=$?
 if [ $rt -ne 0 ]; then
-    echo "Error, provided zone '$zone' is not valid"
+    echo "$TDH_PNAME Error, provided zone '$zone' is not valid"
     exit $rt
 fi
 
 subnet_is_valid $subnet
 if [ $? -ne 0 ]; then
-    echo "Error, subnet '$subnet' not found. Has it been creaated?"
+    echo "$TDH_PNAME Error, subnet '$subnet' not found. Has it been creaated?"
     exit 1
 fi
 
 if [ $attach -eq 1 ] && [ $volnum -gt 1 ]; then
     if [ $volnum -gt $maxvols ]; then
-        echo "Script supports a maximum of $maxvols attached volumes"
+        echo "$TDH_PNAME Error, a maximum of $maxvols attached volumes is supported."
         exit 1
     fi
 fi
@@ -386,31 +385,30 @@ for name in $names; do
 
     case "$action" in
     create)
-        cmd="gcloud compute instances create --image-family=${image} --image-project=${image_project}"
-        cmd="$cmd --zone ${zone} --machine-type=${mtype} --boot-disk-size=${bootsize} --verbosity error"
+        args=("--image-family=$image" "--image-project=$image_project")
+        args+=("--zone" $zone "--machine-type=$mtype" "--boot-disk-size=$bootsize")
+        args+=("--verbosity" "error" "--tags" $tags)
 
         if [ $ssd -eq 1 ]; then
-            cmd="$cmd --boot-disk-type=pd-ssd"
+            args+=("--boot-disk-type=pd-ssd")
         fi
 
         if [ -n "$network" ]; then
-            cmd="$cmd --network ${network} --subnet ${subnet}"
+            args+=("--network" $network "--subnet" $subnet)
         fi
 
         if [ $vga -eq 1 ]; then
-            cmd="$cmd $GCP_ENABLE_VGA"
+            args+=($GCP_ENABLE_VGA)
         fi
 
         if [ $ipf -eq 1 ]; then
-            cmd="$cmd --can-ip-forward"
+            args+=("--can-ip-forward")
         fi
 
-        cmd="$cmd --tags ${tags} ${name}"
-
-        printf "\n( $cmd ) \n"
+        printf "\n( gcloud compute instances create ${args[@]} $name ) \n"
 
         if [ $dryrun -eq 0 ]; then
-            ( $cmd )
+            ( gcloud compute instances create ${args[@]} $name )
             rt=$?
         fi
 
@@ -466,30 +464,29 @@ for name in $names; do
         ;;
 
     delete|destroy)
-        cmd="gcloud compute instances delete $name --zone $zone --quiet"
-
+        args=("--zone" $zone "--quiet")
         if [ $keep -eq 1 ]; then
-            cmd="$cmd --keep-disks=data"
+            args+=("--keep-disks=data")
         else
-            cmd="$cmd --delete-disks=all"
+            args+=("--delete-disks=all")
         fi
 
-        echo "( $cmd )"
+        echo "( gcloud compute instances delete $name ${args[@]} )"
+
         if [ $dryrun -eq 0 ]; then
-            ( $cmd )
+            ( gcloud compute instances delete $name ${args[@]} )
         fi
         ;;
 
     describe)
-        cmd="gcloud compute instances describe --zone $zone"
-        ( $cmd $name )
+        ( gcloud compute instances describe --zone $zone $name )
         ;;
     status)
-        is_running $name
+        vm_is_running $name
         rt=$?
         ;;
     *)
-        echo "Action Not Recognized! '$action'"
+        echo "$TDH_PNAME Error, <action> Not Recognized! '$action'"
         echo "$usage"
         rt=1
         break

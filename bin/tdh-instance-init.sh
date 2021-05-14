@@ -213,42 +213,32 @@ printf "$C_CYN -> Creating instance(s) ${C_NC}${C_WHT}'%s'${C_NC}${C_CYN}\
 
 for name in $names; do
     host="${prefix}-${name}"
-    args=("--prefix", $prefix, "--type", $mtype, "--bootsize", "$bootsize")
-    #cmd="${gcpcompute} --prefix $prefix --type $mtype --bootsize $bootsize"
+    args=("--prefix" $prefix "--type" $mtype "--bootsize" "$bootsize")
 
     if [ -n "$imagef" ]; then
-        #cmd="$cmd --image $imagef"
-        args+=("--image", "$imagef")
+        args+=("--image" "$imagef")
     fi
     if [ -n "$network" ]; then
-        #cmd="$cmd --network $network --subnet $subnet"
-        args+=("--network", "$network", "--subnet", "$subnet")
+        args+=("--network" "$network" "--subnet" "$subnet")
     fi
     if [ -n "$zone" ]; then
-        #cmd="$cmd --zone ${zone}"
-        args+=("--zone", "$zone")
+        args+=("--zone" "$zone")
     fi
     if [ $dryrun -gt 0 ]; then
-        #cmd="${cmd} --dryrun"
         args+=("--dryrun")
     fi
     if [ $attach -gt 0 ]; then
-        #disknum $disknum"
-        args+=("--attach", "--disksize", "$disksize", "--disknum", "$disknum")
+        args+=("--attach" "--disksize" "$disksize" "--disknum" "$disknum")
     fi
     if [ $ssd -gt 0 ]; then
-        #cmd="${cmd} --ssd"
         args+=("--ssd")
     fi
     if [ -n "$tags" ]; then
-        #cmd="$cmd --tags $tags"
-        args+=("--tags", "$tags")
+        args+=("--tags" "$tags")
     fi
 
-    #cmd="${cmd} create ${name}"
     echo "( $gcpcompute ${args[@]} create $name )"
     ( $gcpcompute ${args[@]} create $name )
-    #( $cmd )
 
     rt=$?
     if [ $rt -gt 0 ]; then
