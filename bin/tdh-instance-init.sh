@@ -15,14 +15,14 @@ fi
 prefix="$TDH_GCP_PREFIX"
 
 names=
-zone="$GCP_DEFAULT_ZONE"
-mtype="$GCP_DEFAULT_MACHINETYPE"
+zone="${GCP_ZONE:-${GCP_DEFAULT_ZONE}}"
+mtype="${GCP_MACHINE_TYPE:-${GCP_DEFAULT_MACHINETYPE}}"
 bootsize="$GCP_DEFAULT_BOOTSIZE"
 disksize="$GCP_DEFAULT_DISKSIZE"
 format="$TDH_FORMAT"
+network="$GCP_NETWORK"
+subnet="$GCP_SUBNET"
 imagef=
-network=
-subnet=
 
 gcpcompute="${tdh_path}/gcp-compute.sh"
 master_id="master-id_rsa.pub"
@@ -35,25 +35,6 @@ ssd=0
 xfs=0
 tags=
 action=
-
-# ----------------------------------
-# Default overrides
-
-if [ -n "$GCP_ZONE" ]; then
-    zone="$GCP_ZONE"
-fi
-
-if [ -n "$GCP_MACHINE_TYPE" ]; then
-    mtype="$GCP_MACHINE_TYPE"
-fi
-
-if [ -n "$GCP_NETWORK" ]; then
-    network="$GCP_NETWORK"
-fi
-
-if [ -n "$GCP_SUBNET" ]; then
-    subnet="$GCP_SUBNET"
-fi
 
 # -----------------------------------
 
@@ -175,7 +156,7 @@ if [[ -z "$action" ]]; then
     exit 1
 fi
 
-if [ -n "$network" ] && [ -z "$subnet" ]; then
+if [[ -n "$network" && -z "$subnet" ]]; then
     echo "Error, Subnet must be provided with --network"
     exit 1
 fi
@@ -232,34 +213,42 @@ printf "$C_CYN -> Creating instance(s) ${C_NC}${C_WHT}'%s'${C_NC}${C_CYN}\
 
 for name in $names; do
     host="${prefix}-${name}"
-    cmd="${gcpcompute} --prefix $prefix --type $mtype --bootsize $bootsize"
+    args=("--prefix", $prefix, "--type", $mtype, "--bootsize", "$bootsize")
+    #cmd="${gcpcompute} --prefix $prefix --type $mtype --bootsize $bootsize"
 
     if [ -n "$imagef" ]; then
-        cmd="$cmd --image $imagef"
+        #cmd="$cmd --image $imagef"
+        args+=("--image", "$imagef")
     fi
     if [ -n "$network" ]; then
-        cmd="$cmd --network $network --subnet $subnet"
+        #cmd="$cmd --network $network --subnet $subnet"
+        args+=("--network", "$network", "--subnet", "$subnet")
     fi
     if [ -n "$zone" ]; then
-        cmd="$cmd --zone ${zone}"
+        #cmd="$cmd --zone ${zone}"
+        args+=("--zone", "$zone")
     fi
     if [ $dryrun -gt 0 ]; then
-        cmd="${cmd} --dryrun"
+        #cmd="${cmd} --dryrun"
+        args+=("--dryrun")
     fi
     if [ $attach -gt 0 ]; then
-        cmd="${cmd} --attach --disksize $disksize --disknum $disknum"
+        #disknum $disknum"
+        args+=("--attach", "--disksize", "$disksize", "--disknum", "$disknum")
     fi
     if [ $ssd -gt 0 ]; then
-        cmd="${cmd} --ssd"
+        #cmd="${cmd} --ssd"
+        args+=("--ssd")
     fi
     if [ -n "$tags" ]; then
-        cmd="$cmd --tags $tags"
+        #cmd="$cmd --tags $tags"
+        args+=("--tags", "$tags")
     fi
 
-    cmd="${cmd} create ${name}"
-    echo "( $cmd )"
-
-    ( $cmd )
+    #cmd="${cmd} create ${name}"
+    echo "( $gcpcompute ${args[@]} create $name )"
+    ( $gcpcompute ${args[@]} create $name )
+    #( $cmd )
 
     rt=$?
     if [ $rt -gt 0 ]; then

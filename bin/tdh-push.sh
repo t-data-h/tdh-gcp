@@ -12,11 +12,7 @@ fi
 
 # -----------------------------------
 
-DISTPATH="/tmp/dist"
-
-if [ -n "$TDH_DIST_PATH" ]; then
-    DISTPATH="$TDH_DIST_PATH"
-fi
+DISTPATH="${TDH_DIST_PATH:-/tmp/dist}"
 
 zone=
 apath=

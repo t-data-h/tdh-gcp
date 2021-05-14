@@ -18,17 +18,10 @@ name=
 action=
 cidr=
 protoport=
-network="default"
+network="${GCP_NETWORK:-default}"
 tags=
 dryrun=0
 noprompt=0
-
-# -----------------------------------
-# overrides
-
-if [ -n "$GCP_NETWORK" ]; then
-    network="$GCP_NETWORK"
-fi
 
 # -----------------------------------
 

@@ -13,18 +13,17 @@ fi
 # -----------------------------------
 
 prefix="$TDH_GCP_PREFIX"
-zone="$GCP_ZONE"
-
-mtype="$GCP_DEFAULT_MACHINETYPE"
+zone="${GCP_ZONE:-${GCP_DEFAULT_ZONE}}"
+mtype="${GCP_MACHINE_TYPE:-${GCP_DEFAULT_MACHINETYPE}}"
 bootsize="$GCP_DEFAULT_BOOTSIZE"
 volsize="$GCP_DEFAULT_DISKSIZE"
-image="$GCP_DEFAULT_IMAGE"
-image_project="$GCP_DEFAULT_IMAGEPROJECT"
+image="${GCP_MACHINE_IMAGE:-${GCP_DEFAULT_IMAGE}}"
+image_project="${GCP_IMAGE_PROJECT:-${GCP_DEFAULT_IMAGEPROJECT}}"
+network="$GCP_NETWORK"
+subnet="$GCP_SUBNET"
 
 name=
 action=
-network=
-subnet=
 tags=
 volname=
 volnum=1
@@ -42,33 +41,6 @@ serial=1
 if [ -z "$GCP" ]; then
     echo "Error, Google Cloud CLI 'gcloud' not found."
     exit 2
-fi
-
-# -----------------------------------
-# default overrides
-
-if [ -n "$GCP_MACHINE_TYPE" ]; then
-    mtype="$GCP_MACHINE_TYPE"
-fi
-
-if [ -n "$GCP_MACHINE_IMAGE" ]; then
-    image="$GCP_MACHINE_IMAGE"
-fi
-
-if [ -n "$GCP_IMAGE_PROJECT" ]; then
-    image_project="$GCP_IMAGE_PROJECT"
-fi
-
-if [ -n "$GCP_NETWORK" ]; then
-    network="$GCP_NETWORK"
-fi
-
-if [ -n "$GCP_SUBNET" ]; then
-    subnet="$GCP_SUBNET"
-fi
-
-if [ -z "$zone" ]; then
-    zone="$GCP_DEFAULT_ZONE"
 fi
 
 # -----------------------------------

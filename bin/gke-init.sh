@@ -15,34 +15,15 @@ fi
 gke="gcloud container"
 cluster=
 nodecnt=3
-mtype="n1-standard-2"  # e2-medium = 2 x 4G
+zone="${GCP_ZONE:-${GCP_DEFAULT_ZONE}}"
+mtype="${GCP_MACHINE_TYPE:-${GCP_DEFAULT_MACHINETYPE}}"
+network="$GCP_NETWORK"
+subnet="$GCP_SUBNET"
 dsize="20GB"
 ssd=0
-network=
-subnet=
-zone="$GCP_ZONE"
 async=0
 ipalias=0
 dryrun=0
-
-# -----------------------------------
-# default overrides
-
-if [ -n "$GCP_MACHINE_TYPE" ]; then
-    mtype="$GCP_MACHINE_TYPE"
-fi
-
-if [ -n "$GCP_NETWORK" ]; then
-    network="$GCP_NETWORK"
-fi
-
-if [ -n "$GCP_SUBNET" ]; then
-    subnet="$GCP_SUBNET"
-fi
-
-if [ -z "$zone" ]; then
-    zone="$GCP_DEFAULT_ZONE"
-fi
 
 # -----------------------------------
 

@@ -13,18 +13,12 @@ fi
 # -----------------------------------
 
 prefix="$TDH_GCP_PREFIX"
-region="$GCP_REGION"
+region="${GCP_REGION:-${GCP_DEFAULT_REGION}}"
+network="$GCP_NETWORK"
+subnet="$GCP_SUBNET"
 addr=
-network=
-subnet=
 yes=0
 dryrun=0
-
-# -----------------------------------
-
-if [ -z "$region" ]; then
-    region=$GCP_DEFAULT_REGION
-fi
 
 # -----------------------------------
 
