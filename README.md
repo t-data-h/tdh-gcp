@@ -167,7 +167,7 @@ and worker nodes.
     --tags tdh --type n1-standard-4 run m01 m02 m03
 
   ./bin/tdh-instance-init.sh --network tdh-net --subnet tdh-subnet-200 \
-    --tags tdh --type n1-highmem-4 --attach --disksize 256GB \
+    --tags tdh --type n1-highmem-4 --attach --disknum 4 --disksize 256GB \
     --use-xfs run d01 d02 d03 d04
   ```
 

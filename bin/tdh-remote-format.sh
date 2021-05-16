@@ -185,20 +185,21 @@ for host in $hosts; do
         mnt="/${pathpfx}${dnum}"
 
         cmd="./$format"
+        args=()
 
         if [ $force -eq 1 ]; then
-            cmd="$cmd --force"
+            args+=("--force")
         fi
 
         if [ $usexfs -eq 1 ]; then
-            cmd="$cmd --use-xfs"
+            args+=("--use-xfs")
         fi
 
-        cmd="$cmd $device $mnt"
+        args+=("$device" "$mnt")
 
-        echo "( $hostssh \"$cmd\" )"
+        echo "( $hostssh \"$cmd ${args[@]}\" )"
         if [ $dryrun -eq 0 ]; then
-            ( $hostssh "$cmd" )
+            ( $hostssh "$cmd ${args[@]}" )
             rt=$?
         fi
 

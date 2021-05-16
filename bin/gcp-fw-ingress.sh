@@ -18,17 +18,10 @@ name=
 action=
 cidr=
 protoport=
-network="default"
+network="${GCP_NETWORK:-default}"
 tags=
 dryrun=0
 noprompt=0
-
-# -----------------------------------
-# overrides
-
-if [ -n "$GCP_NETWORK" ]; then
-    network="$GCP_NETWORK"
-fi
 
 # -----------------------------------
 
@@ -133,17 +126,17 @@ case "$action" in
         exit 1
     fi
 
-    cmd="$gfw create $name --allow $protoport --direction INGRESS --source-ranges $cidr --network $network"
+    args=("--allow $protoport" "--direction INGRESS" "--source-ranges $cidr" "--network $network")
 
     if [ -n "$tags" ]; then
-        cmd="$cmd --target-tags $tags"
+        args+=("--target-tags $tags")
     fi
 
     echo "Creating fw-rule '$name'"
-    echo "$cmd"
+    echo "$gfw create $name ${args[@]}"
 
     if [ $dryrun -eq 0 ]; then
-        ( $cmd )
+        ( $gfw create $name ${args[@]} )
         rt=$?
     fi
     ;;

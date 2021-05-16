@@ -2,6 +2,14 @@
 #
 CP=cp --preserve
 
+SSH_PUBKEY=ansible/.ansible/master-id_rsa.pub
+
+clean:
+	( rm $(SSH_PUBKEY) )
+
+distclean: clean
+
+
 install:
 	@echo "Note that the tdh-gcp project is intended to be self-contained and relies "
 	@echo "on relative path to the project root. Some of the base gcp scripts can function "

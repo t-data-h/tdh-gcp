@@ -12,37 +12,17 @@ fi
 
 # -----------------------------------
 
-gke="gcloud container"
 cluster=
 nodecnt=3
-mtype="n1-standard-2"  # e2-medium = 2 x 4G
+zone="${GCP_ZONE:-${GCP_DEFAULT_ZONE}}"
+mtype="${GCP_MACHINE_TYPE:-${GCP_DEFAULT_MACHINETYPE}}"
+network="$GCP_NETWORK"
+subnet="$GCP_SUBNET"
 dsize="20GB"
 ssd=0
-network=
-subnet=
-zone="$GCP_ZONE"
 async=0
 ipalias=0
 dryrun=0
-
-# -----------------------------------
-# default overrides
-
-if [ -n "$GCP_MACHINE_TYPE" ]; then
-    mtype="$GCP_MACHINE_TYPE"
-fi
-
-if [ -n "$GCP_NETWORK" ]; then
-    network="$GCP_NETWORK"
-fi
-
-if [ -n "$GCP_SUBNET" ]; then
-    subnet="$GCP_SUBNET"
-fi
-
-if [ -z "$zone" ]; then
-    zone="$GCP_DEFAULT_ZONE"
-fi
 
 # -----------------------------------
 
@@ -82,7 +62,6 @@ The following environment variables are honored for overrides:
 
 action=
 rt=0
-cmd=
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -148,11 +127,10 @@ create)
         exit 1
     fi
 
-    cmd="$gke"
-    cmd="$cmd clusters create $cluster --machine-type=$mtype --disk-size=$dsize --num-nodes=$nodecnt"
+    args=("--machine-type=$mtype" "--disk-size=$dsize" "--num-nodes=$nodecnt")
 
     if [ $ssd -eq 1 ]; then
-        cmd="$cmd --disk-type=pd-ssd"
+        args+=("--disk-type=pd-ssd")
     fi
 
     if [ -n "$subnet" ]; then
@@ -160,34 +138,32 @@ create)
             echo "Network must be defined!"
             exit 1
         fi
-        cmd="$cmd --network $network --subnetwork $subnet"
+        args+=("--network $network" "--subnetwork $subnet")
     fi
 
     if [ $ipalias -eq 1 ]; then
-        cmd="$cmd --enable-ip-alias"
+        args+=("--enable-ip-alias")
     else
-        cmd="$cmd --no-enable-ip-alias"
+        args+=("--no-enable-ip-alias")
     fi
 
-    echo "( $cmd )"
+    echo "( gcloud container clusters create $cluster ${args[@]} )"
     if [ $dryrun -eq 0 ]; then
-        ( $cmd )
+        ( gcloud container clusters create $cluster ${args[@]} )
     fi
     ;;
 
 del|delete|destroy)
-    cmd="$gke clusters delete $cluster"
-
-    echo "( $cmd )"
+    echo "( gcloud container clusters delete $cluster )"
     if [ $dryrun -eq 0 ]; then
-        ( $cmd )
+        ( gcloud container clusters delete $cluster )
     fi
     ;;
 list)
-    ( $gke clusters list )
+    ( gcloud container clusters list )
     ;;
 describe|info)
-    ( $gke clusters describe $cluster )
+    ( gcloud container clusters describe $cluster )
     ;;
 help)
     usage
