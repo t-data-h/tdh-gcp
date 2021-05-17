@@ -84,7 +84,7 @@ while [ $# -gt 0 ]; do
             echo " <DRYRUN> enabled"
             ;;
         'help'|-h|--help)
-            usage
+            echo "$usage"
             exit $rt
             ;;
         -N|--network)
@@ -123,7 +123,7 @@ case "$action" in
 create)
     if [ -z "$cluster" ]; then
         echo "Name of cluster is required."
-        usage
+        echo "$usage"
         exit 1
     fi
 
@@ -166,11 +166,12 @@ describe|info)
     ( gcloud container clusters describe $cluster )
     ;;
 help)
-    usage
+    echo "$usage"
     ;;
 *)
     echo "Action not recognized."
     echo ""
+    echo "$usage"
     ;;
 esac
 
