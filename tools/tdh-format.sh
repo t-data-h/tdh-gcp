@@ -23,7 +23,7 @@ usexfs=0
 # -----------------------------------
 
 usage="
-Format a block device as a raw disk.
+Format a raw block device as ext4 or xfs. 
 
 Synopsis: 
   $PNAME [options] <device> <mountpoint>

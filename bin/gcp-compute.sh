@@ -60,7 +60,7 @@ Options:
   -F|--ip-forward         : Enables IP Forwarding for the instance
   -h|--help               : Display usage and exit.
   -i|--imagefamily <name> : Image family as 'ubuntu' (default) or 'centos'.
-  -k|--keep               : Sets --keep-disks=data on delete action.
+  -k|--keep(-disks)       : Sets --keep-disks=data on delete action.
   -l|--list-types         : List available machine-types for a zone.
      --disk-types         : List available disk types for a zone.
      --dryrun             : Enable dryrun, no action is taken.
@@ -263,7 +263,7 @@ while [ $# -gt 0 ]; do
             fi
             shift
             ;;
-        -k|--keep)
+        -k|--keep*)
             keep=1
             ;;
         -l|--list-types)
