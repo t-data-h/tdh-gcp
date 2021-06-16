@@ -23,6 +23,7 @@ ssd=0
 async=0
 ipalias=0
 dryrun=0
+private=
 
 # -----------------------------------
 
@@ -41,14 +42,17 @@ Options:
       --dryrun           : Enable dryrun.
    -N|--network <name>   : Name of GCP Network if not default.
    -n|--subnet <name>    : Name of GCP Subnet if not default.
+   -P|--private <prefix> : Enable GCP private cluster mode and allow prefix.
    -S|--ssd              : Use 'pd-ssd' as GCP disk type.
    -t|--type <type>      : GCP Instance machine-type.
    -z|--zone <name>      : Sets an alternate GCP Zone.
    -V|--version          : Show Version Info and exit.
    
 Where <action> is one of the following:
-   create       : Initialize a new GKE cluster
-   delete       : Delete a GKE cluster
+   create       : Initialize a new GKE Cluster
+   delete       : Delete a GKE Cluster
+   list         : List Clusters
+   update       : Update a Private GKE Cluster
    
   Default Machine Type is '$mtype'
   Default Boot Disk size  '$dsize'
@@ -95,6 +99,10 @@ while [ $# -gt 0 ]; do
             subnet="$2"
             shift
             ;;
+	-P|--private*)
+	    private="$2"
+	    shift
+	    ;;
         -S|--ssd)
             ssd=1
             ;;
@@ -147,12 +155,30 @@ create)
         args+=("--no-enable-ip-alias")
     fi
 
+    if [ -n "$private" ]; then
+	args+=("--enable-master-authorized-networks" 
+	       "--enable-private-nodes"
+	       "--no-enable-basic-auth" 
+	       "--no-issue-certificate"
+	       "--master-authorized-networks ${private}")
+    fi
+
     echo "( gcloud container clusters create $cluster ${args[@]} )"
     if [ $dryrun -eq 0 ]; then
         ( gcloud container clusters create $cluster ${args[@]} )
     fi
     ;;
-
+update)
+    if [ -z "$cluster" ]; then
+        echo "Name of cluster is required."
+        echo "$usage"
+        exit 1
+    fi
+    if [ -n "$private" ]; then
+	( gcloud container clusters update $cluster \
+          --master-authorized-networks $private )
+    fi
+    ;; 
 del|delete|destroy)
     echo "( gcloud container clusters delete $cluster )"
     if [ $dryrun -eq 0 ]; then
