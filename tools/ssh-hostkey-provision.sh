@@ -25,7 +25,8 @@ cert=
 master=
 master_ip=
 master_id=
-mktype="ed25519"
+mktype="ed25519"  # note some providers (azure) only support RSA
+sethostname=0
 idfile=
 
 # -----------------------------------
@@ -45,6 +46,7 @@ Options:
   -i  <identity>       : SSH Identity file for connecting to hosts.
   -M  <master_id>      : SSH public key of an existing master.
   -t  <keytype>        : Master key type RSA or ed25519 (default).
+  -S|--sethostname     : Sets the hostname of target hosts.
   <hosts_file>         : File containing the list of hosts and IPs
   [master_host]        : Defines the master host of cluster.
  
@@ -86,6 +88,9 @@ while [ $# -gt 0 ]; do
         -u|--user)
             user="$2"
             shift
+            ;;
+        -s|--sethostname)
+            sethostname=1
             ;;
         'version'|-V|--version)
             tdh_version
@@ -175,8 +180,10 @@ for host in $( cat $pubhosts | sort ); do
     ( scp -oStrictHostKeyChecking=no $master_id ${user}@${name}: )
     ( ssh -oStrictHostKeyChecking=no ${user}@${name} "cat $idfile >> .ssh/authorized_keys && chmod 600 .ssh/authorized_keys; rm $idfile" )
 
-    echo " -> Set hostname $name"
-    ( ssh -oStrictHostKeyChecking=no ${user}@${name} "sudo hostname $name; sudo sh -c 'echo $name > /etc/hostname'" )
+    if [ $sethostname -eq 1 ]; then
+        echo " -> Set hostname $name"
+        ( ssh -oStrictHostKeyChecking=no ${user}@${name} "sudo hostname $name; sudo sh -c 'echo $name > /etc/hostname'" )
+    fi
 
     if [ -n "$pvthosts" ]; then
         echo " -> Add private hosts file"
