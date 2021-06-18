@@ -101,6 +101,7 @@ while [ $# -gt 0 ]; do
             ;;
 	-P|--private*)
 	    private="$2"
+	    ipalias=1
 	    shift
 	    ;;
         -S|--ssd)
@@ -159,8 +160,9 @@ create)
 	args+=("--enable-master-authorized-networks" 
 	       "--enable-private-nodes"
 	       "--no-enable-basic-auth" 
-	       "--no-issue-certificate"
-	       "--master-authorized-networks ${private}")
+	       "--no-issue-client-certificate"
+	       "--master-authorized-networks ${private}"
+	       "--master-ipv4-cidr 172.16.10.16/28")
     fi
 
     echo "( gcloud container clusters create $cluster ${args[@]} )"
