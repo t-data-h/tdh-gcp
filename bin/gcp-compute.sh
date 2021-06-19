@@ -18,7 +18,7 @@ mtype="${GCP_MACHINE_TYPE:-${GCP_DEFAULT_MACHINETYPE}}"
 bootsize="$GCP_DEFAULT_BOOTSIZE"
 volsize="$GCP_DEFAULT_DISKSIZE"
 image="${GCP_MACHINE_IMAGE:-${GCP_DEFAULT_IMAGE}}"
-image_project="${GCP_IMAGE_PROJECT:-${GCP_DEFAULT_IMAGEPROJECT}}"
+image_project="${GCP_IMAGE_PROJECT:-${GCP_DEFAULT_IMAGE_PROJECT}}"
 network="$GCP_NETWORK"
 subnet="$GCP_SUBNET"
 
@@ -59,7 +59,6 @@ Options:
   -D|--disknum   <n>      : Number of attached volumes, if more than 1.
   -F|--ip-forward         : Enables IP Forwarding for the instance
   -h|--help               : Display usage and exit.
-  -i|--imagefamily <name> : Image family as 'ubuntu' (default) or 'centos'.
   -k|--keep(-disks)       : Sets --keep-disks=data on delete action.
   -l|--list-types         : List available machine-types for a zone.
      --disk-types         : List available disk types for a zone.
@@ -255,13 +254,6 @@ while [ $# -gt 0 ]; do
             ;;
         -F|--ip-forward)
             ipf=1
-            ;;
-        -i|--image*)
-            if [[ $2 =~ centos ]]; then
-                image=$GCP_CENTOS_IMAGE
-                image_project="$GCP_CENTOS_IMAGEPROJECT"
-            fi
-            shift
             ;;
         -k|--keep*)
             keep=1

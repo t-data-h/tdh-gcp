@@ -8,7 +8,7 @@ export TDH_GCP_ENV=1
 
 TDH_PNAME=${0##*\/}
 
-TDH_GCP_VERSION="v21.06.16"
+TDH_GCP_VERSION="v21.06.19"
 TDH_GCP_PREFIX="tdh"
 
 GCP_DEFAULT_MACHINETYPE="n1-standard-4"
@@ -41,7 +41,7 @@ TDH_PUSH="tdh-push.sh"
 
 C_RED='\e[31m\e[1m'
 C_GRN='\e[32m\e[1m'
-C_YEL='\e[93m'  # 33 dim, 93 bright
+C_YEL='\e[93m'  
 C_BLU='\e[34m\e[1m'
 C_MAG='\e[95m'
 C_CYN='\e[96m'
@@ -89,24 +89,21 @@ function wait_for_gcphost() {
 
 function region_is_valid()
 {
-    local reg="$1"
-    ( gcloud compute regions list | grep "$reg " > /dev/null )
+    ( gcloud compute regions list | grep "$1" > /dev/null )
     return $?
 }
 
 
 function zone_is_valid()
 {
-    local zn="$1"
-    ( gcloud compute zones list | grep "$zn " > /dev/null )
+    ( gcloud compute zones list | grep "$1" > /dev/null )
     return $?
 }
 
 
 function network_is_valid()
 {
-    local net="$1"
-    ( gcloud compute networks list | grep "$net " > /dev/null )
+    ( gcloud compute networks list | grep "$1 " > /dev/null )
     return $?
 }
 

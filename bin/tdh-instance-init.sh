@@ -22,7 +22,6 @@ disksize="$GCP_DEFAULT_DISKSIZE"
 format="$TDH_FORMAT"
 network="$GCP_NETWORK"
 subnet="$GCP_SUBNET"
-imagef=
 
 gcpcompute="${tdh_path}/gcp-compute.sh"
 master_id="master-id_rsa.pub"
@@ -51,7 +50,6 @@ Options:
   -D|--disknum   <n>    : Number of additional attached volumes.
   -h|--help             : Display usage and exit.
      --dryrun           : Enable dryrun, no action is taken.
-  -i|--image   <name>   : Set image family as 'ubuntu' (default) or 'centos'.
   -N|--network <name>   : GCP Network name.
   -n|--subnet  <name>   : GCP Network subnet name. 
   -p|--prefix  <name>   : Prefix name to use for instances.
@@ -97,10 +95,6 @@ while [ $# -gt 0 ]; do
             ;;
         -D|--disknum)
             disknum=$2
-            shift
-            ;;
-        -i|--image)
-            imagef="$2"
             shift
             ;;
         -p|--prefix)
@@ -215,9 +209,6 @@ for name in $names; do
     host="${prefix}-${name}"
     args=("--prefix" $prefix "--type" $mtype "--bootsize" "$bootsize")
 
-    if [ -n "$imagef" ]; then
-        args+=("--image" "$imagef")
-    fi
     if [ -n "$network" ]; then
         args+=("--network" "$network" "--subnet" "$subnet")
     fi

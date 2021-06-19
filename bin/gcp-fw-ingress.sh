@@ -39,8 +39,8 @@ Options:
   -V|--version          : Show Version info and exit
     
 Where <action> is one of the following:
-  create  <name> <cidr>
-         <proto:port>   : Creates a new ingress rule allowing access from
+  create <name> <cidr> <proto:port>   
+                        : Creates a new ingress rule allowing access from
                           the provided IP Range. The rule name provided is
                           appended to a rule prefix of '\$network-allow'.
                           eg. 'oside' = '$network-allow-oside'
