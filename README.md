@@ -19,35 +19,30 @@ are idempotent and are not GCP specific.
 
 ## Configuration
 
-The `tdh-gcp-env.sh` script provides the input configuration and defaults to
-the various *instance* scripts and some *utility* scripts as well. The scripts
-rely on relative directory to locate the configuration.
+The `tdh-gcp-env.sh` script provides the configuration and defaults for
+the various *instance* scripts and some *utility* scripts as well. The 
+scripts rely on relative directory to locate the configuration, so the 
+tools are intended to be run from the root project directory.
+
 
 ## Instance scripts:
 
-* gcp-compute.sh:
+- **gcp-compute.sh**:
 
   This is the base script for creating or managing a GCP Compute Instance. It
   will create an instance and optionally attach data disks to the instance as
   well as stopping, deleting, or checking an instance. It is used by the
   tdh master and worker init scripts for creating GCP instances.
 
-* gcp-networks.sh:
-
-  Provides a wrapper for creating custom GCP Networks and Subnets. If not
-  specified, GCP will revert to using the `default` network and subnet. If the
-  intention is to deploy on a specific network, this script is first run to
-  define the subnet and associated address range in CIDR Format.
-
-* tdh-instance-init.sh:
+- **tdh-instance-init.sh**:
 
   Wraps `gcp-copmpute.sh` with defaults for initializing TDH master/worker hosts.
   Ansible is then used to deploy and configure the cluster. The first master 
   is commonly used as the primary management node for running Ansible. The
-  the script will use the `master_id` file as the Ansible Server ssh public key.
+  the script will use the `master_id` file as the Ansible Server SSH public key.
   The first host's key is generated and used as the master if none is provided.
 
-* gke-init.sh:
+- **gke-init.sh**:
 
   Script for initializing a GCP Kubernetes Cluster.
 
@@ -56,7 +51,18 @@ rely on relative directory to locate the configuration.
 
 Additional support scripts used for various environment bootstrapping.
 
-* tdh-push.sh
+- **gcp-networks.sh**:
+
+  Provides a wrapper for creating custom GCP Networks and Subnets. If not
+  specified, GCP will revert to using the `default` network and subnet. If the
+  intention is to deploy on a specific network, this script is first run to
+  define the subnet and associated address range in CIDR Format.
+
+- **gcp-fw-ingress.sh**:
+
+  Convenience script for adding ingress fw rules.
+
+- **tdh-push.sh**:
 
   A script for pushing a directory of assets to a host. The script will
   automatically archive a directory, ensuring the directory to be archived
@@ -82,25 +88,18 @@ Additional support scripts used for various environment bootstrapping.
     => result: gcloud compute scp tdh-anaconda3.tar.gz tdh-m01:tmp/dist/
   ```
 
-* ssh-hostkey-provision.sh:
+- **ssh-hostkey-provision.sh**:
 
   Script for remotely configuring a cluster of hosts for passwordless login
   via a master host.
 
-* tdh-remote-format.sh:
+- **tdh-remote-format.sh**:
 
   The GCP instance scripts format attached drives at create, however
   for situations where the instances are not created by those scripts, 
   this script will format and mount a sequential set of attached 
   storage via ssh.
 
-* tdh-mysql-install.sh: (deprecated)
-
-  Bootstraps a Mysql 5.7 Server instance (on given master hosts). It takes
-  care of an initial install of the mysql server and client, setting the root
-  password as well as ensuring `server-id` is set in accordance to the number
-  of masters. This script is *deprecated* in favor of a separate Ansible
-  playbook for deploying MySQL. 
 
 ## Support scripts:
 
@@ -108,13 +107,13 @@ Support scripts are utilized by the initialization scripts in some cases, but
 are not GCP specific and can be used for any environment where the compute
 instances have already been created.
 
-* tdh-prereqs.sh:
+- **tdh-prereqs.sh**:
 
   Installs host prerequisites that may be needed prior to Ansible (eg. wget,
   bind-tools). Note this is not set executable intentionally until it is
   to be ran on a target host.
 
-* tdh-format.sh:
+- **tdh-format.sh**:
 
   Script for formatting and mounting a new data drive for a given instance. This
   is used by the master/worker init scripts for attached data drives.
@@ -122,13 +121,17 @@ instances have already been created.
   format and add the drive(s) to the system, supporting either Ext4 or XFS
   filesystems. This is *not* set executable until placed on the host in question.
 
-* gcp-hosts-gen.sh
+- **gcp-hosts-gen.sh**:
 
   Script for building a hosts file of GCP Instances.
 
-* gcp-fw-ingress.sh:
+- **tdh-mysql-install.sh**: *deprecated*
 
-  Convenience script for adding ingress fw rules.
+  Bootstraps a Mysql 5.7 Server instance (on given master hosts). It takes
+  care of an initial install of the mysql server and client, setting the root
+  password as well as ensuring `server-id` is set in accordance to the number
+  of masters. This script is *deprecated* in favor of a separate Ansible
+  playbook for deploying MySQL: https://github.com/tcarland/mysql-ansible. 
 
 <br>
 
@@ -136,7 +139,7 @@ instances have already been created.
 
 <br>
 
-## Running the instance script:
+## Running the TDH instance script:
 
 The scripts rely on relative path to each other and should be run from
 the parent `tdh-gcp` directory. Below are some examples of creating master
@@ -184,7 +187,7 @@ or by environment variable.  Some defaults, such as GCP region and zone are
 taken from the active GCloud API configuration. Note that options provided at
 script run-time take precedence over environment variables.
 
-The precedence order is:   `default < env-var < cmd-line`.
+The order of precedence is:   `default < env-var < cmd-line`.
 
 | Environment Variable |  Description  |
 | -------------------- | ------------- |
