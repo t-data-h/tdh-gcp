@@ -2,7 +2,7 @@
 #
 # Initialize a GKE cluster
 #
-#  @author Timothy C. Arland <tcarland@gmail.com>
+# @author Timothy C. Arland <tcarland@gmail.com>
 #
 tdh_path=$(dirname "$(readlink -f "$0")")
 

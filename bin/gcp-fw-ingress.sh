@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 #
 #  Wrapper script for 'gcloud compute firewall-rules'
-#  specifically for easily manipulating ssh only client 
-#  fw rules. 
 #
 tdh_path=$(dirname "$(readlink -f "$0")")
 

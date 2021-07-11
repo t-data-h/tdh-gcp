@@ -14,6 +14,9 @@ Wrapper scripts are provided to run the various stages:
 - **tdh-mgr-update.sh**: Runs distribute and only the tdh-mgr update steps.
 - **tdh-python-update.sh**: Runs distribute and pushes the Ananconda distribution.
 
+Note that the playbooks do *not* install and configure mysqld and replication, 
+but rely on this having been done using this [project](https://github.com/tcarland/mysql-ansible).
+
 
 ## Setting environment inventory and passwords
 
@@ -21,7 +24,6 @@ Create the following yaml file as *inventory/ENV/group_vars/all/vault*:
 ```yaml
 ---
 mysql_root_password: 'rootpw'
-mysql_repl_password: 'replpw'
 mysql_hive_password: 'hivepw'
 
 s3_access_key: 'minio'
@@ -61,7 +63,6 @@ file *inventory/$env/group_vars/all/vars*.
 | mysql_slave_hostname | Fully-Qualified Domain Name of mysql slave |
 | mysql_hostname | Name used by all clients, same as master |
 | mysql_port | The mysqld port to use, usually just 3306 |
-| mysql_repl_user | Name of the replication user |
 | mysql_hive_user | Name of the hive user |
 | mysql_hive_db   | Name of the db for the Hive Metastore |
 | mysql_hive_schemafile | Only adjust this for different versions of hive |
@@ -105,9 +106,8 @@ mysql_slave_hostname: 'tdh-m02.gcp-projectname.internal'
 mysql_hostname: '{{ mysql_master_hostname }}'
 mysql_port: 3306
 
-mysql_repl_user: 'tdhrepl'
 mysql_hive_user: 'hive'
-mysql_hive_db: 'metastore'
+mysql_hive_db: 'metastore_db'
 
 s3_endpoint: 'http://tdh-gk01:9000'
 
