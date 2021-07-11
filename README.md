@@ -125,14 +125,6 @@ instances have already been created.
 
   Script for building a hosts file of GCP Instances.
 
-- **tdh-mysql-install.sh**: *deprecated*
-
-  Bootstraps a Mysql 5.7 Server instance (on given master hosts). It takes
-  care of an initial install of the mysql server and client, setting the root
-  password as well as ensuring `server-id` is set in accordance to the number
-  of masters. This script is *deprecated* in favor of a separate Ansible
-  playbook for deploying MySQL: https://github.com/tcarland/mysql-ansible. 
-
 <br>
 
 ---
