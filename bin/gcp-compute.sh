@@ -397,7 +397,7 @@ for name in $names; do
             args+=("--can-ip-forward")
         fi
 
-        printf "\n( gcloud compute instances create ${args[@]} $name ) \n"
+        echo "( gcloud compute instances create ${args[@]} $name ) "
 
         if [ $dryrun -eq 0 ]; then
             ( gcloud compute instances create ${args[@]} $name )
