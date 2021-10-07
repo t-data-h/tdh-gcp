@@ -100,11 +100,11 @@ while [ $# -gt 0 ]; do
             subnet="$2"
             shift
             ;;
-	-P|--private*)
-	    private="$2"
-	    ipalias=1
-	    shift
-	    ;;
+        -P|--private*)
+            private="$2"
+            ipalias=1
+            shift
+            ;;
         -S|--ssd)
             ssd=1
             ;;
@@ -128,6 +128,8 @@ while [ $# -gt 0 ]; do
     esac
     shift
 done
+
+
 
 case "$action" in
 create)
@@ -171,6 +173,7 @@ create)
         ( gcloud container clusters create $cluster ${args[@]} )
     fi
     ;;
+
 update)
     if [ -z "$cluster" ]; then
         echo "Name of cluster is required."
@@ -178,10 +181,10 @@ update)
         exit 1
     fi
     if [ -n "$private" ]; then
-	( gcloud container clusters update $cluster \
-          --master-authorized-networks $private )
+        ( gcloud container clusters update $cluster --master-authorized-networks $private )
     fi
-    ;; 
+    ;;
+
 del|delete|destroy)
     if [ -z "$cluster" ]; then
         echo "Name of cluster is required."
@@ -192,9 +195,11 @@ del|delete|destroy)
         ( gcloud container clusters delete $cluster )
     fi
     ;;
+
 list)
     ( gcloud container clusters list )
     ;;
+
 describe|info)
     if [ -z "$cluster" ]; then
         echo "Name of cluster is required."
@@ -202,6 +207,7 @@ describe|info)
     fi
     ( gcloud container clusters describe $cluster )
     ;;
+
 get)
     if [ -z "$cluster" ]; then
         echo "Name of cluster is required."
@@ -209,9 +215,11 @@ get)
     fi
     ( gcloud container clusters get-credentails $cluster )
     ;;
+
 help)
     echo "$usage"
     ;;
+
 *)
     echo "Action not recognized."
     echo ""
@@ -220,5 +228,4 @@ help)
 esac
 
 rt=$?
-
 exit $rt
