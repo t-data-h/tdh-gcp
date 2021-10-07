@@ -53,6 +53,7 @@ Where <action> is one of the following:
    delete       : Delete a GKE Cluster
    list         : List Clusters
    update       : Update a Private GKE Cluster
+   get          : Get cluster credentials
    
   Default Machine Type is '$mtype'
   Default Boot Disk size  '$dsize'
@@ -182,6 +183,10 @@ update)
     fi
     ;; 
 del|delete|destroy)
+    if [ -z "$cluster" ]; then
+        echo "Name of cluster is required."
+        exit 1
+    fi
     echo "( gcloud container clusters delete $cluster )"
     if [ $dryrun -eq 0 ]; then
         ( gcloud container clusters delete $cluster )
@@ -191,7 +196,18 @@ list)
     ( gcloud container clusters list )
     ;;
 describe|info)
+    if [ -z "$cluster" ]; then
+        echo "Name of cluster is required."
+        exit 1
+    fi
     ( gcloud container clusters describe $cluster )
+    ;;
+get)
+    if [ -z "$cluster" ]; then
+        echo "Name of cluster is required."
+        exit 1
+    fi
+    ( gcloud container clusters get-credentails $cluster )
     ;;
 help)
     echo "$usage"
