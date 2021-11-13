@@ -149,6 +149,10 @@ if ! [ -e "$DISTPATH" ]; then
 fi
 
 cd $target
+if [ $? -ne 0 ]; then
+    echo "$TDH_PNAME Error in cd to '$target'"
+    exit 1
+fi
 
 echo " ( tar -cf ${DISTPATH}/${aname}.tar --exclude-vcs ./${name} )"
 ( tar -cf ${DISTPATH}/${aname}.tar --exclude-vcs ./${name} )

@@ -77,7 +77,7 @@ if [ -z "$action" ] || [ -z "$env" ]; then
 fi
 
 if [ ! -d ${TDH_ANSIBLE_HOME}/inventory/$env ]; then
-    echo "Error, unable to locate inventory '$env'"
+    echo "$TDH_PNAME Error, unable to locate inventory '$env'"
     exit 1
 fi
 
@@ -88,6 +88,10 @@ fi
 tdh_version
 
 cd $TDH_ANSIBLE_HOME
+if [ $? -ne 0 ]; then
+    echo "$TDH_PNAME Error in cd to $TDH_ANSIBLE_HOME"
+    exit 1
+fi
 
 echo ""
 echo "TDH_ANSIBLE_HOME = '$TDH_ANSIBLE_HOME'"
@@ -107,7 +111,7 @@ if [ $dryrun -eq 0 ]; then
 fi
 
 if [ $rt -gt 0 ]; then
-    echo "$PNAME: Error in Distribute, Aborting."
+    echo "$TDH_PNAME: Error in Distribute, Aborting."
     exit $rt
 fi
 
