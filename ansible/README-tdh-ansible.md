@@ -108,6 +108,7 @@ mysql_port: 3306
 
 mysql_hive_user: 'hive'
 mysql_hive_db: 'metastore_db'
+mysql_repl_user: 'repl'
 
 s3_endpoint: 'http://tdh-gk01:9000'
 
@@ -148,14 +149,14 @@ or more specifically *roles/common/vars/main.yml*.
 
 There are 4 packages that are expected by the deploy playbook:
 
-* **TDH.tar.gz**  
+- **TDH.tar.gz**  
   The main binary distribution of the complete TDH Ecosystem.
-* **tdh-mgr.tar.gz**  
+- **tdh-mgr.tar.gz**  
   The TDH Manager package consisting of the framework of scripts used to support
   cluster operations.
-* **tdh-cluster-conf.tar.gz**  
+- **tdh-cluster-conf.tar.gz**  
   The configuration overlay package that is the cluster configuration.
-* **tdh-anaconda3.tar.gz**  
+- **tdh-anaconda3.tar.gz**  
   The Anaconda Python distribution for utilizing Python3 on the cluster.
 
 If any of these packages exist in the input landing path, they are distributed 
@@ -170,24 +171,24 @@ Note that the distribute yaml gets run automatically by the install script
 
 ## TDH Assets
 
-There are a few separate projects that make up *TDH* and it's environment. 
+There are a few projects that make up the *TDH* distribution and it's environment. 
 The cluster ecosystem is distributed as a binary package that is deployed to
-***/opt/TDH*** (by default). TDH itself will have binary components for Hadoop,
+***/opt/TDH*** (by default). The TDH binary will have the components for Hadoop,
 HDFS and Yarn, HBase, Hive, Kafka, and Spark primarily, though additional components
-such as Hue, Solr, Oozie and/or Zeppelin can also be easily incorporated.
+such as Hue, Solr, Oozie and/or Zeppelin could or can also be incorporated.
 
-* **TDH-MGR** is the main project for the TDH distribution and while it doesn't
-contain any of the Apache project binaries, it provides the details for creating 
-a TDH distribution. The *tdh-mgr* project provides support scripts for managing 
-the cluster and installs as an overly to /opt/TDH. The TDH tarball asset 
-*TDH.tar.gz* is essentially a snapshot of TDH installation, and the *tdh-mgr* 
-tarball is the overlay.
+- **TDH-MGR**  is the primary project for the TDH distribution and while it 
+  does not contain any of the Apache project binaries, it provides the details 
+  for creating a TDH distribution. The *tdh-mgr* project provides support scripts 
+  for managing the cluster and installs as an overly to /opt/TDH. The TDH tarball  
+  *TDH.tar.gz* is essentially a snapshot of a TDH installation, and the *tdh-mgr* 
+  tarball is the overlay.
 
-* **TDH-CONFIG** is not so much a project as it is a repository for tracking 
-cluster configurations. Similar to *tdh-mgr* it will install by running an 
-rsync command to overlay the new configs on top of an existing TDH installation. 
-Within the *tdh-config* directory would be subdirectories named after the specific 
-cluster deployment/env and the related ecosystem configurations.
+- **TDH-CONFIG** is a repository for tracking cluster configurations. Similar 
+  to *tdh-mgr* it will install by running an rsync command to overlay the configs 
+  on top of an existing TDH installation.  Within the *tdh-config* directory would 
+  be subdirectories named after the specific cluster deployment/env and the related 
+  ecosystem configurations.
   ```
   tdh-config
        |
@@ -217,12 +218,12 @@ cluster deployment/env and the related ecosystem configurations.
   the example above, this would be ***/tmp/TDH/gcp-central1***. This name
   must match the *tdh_env* value.
 
-* **TDH-ANACONDA3** is an optional package for pushing a python3 environment 
+- **TDH-ANACONDA3** is an optional package for pushing a python3 environment 
   to the cluster. As an example, we can push a locally maintained anaconda 
-  distribution by using the push script:
-   ```sh
-   ./bin/tdh-push.sh -G /opt/python/anaconda3 tdh-anaconda3 $TDH_PUSH_HOST
-   ```
+  distribution by using the push script which Ansible will then distribute.
+  ```sh
+  ./bin/tdh-push.sh -G /opt/python/anaconda3 tdh-anaconda3 $TDH_PUSH_HOST
+  ```
 
 <br>
 

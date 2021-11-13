@@ -27,7 +27,7 @@ mysql_slave_hostname: 'tdh-m02.c.alderberry-22.internal'
 mysql_hostname: '{{ mysql_master_hostname }}'
 mysql_port: 3306
 
-mysql_repl_user: 'replpw'
+mysql_repl_user: 'tdhrepl'
 mysql_hive_user: 'hive'
 mysql_hive_db: 'metastore'
 

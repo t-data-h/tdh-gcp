@@ -181,7 +181,7 @@ update)
         exit 1
     fi
     if [ -n "$private" ]; then
-        ( gcloud container clusters update $cluster --master-authorized-networks $private )
+        ( gcloud container clusters update $cluster --enable-master-authorized-networks --master-authorized-networks=$private )
     fi
     ;;
 
