@@ -36,16 +36,16 @@ Synopsis:
 Options:
    -a|--async            : Run actions asynchronously.
    -A|--ipalias          : Enables ip-alias during cluster creation.
-   -c|--count <cnt>      : Number of nodes to deploy, Default is $nodecnt.
+   -c|--count    <cnt>   : Number of nodes to deploy, Default is $nodecnt.
    -h|--help             : Display usage info and exit.
    -d|--disksize <xxGB>  : Size of boot disk. Default is $dsize.
       --dryrun           : Enable dryrun.
-   -N|--network <name>   : Name of GCP Network if not default.
-   -n|--subnet <name>    : Name of GCP Subnet if not default.
-   -P|--private <prefix> : Enable GCP private cluster mode and allow prefix.
+   -N|--network  <name>  : Name of GCP Network if not default.
+   -n|--subnet   <name>  : Name of GCP Subnet if not default.
+   -P|--private  <cidr>  : Enable GCP private cluster mode and allow prefix.
    -S|--ssd              : Use 'pd-ssd' as GCP disk type.
-   -t|--type <type>      : GCP Instance machine-type.
-   -z|--zone <name>      : Sets an alternate GCP Zone.
+   -t|--type     <type>  : GCP Instance machine-type.
+   -z|--zone     <name>  : Sets an alternate GCP Zone.
    -V|--version          : Show Version Info and exit.
    
 Where <action> is one of the following:
@@ -134,8 +134,7 @@ done
 case "$action" in
 create)
     if [ -z "$cluster" ]; then
-        echo "Name of cluster is required."
-        echo "$usage"
+        echo "$TDH_PNAME Error, name of cluster is required."
         exit 1
     fi
 
@@ -147,8 +146,8 @@ create)
 
     if [ -n "$subnet" ]; then
         if [ -z "$network" ]; then
-            echo "Network must be defined!"
-            exit 1
+            echo "$TDH_PNAME Error, Network must be defined!"
+            exit 2
         fi
         args+=("--network $network" "--subnetwork $subnet")
     fi
@@ -176,8 +175,7 @@ create)
 
 update)
     if [ -z "$cluster" ]; then
-        echo "Name of cluster is required."
-        echo "$usage"
+        echo "$TDH_PNAME Error, name of cluster is required."
         exit 1
     fi
     if [ -n "$private" ]; then
@@ -187,7 +185,7 @@ update)
 
 del|delete|destroy)
     if [ -z "$cluster" ]; then
-        echo "Name of cluster is required."
+        echo "$TDH_PNAME Error, name of cluster is required."
         exit 1
     fi
     echo "( gcloud container clusters delete $cluster )"
@@ -202,7 +200,7 @@ list)
 
 describe|info)
     if [ -z "$cluster" ]; then
-        echo "Name of cluster is required."
+        echo "$TDH_PNAME Error, name of cluster is required."
         exit 1
     fi
     ( gcloud container clusters describe $cluster )
@@ -210,7 +208,7 @@ describe|info)
 
 get)
     if [ -z "$cluster" ]; then
-        echo "Name of cluster is required."
+        echo "$TDH_PNAME Error, name of cluster is required."
         exit 1
     fi
     ( gcloud container clusters get-credentails $cluster )
