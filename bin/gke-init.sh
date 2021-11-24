@@ -24,6 +24,13 @@ async=0
 ipalias=0
 dryrun=0
 private=
+tags=
+
+# private cluster options
+master_ipv4="172.16.10.0/28"
+cluster_ipv4="10.88.0.0/14"
+services_ipv4="10.92.0.0/20"
+cluster_vers=
 
 # -----------------------------------
 
@@ -34,26 +41,29 @@ Synopsis:
   $TDH_PNAME [options] <action> <cluster_name>
 
 Options:
-   -a|--async            : Run actions asynchronously.
-   -A|--ipalias          : Enables ip-alias during cluster creation.
-   -c|--count <cnt>      : Number of nodes to deploy, Default is $nodecnt.
-   -h|--help             : Display usage info and exit.
-   -d|--disksize <xxGB>  : Size of boot disk. Default is $dsize.
-      --dryrun           : Enable dryrun.
-   -N|--network <name>   : Name of GCP Network if not default.
-   -n|--subnet <name>    : Name of GCP Subnet if not default.
-   -P|--private <prefix> : Enable GCP private cluster mode and allow prefix.
-   -S|--ssd              : Use 'pd-ssd' as GCP disk type.
-   -t|--type <type>      : GCP Instance machine-type.
-   -z|--zone <name>      : Sets an alternate GCP Zone.
-   -V|--version          : Show Version Info and exit.
+   -a|--async             : Run actions asynchronously.
+   -A|--ipalias           : Enables ip-alias during cluster creation.
+   -c|--count    <cnt>    : Number of nodes to deploy, Default is $nodecnt.
+   -h|--help              : Display usage info and exit.
+   -d|--disksize <xxGB>   : Size of boot disk. Default is $dsize.
+      --dryrun            : Enable dryrun.
+   -N|--network  <name>   : Name of GCP Network if not default.
+   -n|--subnet   <name>   : Name of GCP Subnet if not default.
+   -P|--private <cidr,..> : Set as private cluster by defining allow prefixes.
+        The list of master-authorized-networks is a comma delimited list.
+   -S|--ssd               : Use 'pd-ssd' as GCP disk type.
+   -t|--type     <type>   : GCP Instance machine-type.
+   -T|--tags  <tag1,..>   : List of Compute Engine tags to apply to nodes.
+   -z|--zone     <name>   : Sets an alternate GCP Zone.
+   -V|--version           : Show Version Info and exit.
    
 Where <action> is one of the following:
    create       : Initialize a new GKE Cluster
    delete       : Delete a GKE Cluster
    list         : List Clusters
-   update       : Update a Private GKE Cluster
-   get          : Get cluster credentials
+   update       : Update a Private cluster 'master-authorized-networks' list.
+     The provided list is considered an overwrite, not an append.
+   get-cred     : Get cluster credentials
    
   Default Machine Type is '$mtype'
   Default Boot Disk size  '$dsize'
@@ -78,6 +88,22 @@ while [ $# -gt 0 ]; do
             ;;
         -c|--count)
             nodecnt=$2
+            shift
+            ;;
+        --cluster-version)
+            cluster_vers="$2"
+            shift
+            ;;
+        --cluster-ipv4-cidr)
+            cluster_ipv4="$2"
+            shift
+            ;;
+        --master-ipv4-cidr)
+            master_ipv4="$2"
+            shift
+            ;;
+        --services-ipv4-cidr)
+            services_ipv4="$2"
             shift
             ;;
         -d|--disksize)
@@ -129,13 +155,17 @@ while [ $# -gt 0 ]; do
     shift
 done
 
+if [ -z "$GCP" ]; then
+    echo "$TDH_PNAME Error, gcloud not available"
+    exit 1
+fi
 
+cluster_vers=$(gcloud container get-server-config | grep 'defaultClusterVersion:' | awk -F: '{ print $2 }')
 
 case "$action" in
 create)
     if [ -z "$cluster" ]; then
-        echo "Name of cluster is required."
-        echo "$usage"
+        echo "$TDH_PNAME Error, name of cluster is required."
         exit 1
     fi
 
@@ -145,10 +175,14 @@ create)
         args+=("--disk-type=pd-ssd")
     fi
 
+    if [ -n "$cluster_vers" ]; then
+        args+=("--cluster-version=${cluster_vers}")
+    fi
+
     if [ -n "$subnet" ]; then
         if [ -z "$network" ]; then
-            echo "Network must be defined!"
-            exit 1
+            echo "$TDH_PNAME Error, Network must be defined!"
+            exit 2
         fi
         args+=("--network $network" "--subnetwork $subnet")
     fi
@@ -160,15 +194,18 @@ create)
     fi
 
     if [ -n "$private" ]; then
-	args+=("--enable-master-authorized-networks" 
-	       "--enable-private-nodes"
-	       "--no-enable-basic-auth" 
-	       "--no-issue-client-certificate"
-	       "--master-authorized-networks ${private}"
-	       "--master-ipv4-cidr 172.16.10.16/28")
+	    args+=("--enable-master-authorized-networks" 
+	           "--enable-private-nodes"
+	           "--no-enable-basic-auth" 
+	           "--no-issue-client-certificate"
+	           "--master-authorized-networks=${private}"
+	           "--master-ipv4-cidr=${master_ipv4}"
+               "--cluster-ipv4-cidr=${cluster_ipv4}"
+               "--services-ipv4-cidr=${services_ipv4}")
     fi
 
     echo "( gcloud container clusters create $cluster ${args[@]} )"
+
     if [ $dryrun -eq 0 ]; then
         ( gcloud container clusters create $cluster ${args[@]} )
     fi
@@ -176,8 +213,7 @@ create)
 
 update)
     if [ -z "$cluster" ]; then
-        echo "Name of cluster is required."
-        echo "$usage"
+        echo "$TDH_PNAME Error, name of cluster is required."
         exit 1
     fi
     if [ -n "$private" ]; then
@@ -187,7 +223,7 @@ update)
 
 del|delete|destroy)
     if [ -z "$cluster" ]; then
-        echo "Name of cluster is required."
+        echo "$TDH_PNAME Error, name of cluster is required."
         exit 1
     fi
     echo "( gcloud container clusters delete $cluster )"
@@ -202,18 +238,18 @@ list)
 
 describe|info)
     if [ -z "$cluster" ]; then
-        echo "Name of cluster is required."
+        echo "$TDH_PNAME Error, name of cluster is required."
         exit 1
     fi
     ( gcloud container clusters describe $cluster )
     ;;
 
-get)
+get-cred*|get)
     if [ -z "$cluster" ]; then
-        echo "Name of cluster is required."
+        echo "$TDH_PNAME Error, name of cluster is required."
         exit 1
     fi
-    ( gcloud container clusters get-credentails $cluster )
+    ( gcloud container clusters get-credentials $cluster )
     ;;
 
 help)
