@@ -104,7 +104,7 @@ fi
 if [ -n "$name" ]; then
     name="${network}-allow-${name}"
 elif [ "$action" != "list" ]; then
-    echo "Fatal, missing <name> parameter"
+    echo "$TDH_PNAME Fatal, missing <name> parameter" >&2
     echo "$usage"
     exit 1
 fi 
@@ -114,13 +114,13 @@ case "$action" in
 'create') 
 
     if [[ -z "$cidr" || -z "$protoport" ]]; then
-        echo "Error: create action is missing parameters."
+        echo "$TDH_PNAME ERROR, create action is missing parameters." >&2
         echo "$usage"
         exit 1
     fi
 
     if [[ ! "$protoport" =~ ":" ]]; then 
-        echo "Error: Rule must provide port as 'protocol:port' eg. 'tcp:22'"
+        echo "$TDH_PNAME ERROR, Rule must provide port as 'protocol:port' eg. 'tcp:22'" >&2
         echo "$usage" 
         exit 1
     fi
@@ -131,7 +131,7 @@ case "$action" in
         args+=("--target-tags $tags")
     fi
 
-    echo "Creating fw-rule '$name'"
+    echo " -> Creating fw-rule '$name'"
     echo "$gfw create $name ${args[@]}"
 
     if [ $dryrun -eq 0 ]; then
@@ -180,7 +180,7 @@ case "$action" in
     ;;
 
 *)
-    echo "Action not recognized"
+    echo "$TDH_PNAME ERROR, Action not recognized"
     ;;
 esac
 

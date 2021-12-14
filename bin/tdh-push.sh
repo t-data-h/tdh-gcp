@@ -15,8 +15,8 @@ fi
 DISTPATH="${TDH_DIST_PATH:-/tmp/dist}"
 
 zone=
-apath=
-aname=
+arpath=
+arname=
 host="$TDH_PUSH_HOST"
 user="$USER"
 ident=
@@ -36,21 +36,21 @@ Options:
   -h|--help        : Show usage info and exit.
   -i  <identity>   : SSH identity (PEM) file.
   -u|--user        : Username for scp action if not '$USER'.
-  -z|--zone <zone> : GCP Zone if not default (used with -G).
+  -z|--zone <zone> : GCP Zone, if not 'default' (used with -G).
   -V|--version     : Show version info and exit.
  
   path             : is the directory to be archived (required).
-  archive_name     : an alternate name for the tarball. The value 
+  archive_name     : An alternate name for the tarball. The value 
                      of 'mypkg' will result in 'mypkg.tar.gz'
                      By default, the target directory name is used.
-  host             : Name of target host. Override with TDH_PUSH_HOST
+  host             : Name of target host, or set TDH_PUSH_HOST
  
  The script intends that the archive will contain only the last
  directory target. A path of a '/a/b/c' will create the archive 
  from 'b' with containing './c/' as the root directory.
  
- The environment variable 'TDH_PUSH_HOST' is honored as the 
- default target to use. Otherwise, all three parameters are required. 
+ The 'TDH_PUSH_HOST' environment variable is honored as the default
+ target host to use. Otherwise, all three parameters are required. 
  
  The script uses a 'tmp' path for both creating the archive locally
  and landing on the target host.  This is defined by the environment 
@@ -98,7 +98,7 @@ while [ $# -gt 0 ]; do
         *)
             apath="$1"
             aname="$2"
-            host="$3"
+            host="${3:-$TDH_PUSH_HOST}"
             shift $#
             ;;
     esac
@@ -106,17 +106,13 @@ while [ $# -gt 0 ]; do
 done
 
 if [ -z "$host" ]; then
-    host="$TDH_PUSH_HOST"
-fi
-
-if [ -z "$host" ]; then
-    echo "Error! TDH_PUSH_HOST not defined or provided."
+    echo "$TDH_PNAME ERROR, TDH_PUSH_HOST not defined or provided." >&2
     echo "$usage"
     exit 1
 fi
 
 if [ -z "$apath" ]; then
-    echo "Invalid path given."
+    echo "$TDH_PNAME ERROR, Invalid path given." >&2 
     echo "$usage"
     exit 1
 fi
@@ -140,6 +136,11 @@ apath=$(realpath "$apath")
 target=$(dirname "$apath")
 name=${apath##*\/}
 
+if [ -z "$target" ]; then
+    echo "$TDH_PNAME ERROR in determining target directory from '$apath'" >&2
+    exit 2
+fi
+
 if [ -z "$aname" ]; then
     aname="$name"
 fi
@@ -149,8 +150,8 @@ if ! [ -e "$DISTPATH" ]; then
 fi
 
 cd $target
-if [ $? -ne 0 ]; then
-    echo "$TDH_PNAME Error in cd to '$target'"
+if [ $? -ne 0  ]; then
+    echo "$TDH_PNAME ERROR in cd to '$target'" >&2
     exit 1
 fi
 
@@ -159,7 +160,7 @@ echo " ( tar -cf ${DISTPATH}/${aname}.tar --exclude-vcs ./${name} )"
 
 rt=$?
 if [ $rt -gt 0 ]; then
-    echo "Error creating archive"
+    echo "$TDH_PNAME ERROR creating archive" >&2
     exit 1
 fi
 
@@ -173,11 +174,11 @@ if [ $nocopy -eq 0 ]; then
 
     rt=$?
     if [ $rt -gt 0 ]; then
-        echo "Error in scp attempt."
+        echo $TDH_PNAME "ERROR in scp attempt." >&2
     fi
 
     ( rm ${DISTPATH}/${aname}.tar.gz )
 fi
 
-echo "$TDH_PNAME Finished."
+echo " -> $TDH_PNAME Finished."
 exit $rt

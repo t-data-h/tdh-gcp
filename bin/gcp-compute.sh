@@ -39,7 +39,7 @@ serial=1
 # -----------------------------------
 # Gcloud CLI required.
 if [ -z "$GCP" ]; then
-    echo "Error, Google Cloud CLI 'gcloud' not found."
+    echo "$TDH_PNAME ERROR, Google Cloud CLI 'gcloud' not found."
     exit 2
 fi
 
@@ -137,7 +137,7 @@ start_instance()
     fi
 
     echo ""
-    echo "-> start_instance() "
+    echo " -> start_instance() "
     echo "( $cmd )"
 
     if [ $dryrun -eq 0 ]; then
@@ -160,7 +160,7 @@ stop_instance()
     fi
 
     echo ""
-    echo "-> stop_instance() "
+    echo " -> stop_instance() "
     echo "( gcloud compute instances stop $name ${args[@]} )"
 
     if [ $dryrun -eq 0 ]; then
@@ -179,7 +179,7 @@ attach_disk()
     local rt=0
 
     echo ""
-    echo "-> attach_disk() "
+    echo " -> attach_disk() "
     echo "( gcloud compute instances attach-disk --disk ${volname} ${gcpname} --zone $zone )"
 
     if [ $dryrun -eq 0 ]; then
@@ -208,7 +208,7 @@ create_disk()
     fi
 
     echo ""
-    echo "-> create_disk() "
+    echo " -> create_disk() "
     echo "( gcloud compute disks create ${args[@]} $volname )"
 
     if [ $dryrun -eq 0 ]; then
@@ -329,7 +329,7 @@ fi
 
 if [ -z "$network" ]; then
     if [ -n "$subnet" ]; then
-        echo "$TDH_PNAME Error, subnet defined without network"
+        echo "$TDH_PNAME ERROR, subnet defined without network" >&2
         exit 1
     fi
     network="default"
@@ -337,7 +337,7 @@ if [ -z "$network" ]; then
 fi
 
 if [ -n "$network" ] && [ -z "$subnet" ]; then
-    echo "$TDH_PNAME Error, subnet not defined; it is required with --network"
+    echo "$TDH_PNAME ERROR, subnet not defined; it is required with --network" >&2
     exit 1
 fi
 
@@ -345,29 +345,34 @@ if [ -z "$zone" ]; then
     zone="$GCP_DEFAULT_ZONE"
 fi
 
+
 printf "\n${C_CYN}  GCP Zone ${C_NC}= ${C_WHT}'$zone'${C_NC}\n"
 printf "${C_CYN}  Network  ${C_NC}= ${C_WHT}'$network'${C_NC}\n"
 printf "${C_CYN}  Subnet   ${C_NC}= ${C_WHT}'$subnet'${C_NC}\n\n"
 
+
 zone_is_valid $zone
 rt=$?
 if [ $rt -ne 0 ]; then
-    echo "$TDH_PNAME Error, provided zone '$zone' is not valid"
+    echo "$TDH_PNAME ERROR, provided zone '$zone' is not valid" >&2
     exit $rt
 fi
 
+
 subnet_is_valid $subnet
 if [ $? -ne 0 ]; then
-    echo "$TDH_PNAME Error, subnet '$subnet' not found. Has it been creaated?"
+    echo "$TDH_PNAME ERROR, subnet '$subnet' not found. Has it been creaated?" >&2
     exit 1
 fi
 
+
 if [ $attach -eq 1 ] && [ $volnum -gt 1 ]; then
     if [ $volnum -gt $maxvols ]; then
-        echo "$TDH_PNAME Error, a maximum of $maxvols attached volumes is supported."
+        echo "$TDH_PNAME ERROR, a maximum of $maxvols attached volumes is supported." >&2
         exit 1
     fi
 fi
+
 
 for name in $names; do
     ( echo $name | grep "^${prefix}-" >/dev/null 2>&1 )
@@ -405,7 +410,7 @@ for name in $names; do
         fi
 
         if [ $rt -ne 0 ]; then
-            echo "$TDH_PNAME Error in create_instance"
+            echo "$TDH_PNAME ERROR in create_instance" >&2
             exit $rt
         fi
 
@@ -423,7 +428,7 @@ for name in $names; do
                     rt=$?
 
                     if [ $rt -ne 0 ]; then
-                        echo "Error in create_disk() for '$volname', aborting..."
+                        echo "$TDH_PNAME ERROR in create_disk() for '$volname', aborting..." >&2
                         exit $rt
                     fi
                 fi
@@ -432,7 +437,7 @@ for name in $names; do
                 rt=$?
 
                 if [ $rt -ne 0 ]; then
-                    echo "Error in attach_disk() for '$volname', rt=$rt, aborting..."
+                    echo "$TDH_PNAME ERROR in attach_disk() for '$volname', rt=$rt, aborting..." >&2
                     exit $rt
                 fi
             done
@@ -478,7 +483,7 @@ for name in $names; do
         rt=$?
         ;;
     *)
-        echo "$TDH_PNAME Error, <action> Not Recognized! '$action'"
+        echo "$TDH_PNAME ERROR, <action> Not Recognized! '$action'" >&2
         echo "$usage"
         rt=1
         break
@@ -486,5 +491,5 @@ for name in $names; do
     esac
 done
 
-printf "${C_WHT}${TDH_PNAME} Finished. ${C_NC} \n"
+printf " -> ${C_WHT}${TDH_PNAME} Finished. ${C_NC} \n"
 exit $rt

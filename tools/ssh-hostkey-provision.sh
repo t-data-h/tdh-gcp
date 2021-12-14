@@ -47,8 +47,9 @@ Options:
   -M  <master_id>      : SSH public key of an existing master.
   -t  <keytype>        : Master key type RSA or ed25519 (default).
   -S|--sethostname     : Sets the hostname of target hosts.
-  <hosts_file>         : File containing the list of hosts and IPs
-  [master_host]        : Defines the master host of cluster.
+
+    <hosts_file>       : File containing the list of hosts and IPs
+    [master_host]      : Defines the master host of cluster.
  
 Note the hosts file is intended to be in the same format as 
 a system '/etc/hosts' file
@@ -57,6 +58,9 @@ If a 'master_host' is provided without an id file (-M),
 ssh-keygen is run on the target host to obtain a key-pair; 
 else, if a public key is provided, it is used as the master 
 certificate and keygen is not run on the target host.
+
+The default key type is 'ed25519' however some cloud providers
+may still only support the 'RSA' type.
 "
 
 # -----------------------------------
@@ -142,7 +146,7 @@ if [ -z "$master_id" ]; then
     master_id="master-$master-id_${mktype}.pub"
 
     if [ -z "$master_ip" ]; then
-        echo " -> Error determining master IP, hosts file correct?"
+        echo "$TDH_PNAME ERROR determining master IP, hosts file correct?" >&2
         exit 1
     fi
 
@@ -196,6 +200,6 @@ for host in $( cat $pubhosts | sort ); do
     ( ssh -oStrictHostKeyChecking=no ${user}@${master} "ssh-keyscan -H $name >> .ssh/known_hosts" 2>/dev/null )
 done
 
-echo "$PNAME Finished."
+echo " -> $PNAME Finished."
 
 exit 0

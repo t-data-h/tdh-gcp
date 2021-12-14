@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# build spec for a small sized test cluster
+# build spec example for a small sized test cluster
 #
 tdh_path=$(dirname "$(readlink -f "$0")")
 
@@ -18,7 +18,7 @@ dtype="n1-standard-4"
 # --------------
 
 if [ ! -x ./bin/gcp-networks.sh ]; then
-    echo "gcp-networks.sh not found. Run this from tdh-gcp root"
+    echo "gcp-networks.sh not found. Run this from tdh-gcp project directory."
     exit 1
 fi
 
