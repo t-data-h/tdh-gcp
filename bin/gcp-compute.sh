@@ -329,7 +329,7 @@ fi
 
 if [ -z "$network" ]; then
     if [ -n "$subnet" ]; then
-        echo "$TDH_PNAME ERROR, subnet defined without network" >&2
+        echo "$TDH_PNAME ERROR, --subnet defined without --network" >&2
         exit 1
     fi
     network="default"
@@ -337,7 +337,7 @@ if [ -z "$network" ]; then
 fi
 
 if [ -n "$network" ] && [ -z "$subnet" ]; then
-    echo "$TDH_PNAME ERROR, subnet not defined; it is required with --network" >&2
+    echo "$TDH_PNAME ERROR, --subnet not defined and is required with --network" >&2
     exit 1
 fi
 
@@ -361,14 +361,14 @@ fi
 
 subnet_is_valid $subnet
 if [ $? -ne 0 ]; then
-    echo "$TDH_PNAME ERROR, subnet '$subnet' not found. Has it been creaated?" >&2
+    echo "$TDH_PNAME ERROR, subnet '$subnet' not found. Has it been created?" >&2
     exit 1
 fi
 
 
 if [ $attach -eq 1 ] && [ $volnum -gt 1 ]; then
     if [ $volnum -gt $maxvols ]; then
-        echo "$TDH_PNAME ERROR, a maximum of $maxvols attached volumes is supported." >&2
+        echo "$TDH_PNAME ERROR, a maximum of '$maxvols' volumes is supported." >&2
         exit 1
     fi
 fi
@@ -410,7 +410,7 @@ for name in $names; do
         fi
 
         if [ $rt -ne 0 ]; then
-            echo "$TDH_PNAME ERROR in create_instance" >&2
+            echo "$TDH_PNAME ERROR in create." >&2
             exit $rt
         fi
 
@@ -483,7 +483,7 @@ for name in $names; do
         rt=$?
         ;;
     *)
-        echo "$TDH_PNAME ERROR, <action> Not Recognized! '$action'" >&2
+        echo "$TDH_PNAME ERROR, <action> not recognized: '$action'" >&2
         echo "$usage"
         rt=1
         break

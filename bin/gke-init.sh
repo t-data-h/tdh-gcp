@@ -169,7 +169,9 @@ if [ -z "$GCP" ]; then
     exit 1
 fi
 
-cluster_vers=$(gcloud container get-server-config | grep 'defaultClusterVersion:' | awk -F: '{ print $2 }')
+cluster_vers=$(gcloud container get-server-config 2>/dev/null | \
+  grep 'defaultClusterVersion:' | \
+  awk -F: '{ print $2 }' | sed 's/^[[:space:]]*//')
 
 case "$action" in
 create)
