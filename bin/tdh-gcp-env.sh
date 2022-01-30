@@ -8,7 +8,7 @@ export TDH_GCP_ENV=1
 
 TDH_PNAME=${0##*\/}
 
-TDH_GCP_VERSION="v21.11"
+TDH_GCP_VERSION="v22.01"
 TDH_GCP_PREFIX="tdh"
 
 GCP_DEFAULT_MACHINETYPE="n1-standard-4"
@@ -63,7 +63,7 @@ function wait_for_gcphost() {
     local x=
 
     if [ -z "$host" ]; then
-        echo "wait_for_gcphost(): target not provided."
+        echo "wait_for_gcphost(): target not provided." >&2
         return $rt
     fi
 

@@ -12,7 +12,7 @@ fi
 
 # -----------------------------------
 
-devtypes=( "nvme" "sd" "xvd", "vda" )
+devtypes=("nvme" "sd" "xvd" "vda")
 devtype="${devtypes[1]}"
 format="$TDH_FORMAT"
 
@@ -129,7 +129,7 @@ if [ -z "$hosts" ]; then
 fi
 
 if [ $dtype -gt 3 ]; then
-    echo "$TDH_PNAME Error, DiskType out of range"
+    echo "$TDH_PNAME ERROR, DiskType out of range" >&2
     exit 1
 fi
 
@@ -138,7 +138,7 @@ if [ $dtype -ne 1 ]; then
 fi
 
 if [ $volnum -gt $maxvols ]; then
-    echo "$TDH_PNAME Error, --disknum '$volnum' greater than maximum allowed: '$maxvols'"
+    echo "$TDH_PNAME ERROR, --disknum '$volnum' greater than maximum allowed: '$maxvols'" >&2
     exit 1
 fi
 
@@ -204,7 +204,7 @@ for host in $hosts; do
         fi
 
         if [ $rt -gt 0 ]; then
-            echo "Error in $format"
+            echo "$TDH_PNAME ERROR in $format" >&2
             break
         fi
     done
@@ -218,6 +218,6 @@ for host in $hosts; do
     fi
 done
 
-echo "$TDH_PNAME Finished."
+echo " -> $TDH_PNAME Finished."
 
 exit $rt

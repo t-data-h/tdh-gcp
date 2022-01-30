@@ -151,12 +151,12 @@ if [[ -z "$action" ]]; then
 fi
 
 if [[ -n "$network" && -z "$subnet" ]]; then
-    echo "Error, Subnet must be provided with --network"
+    echo "$TDH_PNAME ERROR, Subnet must be provided with --network" >&2
     exit 1
 fi
 
 if [[ ! -e ${tdh_path}/../tools/${format} ]]; then
-    echo "Error, cannot locate '$format', is this being run from tdh-gcp root?"
+    echo "$TDH_PNAME ERROR, cannot locate '$format', is this being run from tdh-gcp root?" >&2
     exit 2
 fi
 
@@ -166,7 +166,7 @@ tdh_version
 if [[ "$action" == "run" && $dryrun -eq 0 ]]; then
     dryrun=0
     if [ -z "$names" ]; then
-        echo "Error, no hosts list provided."
+        echo "$TDH_PNAME Error, no hosts list provided." >&2
         echo "$usage"
         exit 1
     fi
@@ -180,21 +180,21 @@ elif [ "$action" == "reset" ]; then
         nf=$( ssh-keygen -f ${HOME}/.ssh/known_hosts -R "$name" >/dev/null  )
         if [ $? -eq 0 ]; then
             if [ -z "$nf" ]; then
-                echo "Host $name removed from ${HOME}/.ssh/known_hosts"
+                printf " -> Host $name removed from ${HOME}/.ssh/known_hosts \n"
             else
                 echo "$nf"
             fi
         fi
     done
     if [ -f $master_id_file ]; then
-        echo "Removing master id file '$master_id_file'"
+        printf " -> Removing master id file '$master_id_file' \n"
         ( unlink $master_id_file )
     fi
     exit $?
 else
     printf "$C_CYN -> Action provided is: ${C_NC}'%s'. ${C_CYN}Use${C_NC} 'run' ${C_CYN}to execute. $C_NC \n" $action
     dryrun=1
-    printf " $C_YEL <DRYRUN> enabled $C_NC \n"
+    printf "  ->$C_YEL <DRYRUN> enabled $C_NC \n"
 fi
 
 if [ -n "$zone" ]; then
@@ -233,11 +233,10 @@ for name in $names; do
 
     rt=$?
     if [ $rt -gt 0 ]; then
-        echo "$PNAME Error in GCP initialization of $host"
+        echo "$TDH_PNAME ERROR in GCP initialization of $host" >&2
         break
     fi
 done
-
 
 if [ $rt -gt 0 ]; then
     exit $rt
@@ -249,12 +248,12 @@ if [ $dryrun -eq 0 ]; then
     wait_for_gcphost "$host"
     rt=$?
 else
-    printf "$C_YEL  <DRYRUN skipped> $C_NC \n"
+    printf "$C_YEL   <DRYRUN skipped> $C_NC \n"
 fi
 echo ""
 
 if [ $rt -ne 0 ]; then
-    echo "Error in wait_for_gcphost(), no response from host or timed out"
+    echo "$TDH_PNAME ERROR in wait_for_gcphost(), no response from host or timed out"
     echo "Will attempt to continue in 3...2.."
     sleep 3
 fi
@@ -292,7 +291,7 @@ for name in $names; do
 
             rt=$?
             if [ $rt -gt 0 ]; then
-                echo "Error in $format for $host"
+                echo "$TDH_PNAME ERROR in $format for $host" >&2
                 break
             fi
         done
@@ -316,11 +315,11 @@ for name in $names; do
         ( $GSCP ${tdh_path}/../tools/tdh-prereqs.sh ${host}: )
         ( $GSSH $host --command 'chmod +x tdh-prereqs.sh' )
         ( $GSSH $host --command './tdh-prereqs.sh' )
+        rt=$?
     fi
 
-    rt=$?
     if [ $rt -gt 0 ]; then
-        echo "Error in tdh-prereqs for $host"
+        echo "$TDH_PNAME ERROR in tdh-prereqs for $host" >&2
         break
     fi
 
@@ -349,7 +348,7 @@ for name in $names; do
         echo "( $GSSH ${host} --command \"cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys\" )"
 
         if [ $dryrun -eq 0 ]; then
-            echo "-> Primary host is '$host'"
+            echo " -> Primary host is '$host'"
             ( $GSCP ${host}:.ssh/id_rsa.pub ${master_id_file} )
             ( $GSSH $host --command "cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys" )
         fi
@@ -358,5 +357,5 @@ for name in $names; do
     printf "${C_CYN} -> Initialization complete for ${C_WHT}%s${C_NC} \n" $host
 done
 
-echo "$TDH_PNAME finished."
+printf " -> $TDH_PNAME finished. \n"
 exit $rt

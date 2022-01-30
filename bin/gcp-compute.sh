@@ -39,7 +39,7 @@ serial=1
 # -----------------------------------
 # Gcloud CLI required.
 if [ -z "$GCP" ]; then
-    echo "Error, Google Cloud CLI 'gcloud' not found."
+    echo "$TDH_PNAME ERROR, Google Cloud CLI 'gcloud' not found." >&2
     exit 2
 fi
 
@@ -60,8 +60,9 @@ Options:
   -F|--ip-forward         : Enables IP Forwarding for the instance
   -h|--help               : Display usage and exit.
   -k|--keep(-disks)       : Sets --keep-disks=data on delete action.
-  -l|--list-types         : List available machine-types for a zone.
-     --disk-types         : List available disk types for a zone.
+  -l|--list               : List available machine-types for a zone.
+  -L|--list-machine-types : List available machine-types for a zone.
+     --list-disk-types    : List available disk types for a zone.
      --dryrun             : Enable dryrun, no action is taken.
   -N|--network <name>     : GCP Network name when not using default.
   -n|--subnet  <name>     : Used with --network to define the subnet.
@@ -112,9 +113,7 @@ vm_is_running()
     local cmd="gcloud compute instances describe --zone $zone"
 
     status=$( $cmd $name | grep status: | awk -F: '{ print $2 }' )
-
-    echo ""
-    echo "-> status: $name = $status"
+    printf "\n -> status: $name = $status \n"
 
     if [ "$status" == "RUNNING" ]; then
         rt=0
@@ -127,8 +126,6 @@ start_instance()
 {
     local name="$1"
     local zone="$2"
-    local async=$3
-    local dryrun=$4
 
     local cmd="gcloud compute instances start $name --zone $zone"
 
@@ -136,8 +133,7 @@ start_instance()
         cmd="$cmd --async"
     fi
 
-    echo ""
-    echo "-> start_instance() "
+    printf "\n -> start_instance() \n"
     echo "( $cmd )"
 
     if [ $dryrun -eq 0 ]; then
@@ -151,16 +147,13 @@ stop_instance()
 {
     local name="$1"
     local zone="$2"
-    local async=$3
-    local dryrun=$4
     local args=("--zone" $zone)
 
     if [ $async -eq 1 ]; then
         args+=("--async")
     fi
 
-    echo ""
-    echo "-> stop_instance() "
+    printf "\n -> stop_instance() \n"
     echo "( gcloud compute instances stop $name ${args[@]} )"
 
     if [ $dryrun -eq 0 ]; then
@@ -175,11 +168,9 @@ attach_disk()
 {
     local volname="$1"
     local gcpname="$2"
-    local dryrun=$3
     local rt=0
 
-    echo ""
-    echo "-> attach_disk() "
+    printf "\n -> attach_disk() \n"
     echo "( gcloud compute instances attach-disk --disk ${volname} ${gcpname} --zone $zone )"
 
     if [ $dryrun -eq 0 ]; then
@@ -196,7 +187,6 @@ create_disk()
     local volname="$1"
     local volsize="$2"
     local ssd=$3
-    local dryrun=$4
     local rt=0
     local args=("--zone" $zone "--size=$volsize")
 
@@ -207,8 +197,7 @@ create_disk()
         args+=("--type=pd-ssd")
     fi
 
-    echo ""
-    echo "-> create_disk() "
+    printf "\n -> create_disk() \n"
     echo "( gcloud compute disks create ${args[@]} $volname )"
 
     if [ $dryrun -eq 0 ]; then
@@ -258,11 +247,15 @@ while [ $# -gt 0 ]; do
         -k|--keep*)
             keep=1
             ;;
-        -l|--list-types)
+        -l|--list)
+            ( gcloud compute instances list )
+            exit $rt
+            ;;
+        -L|--list-types|--list-machine-types)
             list_machine_types
             exit $rt
             ;;
-        --disk-types)
+        --list-disk-types)
             list_disk_types
             exit $rt
             ;;
@@ -329,7 +322,7 @@ fi
 
 if [ -z "$network" ]; then
     if [ -n "$subnet" ]; then
-        echo "$TDH_PNAME Error, subnet defined without network"
+        echo "$TDH_PNAME ERROR, --subnet defined without --network" >&2
         exit 1
     fi
     network="default"
@@ -337,7 +330,7 @@ if [ -z "$network" ]; then
 fi
 
 if [ -n "$network" ] && [ -z "$subnet" ]; then
-    echo "$TDH_PNAME Error, subnet not defined; it is required with --network"
+    echo "$TDH_PNAME ERROR, --subnet not defined and is required with --network" >&2
     exit 1
 fi
 
@@ -345,29 +338,34 @@ if [ -z "$zone" ]; then
     zone="$GCP_DEFAULT_ZONE"
 fi
 
+
 printf "\n${C_CYN}  GCP Zone ${C_NC}= ${C_WHT}'$zone'${C_NC}\n"
 printf "${C_CYN}  Network  ${C_NC}= ${C_WHT}'$network'${C_NC}\n"
 printf "${C_CYN}  Subnet   ${C_NC}= ${C_WHT}'$subnet'${C_NC}\n\n"
 
+
 zone_is_valid $zone
 rt=$?
 if [ $rt -ne 0 ]; then
-    echo "$TDH_PNAME Error, provided zone '$zone' is not valid"
+    echo "$TDH_PNAME ERROR, provided zone '$zone' is not valid" >&2
     exit $rt
 fi
 
+
 subnet_is_valid $subnet
 if [ $? -ne 0 ]; then
-    echo "$TDH_PNAME Error, subnet '$subnet' not found. Has it been creaated?"
+    echo "$TDH_PNAME ERROR, subnet '$subnet' not found. Has it been created?" >&2
     exit 1
 fi
 
+
 if [ $attach -eq 1 ] && [ $volnum -gt 1 ]; then
     if [ $volnum -gt $maxvols ]; then
-        echo "$TDH_PNAME Error, a maximum of $maxvols attached volumes is supported."
+        echo "$TDH_PNAME ERROR, a maximum of '$maxvols' volumes is supported." >&2
         exit 1
     fi
 fi
+
 
 for name in $names; do
     ( echo $name | grep "^${prefix}-" >/dev/null 2>&1 )
@@ -405,7 +403,7 @@ for name in $names; do
         fi
 
         if [ $rt -ne 0 ]; then
-            echo "$TDH_PNAME Error in create_instance"
+            echo "$TDH_PNAME ERROR in create." >&2
             exit $rt
         fi
 
@@ -419,20 +417,20 @@ for name in $names; do
                 ( gcloud compute disks list --filter="name=($volname)" 2>/dev/null | grep $volname > /dev/null )
 
                 if [ $? -gt 0 ]; then
-                    create_disk "$volname" "$volsize" $ssd $dryrun
+                    create_disk "$volname" "$volsize" $ssd 
                     rt=$?
 
                     if [ $rt -ne 0 ]; then
-                        echo "Error in create_disk() for '$volname', aborting..."
+                        echo "$TDH_PNAME ERROR in create_disk() for '$volname', aborting..." >&2
                         exit $rt
                     fi
                 fi
 
-                attach_disk "$volname" "$name" $dryrun
+                attach_disk "$volname" "$name"
                 rt=$?
 
                 if [ $rt -ne 0 ]; then
-                    echo "Error in attach_disk() for '$volname', rt=$rt, aborting..."
+                    echo "$TDH_PNAME ERROR in attach_disk() for '$volname', rt=$rt, aborting..." >&2
                     exit $rt
                 fi
             done
@@ -448,11 +446,11 @@ for name in $names; do
         ;;
 
     start)
-        start_instance $name $zone $async $dryrun
+        start_instance $name $zone
         ;;
 
     stop)
-        stop_instance $name $zone $async $dryrun
+        stop_instance $name $zone
         ;;
 
     delete|destroy)
@@ -478,7 +476,7 @@ for name in $names; do
         rt=$?
         ;;
     *)
-        echo "$TDH_PNAME Error, <action> Not Recognized! '$action'"
+        echo "$TDH_PNAME ERROR, <action> not recognized: '$action'" >&2
         echo "$usage"
         rt=1
         break
@@ -486,5 +484,5 @@ for name in $names; do
     esac
 done
 
-printf "${C_WHT}${TDH_PNAME} Finished. ${C_NC} \n"
+printf " -> ${C_WHT}${TDH_PNAME} Finished. ${C_NC} \n"
 exit $rt

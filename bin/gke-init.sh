@@ -41,36 +41,44 @@ Synopsis:
   $TDH_PNAME [options] <action> <cluster_name>
 
 Options:
-   -a|--async             : Run actions asynchronously.
-   -A|--ipalias           : Enables ip-alias during cluster creation.
-   -c|--count    <cnt>    : Number of nodes to deploy, Default is $nodecnt.
-   -h|--help              : Display usage info and exit.
-   -d|--disksize <xxGB>   : Size of boot disk. Default is $dsize.
-      --dryrun            : Enable dryrun.
-   -N|--network  <name>   : Name of GCP Network if not default.
-   -n|--subnet   <name>   : Name of GCP Subnet if not default.
-   -P|--private <cidr,..> : Set as private cluster by defining allow prefixes.
-        The list of master-authorized-networks is a comma delimited list.
-   -S|--ssd               : Use 'pd-ssd' as GCP disk type.
-   -t|--type     <type>   : GCP Instance machine-type.
-   -T|--tags  <tag1,..>   : List of Compute Engine tags to apply to nodes.
-   -z|--zone     <name>   : Sets an alternate GCP Zone.
-   -V|--version           : Show Version Info and exit.
+   -a|--async              : Run actions asynchronously.
+   -A|--ipalias            : Enables ip-alias during cluster creation.
+   -c|--count    <cnt>     : Number of nodes to deploy, Default is $nodecnt.
+   -h|--help               : Display usage info and exit.
+   -d|--disksize <xxGB>    : Size of boot disk. Default is $dsize.
+      --dryrun             : Enable dryrun.
+   -N|--network  <name>    : Name of GCP Network if not default.
+   -n|--subnet   <name>    : Name of GCP Subnet if not default.
+   -P|--private <cidr,..>  : Set as private cluster by defining allow prefixes.
+                             The list of networks is a comma delimited list.
+   -S|--ssd                : Use 'pd-ssd' as GCP disk type.
+   -t|--type     <type>    : GCP Instance machine-type.
+   -T|--tags    <tag1,..>  : List of Compute Engine tags to apply to nodes.
+   -z|--zone     <name>    : Sets an alternate GCP Zone.
+   -V|--version            : Show Version Info and exit.
    
 Where <action> is one of the following:
-   create       : Initialize a new GKE Cluster
-   delete       : Delete a GKE Cluster
-   list         : List Clusters
-   update       : Update a Private cluster 'master-authorized-networks' list.
-     The provided list is considered an overwrite, not an append.
-   get-cred     : Get cluster credentials
-   
-  Default Machine Type is '$mtype'
-  Default Boot Disk size  '$dsize'
-  Default GCP Zone is     '$GCP_DEFAULT_ZONE'
-   
+    create                 : Initialize a new GKE Cluster
+    delete                 : Delete a GKE Cluster
+    list                   : List Clusters
+    update                 : Update a private cluster 'master-authorized-networks'.
+                             The provided list is an overwrite, not an append.
+    get-credentials        : Get cluster credentials
+
 The following environment variables are honored for overrides:
-  GCP_MACHINE_TYPE, GCP_ZONE, GCP_NETWORK, GCP_SUBNET
+    GCP_MACHINE_TYPE, GCP_ZONE, GCP_NETWORK, GCP_SUBNET
+
+When GCP Private Clusters are used, the various internal CIDR blocks can be 
+customized with the following settings:
+  --cluster-ipv4-cidr  <cidr>  : Set the cluster network, default=$cluster_ipv4
+  --master-ipv4-cidr   <cidr>  : Set the master IPv4 range.
+  --services-ipv4-cidr <cidr>  : Set the services IPv4 range, requires --ipalias.
+  --cluster-version    <vers>  : Override GKE K8s default version.
+    Use 'gcloud container get-server-config' to see available versions.
+
+Default Machine Type is '$mtype'
+Default Boot Disk size  '$dsize'
+Default GCP Zone is     '$GCP_DEFAULT_ZONE'
 "
 
 # -----------------------------------
@@ -112,7 +120,7 @@ while [ $# -gt 0 ]; do
             ;;
         --dryrun|--dry-run)
             dryrun=1
-            echo " <DRYRUN> enabled"
+            echo "   <DRYRUN> enabled"
             ;;
         'help'|-h|--help)
             echo "$usage"
@@ -156,16 +164,18 @@ while [ $# -gt 0 ]; do
 done
 
 if [ -z "$GCP" ]; then
-    echo "$TDH_PNAME Error, gcloud not available"
+    echo "$TDH_PNAME ERROR, gcloud not available" >&2
     exit 1
 fi
 
-cluster_vers=$(gcloud container get-server-config | grep 'defaultClusterVersion:' | awk -F: '{ print $2 }')
+cluster_vers=$(gcloud container get-server-config 2>/dev/null | \
+  grep 'defaultClusterVersion:' | \
+  awk -F: '{ print $2 }' | sed 's/^[[:space:]]*//')
 
 case "$action" in
 create)
     if [ -z "$cluster" ]; then
-        echo "$TDH_PNAME Error, name of cluster is required."
+        echo "$TDH_PNAME ERROR, name of cluster is required." >&2
         exit 1
     fi
 
@@ -181,7 +191,7 @@ create)
 
     if [ -n "$subnet" ]; then
         if [ -z "$network" ]; then
-            echo "$TDH_PNAME Error, Network must be defined!"
+            echo "$TDH_PNAME ERROR, Network must be defined!" >&2
             exit 2
         fi
         args+=("--network $network" "--subnetwork $subnet")
@@ -194,14 +204,16 @@ create)
     fi
 
     if [ -n "$private" ]; then
-	    args+=("--enable-master-authorized-networks" 
-	           "--enable-private-nodes"
+	    args+=("--enable-private-nodes"
+               "--enable-master-authorized-networks" 
 	           "--no-enable-basic-auth" 
 	           "--no-issue-client-certificate"
 	           "--master-authorized-networks=${private}"
 	           "--master-ipv4-cidr=${master_ipv4}"
-               "--cluster-ipv4-cidr=${cluster_ipv4}"
-               "--services-ipv4-cidr=${services_ipv4}")
+               "--cluster-ipv4-cidr=${cluster_ipv4}")
+        if [ $ipalias -eq 1 ]; then
+            args+=("--services-ipv4-cidr=${services_ipv4}")
+        fi
     fi
 
     echo "( gcloud container clusters create $cluster ${args[@]} )"
@@ -213,7 +225,7 @@ create)
 
 update)
     if [ -z "$cluster" ]; then
-        echo "$TDH_PNAME Error, name of cluster is required."
+        echo "$TDH_PNAME ERROR, name of cluster is required." >&2
         exit 1
     fi
     if [ -n "$private" ]; then
@@ -223,7 +235,7 @@ update)
 
 del|delete|destroy)
     if [ -z "$cluster" ]; then
-        echo "$TDH_PNAME Error, name of cluster is required."
+        echo "$TDH_PNAME ERROR, name of cluster is required." >&2
         exit 1
     fi
     echo "( gcloud container clusters delete $cluster )"
@@ -238,7 +250,7 @@ list)
 
 describe|info)
     if [ -z "$cluster" ]; then
-        echo "$TDH_PNAME Error, name of cluster is required."
+        echo "$TDH_PNAME ERROR, name of cluster is required." >&2
         exit 1
     fi
     ( gcloud container clusters describe $cluster )
@@ -246,7 +258,7 @@ describe|info)
 
 get-cred*|get)
     if [ -z "$cluster" ]; then
-        echo "$TDH_PNAME Error, name of cluster is required."
+        echo "$TDH_PNAME ERROR, name of cluster is required." >&2
         exit 1
     fi
     ( gcloud container clusters get-credentials $cluster )
@@ -257,7 +269,7 @@ help)
     ;;
 
 *)
-    echo "Action not recognized."
+    echo "$TDH_PNAME ERROR, Action not recognized." >&2
     echo ""
     echo "$usage"
     ;;

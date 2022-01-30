@@ -29,20 +29,20 @@ Synopsis:
   $TDH_PNAME [-a iprange] {options} [action]
 
 Options:
-  -a|--addr  <ipaddr/mb> :  Ip Address range of the subnet (required)
-  -r|--region <name>     :  Region to create the subnet. Default is '$region'
-  -n|--dryrun            :  Enable dryrun, no action is taken.
-  -y|--yes               :  Do not prompt on create. This will auto-create
-                            the network if it does not already exist.
+  -a|--addr  <ipaddr/mb>    : IpAddress/range of the subnet, required.
+  -r|--region <name>        : Region to create the subnet. Default is '$region'.
+  -n|--dryrun               : Enable dryrun, no action is taken.
+  -y|--yes                  : Do not prompt on create. This will auto-create
+                              the network, if it does not already exist.
  
 Where <action> is one of the following: 
-  create [network] [subnet] :  Create a new network and subnet.
-  list-networks             :  List available networks.
-  list-subnets              :  List available subnets by region.
-  delete-subnet    [subnet] :  Delete a custom subnet.
-  delete-network   [subnet] :  Delete a network.
-  describe        [network] :  Get GCP network details.
-  describe-subnet  [subnet] :  Describes the GCP subnet.
+  create [network] [subnet] : Create a new network and subnet.
+  list-networks             : List available networks.
+  list-subnets              : List available subnets by region.
+  delete-subnet    [subnet] : Delete a custom subnet.
+  delete-network   [subnet] : Delete a network.
+  describe        [network] : Get GCP network details.
+  describe-subnet  [subnet] : Describes the GCP subnet.
  
 Delete actions require that no existing resources use the 
 given network|subnet.
@@ -193,12 +193,12 @@ fi
 case "$action" in
 create)
     if [ -z "$network" ] || [ -z "$subnet" ]; then
-        echo "Error, network and subnet must both be defined on create"
+        echo "$TDH_PNAME ERROR, network and subnet must both be defined on create" >&2
         exit 1
     fi
 
     if [ -z "$addr" ]; then
-        echo "Error, address range must be provided for the subnet"
+        echo "$TDH_PNAME ERROR, address range must be provided for the subnet" >&2
         exit 1
     fi
 
@@ -207,7 +207,7 @@ create)
     rt=$?
 
     if [ $rt -ne 0 ]; then
-        echo "Error region is invalid: '$region'"
+        echo "$TDH_PNAME ERROR, region is invalid: '$region'" >&2
         exit $rt
     fi
     echo "  GCP Region = '$region'"
@@ -215,7 +215,7 @@ create)
     # Ensure Subnet doesn't already exist
     subnet_is_valid $subnet
     if [ $? -eq 0 ]; then
-        echo "Error! Subnet '$subnet' already exists"
+        echo "$TDH_PNAME ERROR, Subnet '$subnet' already exists" >&2
         exit 1
     fi
 
@@ -232,7 +232,7 @@ create)
             if ask "Create new network '$network' in region '$region'?" Y; then
                 crnet=1
             else
-                echo "Aborting script as parent network must first exist"
+                echo "$TDH_PNAME ERROR, parent network must first exist" >&2
                 exit 1
             fi
         else
@@ -245,7 +245,7 @@ create)
             create_network $network
             rt=$?
             if [ $rt -ne 0 ]; then
-                echo "Error creating network, aborting.."
+                echo "$TDH_PNAME ERROR creating network, aborting.." >&2
                 exit $rt
             fi
         fi
@@ -258,7 +258,7 @@ create)
     rt=$?
 
     if [ $rt -ne 0 ]; then
-        echo "Error in create_subnet"
+        echo "$TDH_PNAME ERROR in create_subnet" >&2
         exit $rt
     fi
 
@@ -272,7 +272,7 @@ create)
         args=("--network $network" "--action allow" "--direction ingress"
               "--source-ranges $addr" "--rules all")
 
-        echo "Creating fw-rule '$rule_name': "
+        echo " -> Creating fw-rule '$rule_name': "
         echo "( $gfw create $rule_name ${args[@]} )"
 
         if [ $dryrun -eq 0 ]; then
@@ -281,7 +281,7 @@ create)
 
             rt=$?
             if [ $rt -ne 0 ]; then
-                echo "Error creating firewall-rules"
+                echo "$TDH_PNAME ERROR creating firewall-rules" >&2
             fi
         fi
     else
@@ -306,12 +306,12 @@ describe-subnet)
     fi
     ;;
 *)
-    echo "Action Not Recognized! '$action'"
+    echo "$TDH_PNAME ERROR, action not recognized: '$action'" >&2
     echo "$usage"
     rt=1
     ;;
 esac
 
 echo ""
-echo "$TDH_PNAME Finished."
+echo " -> $TDH_PNAME Finished."
 exit $rt

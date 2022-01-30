@@ -72,7 +72,7 @@ else
 fi
 
 if [ $rt -gt 0 ]; then
-    echo " -> Error in install."
+    echo " -> Error in install." >&2
 fi
 
 echo "$PNAME finished."

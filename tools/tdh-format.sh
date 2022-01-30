@@ -29,9 +29,9 @@ Synopsis:
   $PNAME [options] <device> <mountpoint>
 
 Options:
-  -f|--force   : Set force option on mkfs
-  -h|--help    : Show usage info and exit
-  -x|--use-xfs : Use XFS Filesytem instead of default 'ext4'
+  -f|--force    : Set force option on mkfs
+  -h|--help     : Show usage info and exit
+  -x|--use-xfs  : Use XFS Filesytem instead of default 'ext4'
  
 eg. $PNAME -f -x /dev/sdb /data01
 Note, use --force to avoid being prompted.
@@ -71,7 +71,7 @@ fi
 mnt=$( mount | grep $device 2>/dev/null )
 rt=$?
 if [ $rt -eq 0 ]; then
-    echo "Error! Mount appears to exist: '$mnt'"
+    echo "Error! Mount appears to exist: '$mnt'" >&2
     exit 1
 fi
 
@@ -80,7 +80,7 @@ fi
 rt=$?
 
 if [ $rt -ne 0 ]; then
-    echo "$PNAME: Error in mkdir of mount path: $mount"
+    echo "$PNAME: Error in mkdir of mount path: $mount" >&2
     exit $rt
 fi
 
@@ -108,7 +108,7 @@ echo ""
 
 rt=$?
 if [ $rt -gt 0 ]; then
-    echo "$PNAME Error formatting device"
+    echo "$PNAME Error formatting device" >&2
     exit $rt
 fi
 
@@ -120,7 +120,7 @@ echo " -> Format complete"
 uuid=$( ls -l /dev/disk/by-uuid/ | grep $devname | awk '{ print $9 }' )
 
 if [ -z "$uuid" ]; then
-    echo "$PNAME Error obtaining disk UUID from '/dev/disk/by-uuid'"
+    echo "$PNAME Error obtaining disk UUID from '/dev/disk/by-uuid'" >&2
     exit 1
 fi
 
@@ -137,7 +137,7 @@ echo " -> Created fstab tmp file: '$fstab'"
 
 rt=$?
 if [ $rt -gt 0 ]; then
-    echo "Error mounting device $device"
+    echo "$PNAME Error mounting device $device" >&2
 else
     echo " -> Device '$device' mounted to '$mount'"
 fi
