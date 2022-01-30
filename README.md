@@ -36,7 +36,7 @@ tools are intended to be run from the root project directory.
 
 - **tdh-instance-init.sh**:
 
-  Wraps `gcp-copmpute.sh` with defaults for initializing TDH master/worker hosts.
+  Wraps `gcp-compute.sh` with defaults for initializing TDH master/worker hosts.
   Ansible is then used to deploy and configure the cluster. The first master 
   is commonly used as the primary management node for running Ansible. The
   the script will use the `master_id` file as the Ansible Server SSH public key.
@@ -44,7 +44,7 @@ tools are intended to be run from the root project directory.
 
 - **gke-init.sh**:
 
-  Script for initializing a GCP Kubernetes Cluster.
+  Script for initializing a Google Kubernetes Cluster (GKE).
 
 
 ## Utility Scripts 
@@ -88,11 +88,6 @@ Additional support scripts used for various environment bootstrapping.
     => result: gcloud compute scp tdh-anaconda3.tar.gz tdh-m01:tmp/dist/
   ```
 
-- **ssh-hostkey-provision.sh**:
-
-  Script for remotely configuring a cluster of hosts for passwordless login
-  via a master host.
-
 - **tdh-remote-format.sh**:
 
   The GCP instance scripts format attached drives at create, however
@@ -120,6 +115,11 @@ instances have already been created.
   The master and worker init scripts copy this to the remote host to locally
   format and add the drive(s) to the system, supporting either Ext4 or XFS
   filesystems. This is *not* set executable until placed on the host in question.
+
+- **ssh-hostkey-provision.sh**:
+
+  Script for remotely configuring a cluster of hosts for passwordless login
+  via a master host.
 
 - **gcp-hosts-gen.sh**:
 
