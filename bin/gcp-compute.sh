@@ -60,8 +60,9 @@ Options:
   -F|--ip-forward         : Enables IP Forwarding for the instance
   -h|--help               : Display usage and exit.
   -k|--keep(-disks)       : Sets --keep-disks=data on delete action.
-  -l|--list-types         : List available machine-types for a zone.
-     --disk-types         : List available disk types for a zone.
+  -l|--list               : List available machine-types for a zone.
+  -L|--list-machine-types : List available machine-types for a zone.
+     --list-disk-types    : List available disk types for a zone.
      --dryrun             : Enable dryrun, no action is taken.
   -N|--network <name>     : GCP Network name when not using default.
   -n|--subnet  <name>     : Used with --network to define the subnet.
@@ -127,8 +128,6 @@ start_instance()
 {
     local name="$1"
     local zone="$2"
-    local async=$3
-    local dryrun=$4
 
     local cmd="gcloud compute instances start $name --zone $zone"
 
@@ -151,8 +150,6 @@ stop_instance()
 {
     local name="$1"
     local zone="$2"
-    local async=$3
-    local dryrun=$4
     local args=("--zone" $zone)
 
     if [ $async -eq 1 ]; then
@@ -175,7 +172,6 @@ attach_disk()
 {
     local volname="$1"
     local gcpname="$2"
-    local dryrun=$3
     local rt=0
 
     echo ""
@@ -196,7 +192,6 @@ create_disk()
     local volname="$1"
     local volsize="$2"
     local ssd=$3
-    local dryrun=$4
     local rt=0
     local args=("--zone" $zone "--size=$volsize")
 
@@ -258,11 +253,15 @@ while [ $# -gt 0 ]; do
         -k|--keep*)
             keep=1
             ;;
-        -l|--list-types)
+        -l|--list)
+            ( gcloud compute instances list )
+            exit $rt
+            ;;
+        -L|--list-types|--list-machine-types)
             list_machine_types
             exit $rt
             ;;
-        --disk-types)
+        --list-disk-types)
             list_disk_types
             exit $rt
             ;;
@@ -424,7 +423,7 @@ for name in $names; do
                 ( gcloud compute disks list --filter="name=($volname)" 2>/dev/null | grep $volname > /dev/null )
 
                 if [ $? -gt 0 ]; then
-                    create_disk "$volname" "$volsize" $ssd $dryrun
+                    create_disk "$volname" "$volsize" $ssd 
                     rt=$?
 
                     if [ $rt -ne 0 ]; then
@@ -433,7 +432,7 @@ for name in $names; do
                     fi
                 fi
 
-                attach_disk "$volname" "$name" $dryrun
+                attach_disk "$volname" "$name"
                 rt=$?
 
                 if [ $rt -ne 0 ]; then
@@ -453,11 +452,11 @@ for name in $names; do
         ;;
 
     start)
-        start_instance $name $zone $async $dryrun
+        start_instance $name $zone
         ;;
 
     stop)
-        stop_instance $name $zone $async $dryrun
+        stop_instance $name $zone
         ;;
 
     delete|destroy)
