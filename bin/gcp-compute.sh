@@ -39,7 +39,7 @@ serial=1
 # -----------------------------------
 # Gcloud CLI required.
 if [ -z "$GCP" ]; then
-    echo "$TDH_PNAME ERROR, Google Cloud CLI 'gcloud' not found."
+    echo "$TDH_PNAME ERROR, Google Cloud CLI 'gcloud' not found." >&2
     exit 2
 fi
 
@@ -113,9 +113,7 @@ vm_is_running()
     local cmd="gcloud compute instances describe --zone $zone"
 
     status=$( $cmd $name | grep status: | awk -F: '{ print $2 }' )
-
-    echo ""
-    echo "-> status: $name = $status"
+    printf "\n -> status: $name = $status \n"
 
     if [ "$status" == "RUNNING" ]; then
         rt=0
@@ -135,8 +133,7 @@ start_instance()
         cmd="$cmd --async"
     fi
 
-    echo ""
-    echo " -> start_instance() "
+    printf "\n -> start_instance() \n"
     echo "( $cmd )"
 
     if [ $dryrun -eq 0 ]; then
@@ -156,8 +153,7 @@ stop_instance()
         args+=("--async")
     fi
 
-    echo ""
-    echo " -> stop_instance() "
+    printf "\n -> stop_instance() \n"
     echo "( gcloud compute instances stop $name ${args[@]} )"
 
     if [ $dryrun -eq 0 ]; then
@@ -174,8 +170,7 @@ attach_disk()
     local gcpname="$2"
     local rt=0
 
-    echo ""
-    echo " -> attach_disk() "
+    printf "\n -> attach_disk() \n"
     echo "( gcloud compute instances attach-disk --disk ${volname} ${gcpname} --zone $zone )"
 
     if [ $dryrun -eq 0 ]; then
@@ -202,8 +197,7 @@ create_disk()
         args+=("--type=pd-ssd")
     fi
 
-    echo ""
-    echo " -> create_disk() "
+    printf "\n -> create_disk() \n"
     echo "( gcloud compute disks create ${args[@]} $volname )"
 
     if [ $dryrun -eq 0 ]; then

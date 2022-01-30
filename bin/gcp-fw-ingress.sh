@@ -180,7 +180,8 @@ case "$action" in
     ;;
 
 *)
-    echo "$TDH_PNAME ERROR, Action not recognized"
+    echo "$TDH_PNAME ERROR, Action not recognized" >&2
+    rt=1
     ;;
 esac
 

@@ -180,14 +180,14 @@ elif [ "$action" == "reset" ]; then
         nf=$( ssh-keygen -f ${HOME}/.ssh/known_hosts -R "$name" >/dev/null  )
         if [ $? -eq 0 ]; then
             if [ -z "$nf" ]; then
-                echo " -> Host $name removed from ${HOME}/.ssh/known_hosts"
+                printf " -> Host $name removed from ${HOME}/.ssh/known_hosts \n"
             else
                 echo "$nf"
             fi
         fi
     done
     if [ -f $master_id_file ]; then
-        echo " -> Removing master id file '$master_id_file'"
+        printf " -> Removing master id file '$master_id_file' \n"
         ( unlink $master_id_file )
     fi
     exit $?
@@ -357,5 +357,5 @@ for name in $names; do
     printf "${C_CYN} -> Initialization complete for ${C_WHT}%s${C_NC} \n" $host
 done
 
-echo " -> $TDH_PNAME finished."
+printf " -> $TDH_PNAME finished. \n"
 exit $rt

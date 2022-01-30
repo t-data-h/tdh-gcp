@@ -29,20 +29,20 @@ Synopsis:
   $TDH_PNAME [-a iprange] {options} [action]
 
 Options:
-  -a|--addr  <ipaddr/mb> :  Ip Address range of the subnet (required)
-  -r|--region <name>     :  Region to create the subnet. Default is '$region'
-  -n|--dryrun            :  Enable dryrun, no action is taken.
-  -y|--yes               :  Do not prompt on create. This will auto-create
-                            the network if it does not already exist.
+  -a|--addr  <ipaddr/mb>    : IpAddress/range of the subnet, required.
+  -r|--region <name>        : Region to create the subnet. Default is '$region'.
+  -n|--dryrun               : Enable dryrun, no action is taken.
+  -y|--yes                  : Do not prompt on create. This will auto-create
+                              the network, if it does not already exist.
  
 Where <action> is one of the following: 
-  create [network] [subnet] :  Create a new network and subnet.
-  list-networks             :  List available networks.
-  list-subnets              :  List available subnets by region.
-  delete-subnet    [subnet] :  Delete a custom subnet.
-  delete-network   [subnet] :  Delete a network.
-  describe        [network] :  Get GCP network details.
-  describe-subnet  [subnet] :  Describes the GCP subnet.
+  create [network] [subnet] : Create a new network and subnet.
+  list-networks             : List available networks.
+  list-subnets              : List available subnets by region.
+  delete-subnet    [subnet] : Delete a custom subnet.
+  delete-network   [subnet] : Delete a network.
+  describe        [network] : Get GCP network details.
+  describe-subnet  [subnet] : Describes the GCP subnet.
  
 Delete actions require that no existing resources use the 
 given network|subnet.

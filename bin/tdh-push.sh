@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 #  Creates an archive of a given path and pushes to a remote host.
 #
@@ -53,7 +53,7 @@ Options:
  target host to use. Otherwise, all three parameters are required. 
  
  The script uses a 'tmp' path for both creating the archive locally
- and landing on the target host.  This is defined by the environment 
+ and landing on the target host. This is defined by the environment 
  variable 'TDH_DIST_PATH'. The default is '/tmp/dist'. 
  The target path will be auto-created on the remote host.
 "

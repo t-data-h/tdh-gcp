@@ -58,28 +58,27 @@ Options:
    -V|--version            : Show Version Info and exit.
    
 Where <action> is one of the following:
-  create       : Initialize a new GKE Cluster
-  delete       : Delete a GKE Cluster
-  list         : List Clusters
-  update       : Update a private cluster 'master-authorized-networks' list.
-                 The provided list is a replacement overwrite, not an append.
-  get-cred     : Get cluster credentials
+    create                 : Initialize a new GKE Cluster
+    delete                 : Delete a GKE Cluster
+    list                   : List Clusters
+    update                 : Update a private cluster 'master-authorized-networks'.
+                             The provided list is an overwrite, not an append.
+    get-credentials        : Get cluster credentials
 
 The following environment variables are honored for overrides:
-  GCP_MACHINE_TYPE, GCP_ZONE, GCP_NETWORK, GCP_SUBNET
+    GCP_MACHINE_TYPE, GCP_ZONE, GCP_NETWORK, GCP_SUBNET
 
 When GCP Private Clusters are used, the various internal CIDR blocks can be 
 customized with the following settings:
-   --cluster-ipv4-cidr  <cidr>  : Set the cluster network, default=$cluster_ipv4
-   --master-ipv4-cidr   <cidr>  : Set the master IPv4 range.
-   --services-ipv4-cidr <cidr>  : Set the services IPv4 range, requires --ipalias.
-   --cluster-version    <vers>  : Override GKE K8s default version.
-     Use 'gcloud container get-server-config' to see available versions.
+  --cluster-ipv4-cidr  <cidr>  : Set the cluster network, default=$cluster_ipv4
+  --master-ipv4-cidr   <cidr>  : Set the master IPv4 range.
+  --services-ipv4-cidr <cidr>  : Set the services IPv4 range, requires --ipalias.
+  --cluster-version    <vers>  : Override GKE K8s default version.
+    Use 'gcloud container get-server-config' to see available versions.
 
 Default Machine Type is '$mtype'
 Default Boot Disk size  '$dsize'
 Default GCP Zone is     '$GCP_DEFAULT_ZONE'
-   
 "
 
 # -----------------------------------
