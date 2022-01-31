@@ -11,9 +11,11 @@ distclean: clean
 
 
 install:
-	@echo "Note that the tdh-gcp project is intended to be self-contained and relies "
-	@echo "on relative path to the project root. Some of the base gcp scripts can function "
-	@echo "as stand-alone scripts, but installing them is not necessary."
+	@echo "Note that the tdh-gcp project is intended to be self-"
+	@echo "contained. The tools rely on relative path and instead"
+	@echo "the repository should be added to the user's system PATH"
+	@echo "instead. Some of the base scripts can function independently"
+	@echo "and can be installed by setting TCAMAKE_PREFIX"
 ifdef TCAMAKE_PREFIX
 	@echo
 	@echo "Installing to ${TCAMAKE_PREFIX}/bin/"
