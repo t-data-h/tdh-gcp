@@ -8,7 +8,7 @@ export TDH_GCP_ENV=1
 
 TDH_PNAME=${0##*\/}
 
-TDH_GCP_VERSION="v22.01"
+TDH_GCP_VERSION="v22.02"
 TDH_GCP_PREFIX="tdh"
 
 GCP_DEFAULT_MACHINETYPE="n1-standard-4"
@@ -93,13 +93,11 @@ function region_is_valid()
     return $?
 }
 
-
 function zone_is_valid()
 {
     ( gcloud compute zones list | grep "$1" > /dev/null )
     return $?
 }
-
 
 function network_is_valid()
 {
@@ -107,13 +105,11 @@ function network_is_valid()
     return $?
 }
 
-
 function list_networks()
 {
     ( gcloud compute networks list )
     return $?
 }
-
 
 function subnet_is_valid()
 {
@@ -128,7 +124,6 @@ function subnet_is_valid()
 
     return $?
 }
-
 
 function list_subnets()
 {
