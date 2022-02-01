@@ -44,7 +44,8 @@ tools are intended to be run from the root project directory.
 
 - **gke-init.sh**:
 
-  Script for initializing a Google Kubernetes Cluster (GKE).
+  Script for initializing a Google Kubernetes Cluster (GKE) including options 
+  for creating a GKE *Private* Cluster.
 
 
 ## Utility Scripts 
@@ -98,8 +99,8 @@ Additional support scripts used for various environment bootstrapping.
 
 ## Support scripts:
 
-Support scripts are utilized by the initialization scripts in some cases, but
-are not GCP specific and can be used for any environment where the compute
+Support scripts are utilized by the initialization scripts in some cases, 
+but are not GCP specific and can be used for any environment where compute
 instances have already been created.
 
 - **tdh-prereqs.sh**:
@@ -203,16 +204,16 @@ The order of precedence is:   `default < env-var < cmd-line`.
 
 ## Resource considerations:
 
-All of this varies on data sizes and workloads and is intended purely as a 
-starting point.
+All of this varies on data sizes and workloads and is intended purely as 
+an example or starting point.
 
 Ideal Memory values for a not too small, usable cluster:
-*  NN/SN = 4 Gb ea.
-*  DN/NM (worker) = 1 Gb ea
-*  Hive Meta|S2  = 12 Gb ea
-*  Hbase Master = 4 Gb
-*  Zookeeper  = 1 Gb
-*  HBase RegionServers = 8 to 20 Gb depending
+- NN/SN = 4 Gb ea.
+- DN/NM (worker) = 1 Gb ea
+- Hive Meta|S2  = 12 Gb ea
+- Zookeeper  = 1 Gb
+- Hbase Master = 4 Gb
+- HBase RegionServers = 4 to 20 Gb depending
 
 
 ### Small dev layout with minimal values:
@@ -255,25 +256,38 @@ Ideal Memory values for a not too small, usable cluster:
 
 <br>
 
+---
+
+<br>
+
 ## GCP Machine-Types:
 
 |    Role       |  Machine Type   |  vCPU and Memory   |
 | ------------- | --------------- | ------------------ |
+| Master/Util   |  n1-standard-1  |  1 vCPU and 3.7 Gb |  
 | Master/Util   |  n1-standard-2  |  2 vCPU and 7.5 Gb | 
-| Master/Util   |  n1-highcpu-8   |  8 vCPU and 7.2 Gb |  
-| Worker/Data   |  n1-standard-4  |  4 vCPU and 15 Gb  |
-| Worker/Data   |  n1-standard-8  |  8 vCPU and 30 Gb  |
+| Master/Util   |  n1-standard-4  |  4 vCPU and 15 Gb  |
+| Master/Util   |  n1-highmem-4   |  4 vCPU and 26 Gb  |
 | ------------- | --------------- | ------------------ |
-| Master/Util   |  n1-highmem-4   | 4 vCPU and 26 Gb   |
-| Master/Util   |  n1-highmem-8   | 8 vCPU and 52 Gb   |
+| Worker/Data   |  n1-standard-8  |  8 vCPU and 30 Gb  |
+| Worker/Data   |  n1-highmem-8   |  8 vCPU and 52 Gb   |
 | Worker/Data   |  n1-highmem-16  | 16 vCPU and 104 Gb |
 | Worker/Data   |  n1-highmem-32  | 32 vCPU and 208 Gb |
+
+A complete list can be dumped by passing `--list-machine-types` 
+to *gcp-compute.sh*.
 
 <br>
 
 ## Changing GCP Machine Type:
-  Shut down the instance first.
-```
-$ gcloud compute instances set-machine-type tdh-d01 \
-  --machine-type n1-highmem-16
-```
+- Shut down the instance first.
+  ```
+  $ gcp-compute.sh stop tdh-d01
+  ```
+
+- Set the new instance machine-type and restart
+  ```
+  $ gcloud compute instances set-machine-type tdh-d01 \
+    --machine-type n1-highmem-16
+  $ gcp-compute.sh start tdh-d01
+  ```
