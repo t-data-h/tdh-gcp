@@ -4,11 +4,7 @@
 #
 #  @author Timothy C. Arland <tcarland@gmail.com>
 #
-tdh_path=$(dirname "$(readlink -f "$0")")
-
-if [ -f ${tdh_path}/../bin/tdh-gcp-env.sh ]; then
-    . ${tdh_path}/../bin/tdh-gcp-env.sh
-fi
+PNAME=${0##*\/}
 
 # -----------------------------------
 
@@ -29,7 +25,7 @@ usage="
 Creates an archive (tarball) of a given path and pushes to a remote host.
 
 Synopsis:
-  $TDH_PNAME [options] [path] <archive_name> <host>
+  $PNAME [options] [path] <archive_name> <host>
 
 Options:
   -G|--use-gcp     : Use the GCloud API to scp the archive.
@@ -37,25 +33,24 @@ Options:
   -i  <identity>   : SSH identity (PEM) file.
   -u|--user        : Username for scp action if not '$USER'.
   -z|--zone <zone> : GCP Zone, if not 'default' (used with -G).
-  -V|--version     : Show version info and exit.
  
-  path             : is the directory to be archived (required).
+  path             : The directory to be archived (required).
   archive_name     : An alternate name for the tarball. The value 
                      of 'mypkg' will result in 'mypkg.tar.gz'
                      By default, the target directory name is used.
   host             : Name of target host, or set TDH_PUSH_HOST
  
- The script intends that the archive will contain only the last
- directory target. A path of a '/a/b/c' will create the archive 
- from 'b' with containing './c/' as the root directory.
+ The script ensures that the archive will contain only the last
+ directory target. A given path of a '/a/b/c' will create the archive 
+ from 'b' resulting in './c/' being contained by the archive.
  
  The 'TDH_PUSH_HOST' environment variable is honored as the default
  target host to use. Otherwise, all three parameters are required. 
  
  The script uses a 'tmp' path for both creating the archive locally
  and landing on the target host. This is defined by the environment 
- variable 'TDH_DIST_PATH'. The default is '/tmp/dist'. 
- The target path will be auto-created on the remote host.
+ variable 'TDH_DIST_PATH'. The default is '/tmp/dist/'. This target 
+ path will be auto-created on the remote host.
 "
 
 # -----------------------------------
@@ -88,10 +83,6 @@ while [ $# -gt 0 ]; do
             zone="$2"
             shift
             ;;
-        'version'|-V|--version)
-            tdh_version
-            exit $rt
-            ;;
         -x|--no-copy)
             nocopy=1
             ;;
@@ -106,13 +97,13 @@ while [ $# -gt 0 ]; do
 done
 
 if [ -z "$host" ]; then
-    echo "$TDH_PNAME ERROR, TDH_PUSH_HOST not defined or provided." >&2
+    echo "$PNAME ERROR, TDH_PUSH_HOST not defined or provided." >&2
     echo "$usage"
     exit 1
 fi
 
 if [ -z "$apath" ]; then
-    echo "$TDH_PNAME ERROR, Invalid path given." >&2 
+    echo "$PNAME ERROR, Invalid path given." >&2 
     echo "$usage"
     exit 1
 fi
@@ -137,7 +128,7 @@ target=$(dirname "$apath")
 name=${apath##*\/}
 
 if [ -z "$target" ]; then
-    echo "$TDH_PNAME ERROR in determining target directory from '$apath'" >&2
+    echo "$PNAME ERROR in determining target directory from '$apath'" >&2
     exit 2
 fi
 
@@ -151,7 +142,7 @@ fi
 
 cd $target
 if [ $? -ne 0  ]; then
-    echo "$TDH_PNAME ERROR in cd to '$target'" >&2
+    echo "$PNAME ERROR in cd to '$target'" >&2
     exit 1
 fi
 
@@ -160,7 +151,7 @@ echo " ( tar -cf ${DISTPATH}/${aname}.tar --exclude-vcs ./${name} )"
 
 rt=$?
 if [ $rt -gt 0 ]; then
-    echo "$TDH_PNAME ERROR creating archive" >&2
+    echo "$PNAME ERROR creating archive" >&2
     exit 1
 fi
 
@@ -174,11 +165,11 @@ if [ $nocopy -eq 0 ]; then
 
     rt=$?
     if [ $rt -gt 0 ]; then
-        echo $TDH_PNAME "ERROR in scp attempt." >&2
+        echo $PNAME "ERROR in scp attempt." >&2
     fi
 
     ( rm ${DISTPATH}/${aname}.tar.gz )
 fi
 
-echo " -> $TDH_PNAME Finished."
+echo " -> $PNAME Finished."
 exit $rt
