@@ -26,11 +26,10 @@ zip="gzip"
 
 usage="
 A tool intended to automate pushing a project or directory 
-of assets to a remote host. It creates a gzipped archive or 
-tarball of a given path and pushes the archive to a remote 
-host. The script also ensures the target path is maintained 
-as the root directory of the archive rather than extracting 
-assets to './'.
+of assets to a remote host. It creates an archive or tarball 
+of a given path and pushes the archive to a remote host. The 
+script also ensures the target path is maintained as the root 
+directory of the archive rather than extracting assets to './'.
 
 Synopsis:
   $PNAME [options] [path] <archive_name> <host>
