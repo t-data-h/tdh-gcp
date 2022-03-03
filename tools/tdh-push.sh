@@ -9,6 +9,8 @@ PNAME=${0##*\/}
 # -----------------------------------
 
 DISTPATH="${TDH_DIST_PATH:-/tmp/dist}"
+GSSH="gcloud compute ssh"
+GSCP="gcloud compute scp"
 
 zone=
 arpath=
@@ -18,11 +20,17 @@ user="$USER"
 ident=
 usegcp=0
 nocopy=0
+zip="gzip"
 
 # -----------------------------------
 
 usage="
-Creates an archive (tarball) of a given path and pushes to a remote host.
+A tool intended to automate pushing a project or directory 
+of assets to a remote host. It creates a gzipped archive or 
+tarball of a given path and pushes the archive to a remote 
+host. The script also ensures the target path is maintained 
+as the root directory of the archive rather than extracting 
+assets to './'.
 
 Synopsis:
   $PNAME [options] [path] <archive_name> <host>
@@ -31,6 +39,7 @@ Options:
   -G|--use-gcp     : Use the GCloud API to scp the archive.
   -h|--help        : Show usage info and exit.
   -i  <identity>   : SSH identity (PEM) file.
+  -j|--bzip2       : Use bzip2 instead of default gzip.
   -u|--user        : Username for scp action if not '$USER'.
   -z|--zone <zone> : GCP Zone, if not 'default' (used with -G).
  
@@ -41,8 +50,8 @@ Options:
   host             : Name of target host, or set TDH_PUSH_HOST
  
  The script ensures that the archive will contain only the last
- directory target. A given path of a '/a/b/c' will create the archive 
- from 'b' resulting in './c/' being contained by the archive.
+ directory target. A path given as '/a/b/c' will create the archive 
+ from 'b' resulting in './c' being the root of the archive.
  
  The 'TDH_PUSH_HOST' environment variable is honored as the default
  target host to use. Otherwise, all three parameters are required. 
@@ -74,6 +83,9 @@ while [ $# -gt 0 ]; do
         -i|--identity)
             ident="$2"
             shift
+            ;;
+        -j|--bzip2)
+            zip="bzip2"
             ;;
         -u|--user)
             user="$2"
@@ -136,8 +148,12 @@ if [ -z "$aname" ]; then
     aname="$name"
 fi
 
-if ! [ -e "$DISTPATH" ]; then
+if [[ ! -e $DISTPATH ]]; then
     ( mkdir -p $DISTPATH )
+    if [ $? -ne 0 ]; then
+        echo "$PNAME ERROR: Unable to create '${DISTPATH}'" >&2
+        exit 1
+    fi
 fi
 
 cd $target
@@ -147,28 +163,31 @@ if [ $? -ne 0  ]; then
 fi
 
 echo " ( tar -cf ${DISTPATH}/${aname}.tar --exclude-vcs ./${name} )"
-( tar -cf ${DISTPATH}/${aname}.tar --exclude-vcs ./${name} )
+( tar -cf ${DISTPATH}/${aname}.tar --exclude-vcs ./${name} 2>/dev/null )
 
 rt=$?
 if [ $rt -gt 0 ]; then
     echo "$PNAME ERROR creating archive" >&2
+    if [ -e ${DISTPATH}/${aname}.tar ]; then
+        unlink ${DISTPATH}/${aname}.tar
+    fi
     exit 1
 fi
 
-( gzip ${DISTPATH}/${aname}.tar )
+( $zip ${DISTPATH}/${aname}.tar )
 
-echo "$scp ${DISTPATH}/${aname}.tar.gz ${user}@${host}:${DISTPATH}"
+echo "$scp ${DISTPATH}/${aname}.tar.* ${user}@${host}:${DISTPATH}"
 
 if [ $nocopy -eq 0 ]; then
     ( $ssh "mkdir -p ${DISTPATH}" )
-    ( $scp ${DISTPATH}/${aname}.tar.gz ${user}@${host}:${DISTPATH}/ )
+    ( $scp ${DISTPATH}/${aname}.tar.* ${user}@${host}:${DISTPATH}/ )
 
     rt=$?
     if [ $rt -gt 0 ]; then
         echo $PNAME "ERROR in scp attempt." >&2
     fi
 
-    ( rm ${DISTPATH}/${aname}.tar.gz )
+    ( rm ${DISTPATH}/${aname}.tar.* )
 fi
 
 echo " -> $PNAME Finished."
