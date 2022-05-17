@@ -7,11 +7,7 @@
 #
 #  @author Timothy C. Arland <tcarland@gmail.com>
 #
-tdh_path=$(dirname "$(readlink -f "$0")")
-
-if [ -f ${tdh_path}/../bin/tdh-gcp-env.sh ]; then
-    . ${tdh_path}/../bin/tdh-gcp-env.sh
-fi
+PNAME="${0##*\/}"
 
 # -----------------------------------
 
@@ -37,7 +33,7 @@ keys to all other hosts. Intended to automate 'ssh-copy-id' without having
 to move a private key around (eg. cloud-based instances).
 
 Synopsis:
-  $TDH_PNAME [options] <hosts_file> [master_host]
+  $PNAME [options] <hosts_file> [master_host]
 
 Options:
   -H|--pvthosts <file> : Add a custom 'hosts' file to all hosts.
@@ -45,7 +41,7 @@ Options:
   -u|--user   <user>   : Name of remote user, if not '$user'.
   -i  <identity>       : SSH Identity file for connecting to hosts.
   -M  <master_id>      : SSH public key of an existing master.
-  -t  <keytype>        : Master key type RSA or ed25519 (default).
+  -t  <key_type>       : Master key type RSA or ed25519 (default).
   -S|--sethostname     : Sets the hostname of target hosts.
 
     <hosts_file>       : File containing the list of hosts and IPs
@@ -115,19 +111,19 @@ if [ -z "$pubhosts" ]; then
 fi
 
 if [[ -z "$master" && -z "$master_id" ]]; then
-    echo "$TDH_PNAME Error: No Master is defined"
+    echo "$PNAME Error: No Master is defined"
     exit 1
 fi
 
 if [ -n "$master_id" ] && [ ! -r "$master_id" ]; then
-    echo "$TDH_PNAME Error reading master_id '$master_id'"
+    echo "$PNAME Error reading master_id '$master_id'"
     exit 1
 fi
 
 if [[ "$mktype" == "rsa" || "$mktype" == "ed25519" ]]; then 
     echo " -> Master key type set to '$mktype'"
 else
-    echo "$TDH_PNAME Error, unknown or unsupported key type"
+    echo "$PNAME Error, unknown or unsupported key type"
     exit 2
 fi
 
@@ -146,7 +142,7 @@ if [ -z "$master_id" ]; then
     master_id="master-$master-id_${mktype}.pub"
 
     if [ -z "$master_ip" ]; then
-        echo "$TDH_PNAME ERROR determining master IP, hosts file correct?" >&2
+        echo "$PNAME ERROR determining master IP, hosts file correct?" >&2
         exit 1
     fi
 
