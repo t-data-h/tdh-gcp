@@ -203,7 +203,7 @@ create)
     fi
 
     # validate region
-    region_is_valid $region
+    region_is_valid "$region"
     rt=$?
 
     if [ $rt -ne 0 ]; then
@@ -213,14 +213,14 @@ create)
     echo "  GCP Region = '$region'"
 
     # Ensure Subnet doesn't already exist
-    subnet_is_valid $subnet
+    subnet_is_valid "$subnet"
     if [ $? -eq 0 ]; then
         echo "$TDH_PNAME ERROR, Subnet '$subnet' already exists" >&2
         exit 1
     fi
 
     # validate Network
-    network_is_valid $network
+    network_is_valid "$network"
     rt=$?
 
     if [ $rt -ne 0 ]; then
@@ -242,7 +242,7 @@ create)
 
         # Create the Network
         if [ $crnet -eq 1 ]; then
-            create_network $network
+            create_network "$network"
             rt=$?
             if [ $rt -ne 0 ]; then
                 echo "$TDH_PNAME ERROR creating network, aborting.." >&2
@@ -254,7 +254,7 @@ create)
     # Create the Subnet
     echo ""
     echo "-> Creating subnet '$subnet' [$addr] in region '$region'"
-    create_subnet $network $subnet $region $addr
+    create_subnet "$network" "$subnet" "$region" "$addr"
     rt=$?
 
     if [ $rt -ne 0 ]; then
@@ -293,7 +293,7 @@ list-networks)
     list_networks
     ;;
 list-subnets)
-    list_subnets $region
+    list_subnets "$region"
     ;;
 describe|describe-network)
     if network_is_valid $network; then
