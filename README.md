@@ -11,11 +11,11 @@ The compute instances are managed by a set of scripts for initializing the
 master and worker node instances. The scripts wrap the Google Cloud API via
 the *gcloud* CLI tool and accordingly, the Google Cloud SDK should be installed
 for creating GCP-based instances, though GCP is not a strict requirement for
-some of the bootstrapping scripts provided. 
+the bootstrapping scripts provided. 
 
-Ansible playbooks are used for installing or updating/upgrading a TDH
-cluster. Refer to the `README.md` located in *./ansible*. The playbooks
-are idempotent and are not GCP specific.
+Ansible playbooks are used for installing or upgrading a TDH cluster. 
+Refer to the `README.md` located in *./ansible*. The playbooks
+are idempotent and are *not* GCP specific.
 
 ## Configuration
 
@@ -63,6 +63,20 @@ Additional support scripts used for various environment bootstrapping.
 
   Convenience script for adding ingress fw rules.
 
+- **tdh-remote-format.sh**:
+
+  The GCP instance scripts format attached drives at create, however
+  for situations where the instances are not created by those scripts, 
+  this script will format and mount a sequential set of attached 
+  storage via ssh.
+
+
+## Support scripts:
+
+Support scripts are utilized by the initialization scripts in some cases, 
+but are not GCP specific and can be used for any environment where compute
+instances have already been created.
+
 - **tdh-push.sh**:
 
   A script for pushing a directory of assets to a host. The script will
@@ -88,21 +102,6 @@ Additional support scripts used for various environment bootstrapping.
   $ ./bin/gcp-push.sh -G /opt/python/anaconda3 tdh-anaconda3
     => result: gcloud compute scp tdh-anaconda3.tar.gz tdh-m01:tmp/dist/
   ```
-
-- **tdh-remote-format.sh**:
-
-  The GCP instance scripts format attached drives at create, however
-  for situations where the instances are not created by those scripts, 
-  this script will format and mount a sequential set of attached 
-  storage via ssh.
-
-
-## Support scripts:
-
-Support scripts are utilized by the initialization scripts in some cases, 
-but are not GCP specific and can be used for any environment where compute
-instances have already been created.
-
 - **tdh-prereqs.sh**:
 
   Installs host prerequisites that may be needed prior to Ansible (eg. wget,
@@ -120,7 +119,7 @@ instances have already been created.
 - **ssh-hostkey-provision.sh**:
 
   Script for remotely configuring a cluster of hosts for passwordless login
-  via a master host.
+  via a selected bastion host.
 
 - **gcp-hosts-gen.sh**:
 

@@ -344,7 +344,7 @@ printf "${C_CYN}  Network  ${C_NC}= ${C_WHT}'$network'${C_NC}\n"
 printf "${C_CYN}  Subnet   ${C_NC}= ${C_WHT}'$subnet'${C_NC}\n\n"
 
 
-zone_is_valid $zone
+zone_is_valid "$zone"
 rt=$?
 if [ $rt -ne 0 ]; then
     echo "$TDH_PNAME ERROR, provided zone '$zone' is not valid" >&2
@@ -352,7 +352,7 @@ if [ $rt -ne 0 ]; then
 fi
 
 
-subnet_is_valid $subnet
+subnet_is_valid "$subnet"
 if [ $? -ne 0 ]; then
     echo "$TDH_PNAME ERROR, subnet '$subnet' not found. Has it been created?" >&2
     exit 1
@@ -446,11 +446,11 @@ for name in $names; do
         ;;
 
     start)
-        start_instance $name $zone
+        start_instance "$name" "$zone"
         ;;
 
     stop)
-        stop_instance $name $zone
+        stop_instance "$name" "$zone"
         ;;
 
     delete|destroy)
