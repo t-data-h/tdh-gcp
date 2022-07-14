@@ -80,6 +80,7 @@ Where <action> is one of the following:
   start       :  Start existing GCP instance(s)
   stop        :  Stop running instance(s).
   delete      :  Delete instance(s)
+  describe    :  Dump instance details
  
   Default Machine Type is '$mtype'
   Default Image is        '$image'
