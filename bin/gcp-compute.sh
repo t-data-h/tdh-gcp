@@ -457,6 +457,10 @@ for name in $names; do
         fi
         ;;
 
+    list)
+         ( gcloud compute instances list )
+         ;;
+
     start)
         start_instance "$name" "$zone"
         ;;
