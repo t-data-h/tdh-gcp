@@ -60,9 +60,10 @@ Options:
   -F|--ip-forward         : Enables IP Forwarding for the instance
   -h|--help               : Display usage and exit.
   -k|--keep(-disks)       : Sets --keep-disks=data on delete action.
-  -l|--list               : List available machine-types for a zone.
+  -l|--list               : List current GCP instances for a zone.
   -L|--list-machine-types : List available machine-types for a zone.
      --list-disk-types    : List available disk types for a zone.
+     --list-os-types      : Dump the list of OS family and images.
      --dryrun             : Enable dryrun, no action is taken.
   -N|--network <name>     : GCP Network name when not using default.
   -n|--subnet  <name>     : Used with --network to define the subnet.
@@ -104,6 +105,12 @@ list_machine_types()
 list_disk_types()
 {
     ( gcloud compute disk-types list | grep "${zone}\|NAME" )
+}
+
+
+list_os_types()
+{
+    ( gcloud compute images list )
 }
 
 
@@ -258,6 +265,10 @@ while [ $# -gt 0 ]; do
             ;;
         --list-disk-types)
             list_disk_types
+            exit $rt
+            ;;
+        --list-os-types)
+            list_os_types
             exit $rt
             ;;
         --dryrun|--dry-run)
