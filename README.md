@@ -186,8 +186,8 @@ The order of precedence is:   `default < env-var < cmd-line`.
 | `GCP_REGION`         | Override the default region, most scripts (except networks) rely on the zone only.
 | `GCP_ZONE`           | Override the default zone (set in gcloud api).
 | `GCP_MACHINE_TYPE`   | Provided via the `--type` cmdline parameter, it can alternatively be provided by the environment.
-| `GCP_MACHINE_IMAGE`  | Override the default machine image of `centos-7`.
-| `GCP_IMAGE_PROJECT`  | Override the default Image Project of `centos-cloud`.
+| `GCP_MACHINE_IMAGE`  | Override the default machine image of `ubuntu-minimal-2204-lts`.
+| `GCP_IMAGE_PROJECT`  | Override the default Image Project of `ubuntu-cloud`.
 | `GCP_NETWORK`        | The network to use for create operations.
 | `GCP_SUBNET`         | The Network Subnet to use for create operations.
 | `TDH_PUSH_HOST`      | Host to use for push operations used by *tdh-push.sh*.
