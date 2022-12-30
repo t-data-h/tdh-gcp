@@ -219,39 +219,39 @@ Ideal Memory values for a not too small, usable cluster:
 
 **Master 01**:
 
-|     Component          |  HeapSize   |  Cores    |
-| ---------------------- | ----------- | --------- |
+|     Component          |  HeapSize   | Cores |
+| ---------------------- | ----------- | ----- |
 |  NameNode (primary)    |  2 Gb       |  1    |
 |  ResourceManager       |  2 Gb       |  1    |
 |  HBase Master          |  2 Gb       |  1    |
 |  Zookeeper             |  1 Gb       |  1    |
 |  JournalNode           |  1 Gb       |  1    |
-|  **Total**        |  **8Gb**  |  **5** |
+|  **Total**             |  **8Gb**    | **5** |
 
 <br>
 
 **Master 02**:
 
-|     Component           |  HeapSize   |  Cores    |
-| ----------------------- | ----------- | --------- |
+|     Component           |  HeapSize   | Cores |
+| ----------------------- | ----------- | ----- |
 |  NameNode (secondary)   |  2 Gb       |  1    |
 |  ResourceManager        |  2 Gb       |  1    |
 |  Zookeeper              |  1 Gb       |  1    |
 |  JournalNode            |  1 Gb       |  1    |
-|  **Total**           |  **6Gb**      | **4**   |
+|  **Total**              |  **6Gb**    | **4** |
 
 <br>
 
 **Master 03**:
 
-|     Component           |  HeapSize   |  Cores    |
-| ----------------------- | ----------- | --------- |
-|  Hive Metastore         |  2 Gb       |  1    |
-|  Hive Server2           |  2 Gb       |  1    |
-|  Spark HistoryServer    |  1 Gb       |  1    |
-|  Zookeeper              |  1 Gb       |  1    |
-|  JournalNode            |  1 Gb       |  1    |
-|  **Total**           |  **7Gb**      | **5**   |
+|     Component           |  HeapSize   | Cores |
+| ----------------------- | ----------- | ----- |
+|  Hive Metastore         |  2 Gb       |   1   |
+|  Hive Server2           |  2 Gb       |   1   |
+|  Spark HistoryServer    |  1 Gb       |   1   |
+|  Zookeeper              |  1 Gb       |   1   |
+|  JournalNode            |  1 Gb       |   1   |
+|  **Total**              |  **7Gb**    | **5** |
 
 <br>
 
@@ -269,7 +269,7 @@ Ideal Memory values for a not too small, usable cluster:
 | Master/Util   |  n1-highmem-4   |  4 vCPU and 26 Gb  |
 | ------------- | --------------- | ------------------ |
 | Worker/Data   |  n1-standard-8  |  8 vCPU and 30 Gb  |
-| Worker/Data   |  n1-highmem-8   |  8 vCPU and 52 Gb   |
+| Worker/Data   |  n1-highmem-8   |  8 vCPU and 52 Gb  |
 | Worker/Data   |  n1-highmem-16  | 16 vCPU and 104 Gb |
 | Worker/Data   |  n1-highmem-32  | 32 vCPU and 208 Gb |
 
