@@ -30,7 +30,7 @@ volnum=1
 attach=0
 ssd=0
 vga=0
-ipf=0
+ipfwd=0
 async=0
 dryrun=0
 keep=0
@@ -69,8 +69,9 @@ Options:
   -n|--subnet  <name>     : Used with --network to define the subnet.
   -p|--prefix  <name>     : Prefix to use for instance names.
   -S|--ssd                : Use SSD as attached disk type
-  -t|--type               : Machine type to use for instances.
+  -t|--type  <type>       : GCP Machine type to use for instances.
   -T|--tags  <tag1,..>    : A set of tags to use for instances.
+                            Overrides the default GCP_MACHINE_TYPE.
   -z|--zone  <name>       : Set the GCP zone, default is '$zone'. 
   -v|--vga                : Attach a display device at create.
   -X|--no-serial          : Don't enable logging to serial by default.
@@ -101,18 +102,15 @@ list_machine_types()
     ( gcloud compute machine-types list | grep "${zone}\|NAME" )
 }
 
-
 list_disk_types()
 {
     ( gcloud compute disk-types list | grep "${zone}\|NAME" )
 }
 
-
 list_os_types()
 {
     ( gcloud compute images list )
 }
-
 
 vm_is_running()
 {
@@ -250,12 +248,12 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         -F|--ip-forward)
-            ipf=1
+            ipfwd=1
             ;;
         -k|--keep*)
             keep=1
             ;;
-        -l|--list)
+        -l|--list|list)
             ( gcloud compute instances list )
             exit $rt
             ;;
@@ -403,7 +401,7 @@ for name in $names; do
             args+=($GCP_ENABLE_VGA)
         fi
 
-        if [ $ipf -eq 1 ]; then
+        if [ $ipfwd -eq 1 ]; then
             args+=("--can-ip-forward")
         fi
 
@@ -456,10 +454,6 @@ for name in $names; do
             fi
         fi
         ;;
-
-    list)
-         ( gcloud compute instances list )
-         ;;
 
     start)
         start_instance "$name" "$zone"

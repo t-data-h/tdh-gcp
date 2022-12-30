@@ -41,29 +41,29 @@ Synopsis:
   $TDH_PNAME [options] <action> <cluster_name>
 
 Options:
-   -a|--async              : Run actions asynchronously.
-   -A|--ipalias            : Enables ip-alias during cluster creation.
-   -c|--count    <cnt>     : Number of nodes to deploy, Default is $nodecnt.
-   -h|--help               : Display usage info and exit.
-   -d|--disksize <xxGB>    : Size of boot disk. Default is $dsize.
-      --dryrun             : Enable dryrun.
-   -N|--network  <name>    : Name of GCP Network if not default.
-   -n|--subnet   <name>    : Name of GCP Subnet if not default.
-   -P|--private <cidr,..>  : Set as private cluster by defining allow prefixes.
-                             The list of networks is a comma delimited list.
-   -S|--ssd                : Use 'pd-ssd' as GCP disk type.
-   -t|--type     <type>    : GCP Instance machine-type.
-   -T|--tags    <tag1,..>  : List of Compute Engine tags to apply to nodes.
-   -z|--zone     <name>    : Sets an alternate GCP Zone.
-   -V|--version            : Show Version Info and exit.
+   -a|--async               : Run actions asynchronously.
+   -A|--ipalias             : Enables ip-alias during cluster creation.
+   -c|--count    <cnt>      : Number of nodes to deploy, Default is $nodecnt.
+   -h|--help                : Display usage info and exit.
+   -d|--disksize <xxGB>     : Size of boot disk. Default is $dsize.
+      --dryrun              : Enable dryrun.
+   -N|--network  <name>     : Name of GCP Network if not default.
+   -n|--subnet   <name>     : Name of GCP Subnet if not default.
+   -P|--private  <cidr,..>  : Set as private cluster by defining allow prefixes.
+                              The list of networks is a comma delimited list.
+   -S|--ssd                 : Use 'pd-ssd' as GCP disk type.
+   -t|--type     <type>     : GCP Instance machine-type.
+   -T|--tags     <tag1,..>  : List of Compute Engine tags to apply to nodes.
+   -z|--zone     <name>     : Sets an alternate GCP Zone.
+   -V|--version             : Show Version Info and exit.
    
 Where <action> is one of the following:
-    create                 : Initialize a new GKE Cluster
-    delete                 : Delete a GKE Cluster
-    list                   : List Clusters
-    update                 : Update a private cluster 'master-authorized-networks'.
-                             The provided list is an overwrite, not an append.
-    get-credentials        : Get cluster credentials
+    create                  : Initialize a new GKE Cluster
+    delete                  : Delete a GKE Cluster
+    list                    : List Clusters
+    update                  : Update a private cluster 'master-authorized-networks'.
+                              The provided list is an overwrite, not an append.
+    get-credentials         : Get cluster credentials
 
 The following environment variables are honored for overrides:
     GCP_MACHINE_TYPE, GCP_ZONE, GCP_NETWORK, GCP_SUBNET
@@ -71,8 +71,9 @@ The following environment variables are honored for overrides:
 When GCP Private Clusters are used, the various internal CIDR blocks can be 
 customized with the following settings:
   --cluster-ipv4-cidr  <cidr>  : Set the cluster network, default=$cluster_ipv4
-  --master-ipv4-cidr   <cidr>  : Set the master IPv4 range.
-  --services-ipv4-cidr <cidr>  : Set the services IPv4 range, requires --ipalias.
+  --master-ipv4-cidr   <cidr>  : Set the master network, default=$master_ipv4 
+  --services-ipv4-cidr <cidr>  : Set the services network, default=$services_ipv4
+                                 requires --ipalias to be set.
   --cluster-version    <vers>  : Override GKE K8s default version.
     Use 'gcloud container get-server-config' to see available versions.
 

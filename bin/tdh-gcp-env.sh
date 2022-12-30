@@ -63,7 +63,7 @@ function wait_for_gcphost() {
     local x=
 
     if [ -z "$host" ]; then
-        echo "wait_for_gcphost(): target not provided." >&2
+        echo "Error, wait_for_gcphost(): target not provided." >&2
         return $rt
     fi
 
@@ -85,7 +85,6 @@ function wait_for_gcphost() {
 
     return $rt
 }
-
 
 function region_is_valid()
 {

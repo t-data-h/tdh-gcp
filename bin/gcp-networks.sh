@@ -289,7 +289,7 @@ create)
     fi
     ;;
 
-list-networks)
+list-networks|list)
     list_networks
     ;;
 list-subnets)

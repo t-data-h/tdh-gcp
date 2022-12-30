@@ -30,23 +30,23 @@ Synopsis:
   $TDH_NAME [options] <action> <name> [cidr] [proto:port]
 
 Options:
-  -h|--help             : Show usage and exit
-  -N|--network <name>   : Name of network to apply rule if not 'default'
-     --dryrun           : Enables dryrun, no action is taken
-  -T|--tags <tag1,..>   : Set target tags on rules being created
-  -V|--version          : Show Version info and exit
+  -h|--help            : Show usage and exit
+  -N|--network <name>  : Name of network to apply rule if not 'default'
+     --dryrun          : Enables dryrun, no action is taken
+  -T|--tags <tag1,..>  : Set target tags on rules being created
+  -V|--version         : Show Version info and exit
     
 Where <action> is one of the following:
   create <name> <cidr> <proto:port>   
-                        : Creates a new ingress rule allowing access from
-                          the provided IP Range. The rule name provided is
-                          appended to a rule prefix of '\$network-allow'.
-                          eg. 'oside' = '$network-allow-oside'
-  delete    <name>      : Delete a rule by its 'short' name (w/o network). 
-  list                  : List the current rules.
-  enable    <name>      : Enable a firewall rule that has been disabled.
-  disable   <name>      : Disable an existing firewall rule.
-  describe  <name>      : Get a full description of a firewall rule.
+                       : Creates a new ingress rule allowing access from
+                         the provided IP Range. The rule name provided is
+                         appended to a rule prefix of '\$network-allow'.
+                         eg. 'oside' = '$network-allow-oside'
+  delete    <name>     : Delete a rule by its 'short' name (w/o network). 
+  list                 : List the current rules.
+  enable    <name>     : Enable a firewall rule that has been disabled.
+  disable   <name>     : Disable an existing firewall rule.
+  describe  <name>     : Get a full description of a firewall rule.
 "
 
 
