@@ -27,7 +27,7 @@ usage="
 Tool to manipulate GCP firewall rules for compute node ingress.
 
 Synopsis:
-  $TDH_NAME [options] <action> <name> [cidr] [proto:port]
+  $TDH_NAME [options] <action> <name> <cidr> <proto:port>
 
 Options:
   -h|--help            : Show usage and exit

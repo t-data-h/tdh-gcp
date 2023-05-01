@@ -32,7 +32,7 @@ tools are intended to be run from the root project directory.
   This is the base script for creating or managing a GCP Compute Instance. It
   will create an instance and optionally attach data disks to the instance as
   well as stopping, deleting, or checking an instance. It is used by the
-  tdh master and worker init scripts for creating GCP instances.
+  *tdh-instance-init* script for creating GCP instances.
 
 - **tdh-instance-init.sh**:
 
