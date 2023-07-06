@@ -63,7 +63,7 @@ Where <action> is one of the following:
     list                    : List Clusters
     update                  : Update a private cluster 'master-authorized-networks'.
                               The provided list is an overwrite, not an append.
-    get-credentials         : Get cluster credentials
+    get-credentials <name>  : Get cluster credentials
 
 The following environment variables are honored for overrides:
     GCP_MACHINE_TYPE, GCP_ZONE, GCP_NETWORK, GCP_SUBNET
@@ -145,6 +145,10 @@ while [ $# -gt 0 ]; do
             ;;
         -t|--type)
             mtype="$2"
+            shift
+            ;;
+        -T|--tags)
+            tags="$2"
             shift
             ;;
         -z|--zone)
