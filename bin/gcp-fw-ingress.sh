@@ -33,6 +33,7 @@ Options:
   -h|--help            : Show usage and exit
   -N|--network <name>  : Name of network to apply rule if not 'default'
      --dryrun          : Enables dryrun, no action is taken
+  -q|--quiet           : Quiet mode disables prompts
   -T|--tags <tag1,..>  : Set target tags on rules being created
   -V|--version         : Show Version info and exit
     
@@ -74,7 +75,7 @@ while [ $# -gt 0 ]; do
             network="$2"
             shift
             ;;
-        -q|--quiet)
+        -q|--quiet|--force)
             noprompt=1
             ;;
         -T|--tags)
