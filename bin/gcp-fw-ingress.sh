@@ -43,7 +43,7 @@ Where <action> is one of the following:
                          the provided IP Range. The rule name provided is
                          appended to a rule prefix of '\$network-allow'.
                          eg. 'oside' = '$network-allow-oside'
-  delete    <name>     : Delete a rule by its 'short' name (w/o network). 
+  delete    <name>     : Delete a rule by its 'short' name (w/o network).
   list                 : List the current rules.
   enable    <name>     : Enable a firewall rule that has been disabled.
   disable   <name>     : Disable an existing firewall rule.
@@ -156,7 +156,7 @@ case "$action" in
     fi
     ;;
 
-'list')
+'list'|'ls')
     ( $gfw list --format="table(
           name,
           network,
