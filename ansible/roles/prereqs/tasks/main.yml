@@ -40,7 +40,7 @@
 - name: Create JVM Link (RHEL/CentOS)
   become: true
   file:
-    src: '/usr/lib/jvm/java-1.8.0-openjdk'
+    src: '/usr/lib/jvm/java-1.17.0-openjdk'
     dest: '/usr/lib/jvm/default-java'
     owner: 'root'
     group: 'root'
@@ -50,7 +50,7 @@
 - name: Create JVM Link (Debian/Ubuntu)
   become: true
   file:
-    src: '/usr/lib/jvm/java-8-openjdk-amd64'
+    src: '/usr/lib/jvm/java-17-openjdk-amd64'
     dest: '/usr/lib/jvm/default-java'
     owner: 'root'
     group: 'root'

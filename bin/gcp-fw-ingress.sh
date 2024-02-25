@@ -33,6 +33,7 @@ Options:
   -h|--help            : Show usage and exit
   -N|--network <name>  : Name of network to apply rule if not 'default'
      --dryrun          : Enables dryrun, no action is taken
+  -q|--quiet           : Quiet mode disables prompts
   -T|--tags <tag1,..>  : Set target tags on rules being created
   -V|--version         : Show Version info and exit
     
@@ -42,7 +43,7 @@ Where <action> is one of the following:
                          the provided IP Range. The rule name provided is
                          appended to a rule prefix of '\$network-allow'.
                          eg. 'oside' = '$network-allow-oside'
-  delete    <name>     : Delete a rule by its 'short' name (w/o network). 
+  delete    <name>     : Delete a rule by its 'short' name (w/o network).
   list                 : List the current rules.
   enable    <name>     : Enable a firewall rule that has been disabled.
   disable   <name>     : Disable an existing firewall rule.
@@ -74,7 +75,7 @@ while [ $# -gt 0 ]; do
             network="$2"
             shift
             ;;
-        -q|--quiet)
+        -q|--quiet|--force)
             noprompt=1
             ;;
         -T|--tags)
@@ -155,7 +156,7 @@ case "$action" in
     fi
     ;;
 
-'list')
+'list'|'ls')
     ( $gfw list --format="table(
           name,
           network,
