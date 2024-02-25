@@ -56,11 +56,11 @@
   register: tdhstat
   tags: [ tdh-config, tdh-mgr ]
 
-- include: tdh-config-deploy.yml
+- ansible.builtin.include_tasks: tdh-config-deploy.yml
   when: tdhconfigstat.stat.exists and tdhstat.stat.exists
 
-- include: tdh-mgr-deploy.yml
+- ansible.builtin.include_tasks: tdh-mgr-deploy.yml
   when: tdhmgrstat.stat.exists and tdhstat.stat.exists
 
-- include: tdh-python-deploy.yml
+- ansible.builtin.include_tasks: tdh-python-deploy.yml
   when: tdhpystat.stat.exists
