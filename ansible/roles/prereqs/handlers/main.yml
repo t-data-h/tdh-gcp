@@ -1,9 +1,9 @@
 ---
-- name: source_sysctl
+- name: Source_sysctl
   become: true
-  shell: "sysctl --system"
+  ansible.builtin.shell: "sysctl --system"
 
-- name: selinux_setenforce
+- name: Selinux_setenforce
   become: true
   ignore_errors: true
-  shell: "setenforce 0"
+  ansible.builtin.shell: "setenforce 0"

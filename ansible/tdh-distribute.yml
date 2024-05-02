@@ -4,17 +4,18 @@
   vars_files:
     - roles/common/vars/main.yml
   tasks:
-  - name: Create Drop Path if needed
-    become: true
-    file:
-      path: '{{ tdh_drop_path }}'
-      state: directory
-      mode: '0777'
-  - name: Copy TDH dropzone
-    copy:
-      src: '{{ tdh_dist_path }}'
-      dest: '{{ tdh_drop_path }}'
-  - name: Show resulting drop
-    shell: 'ls -l {{ tdh_drop_path }}'
-    register: dropls
-  - debug: var=dropls
+    - name: Create Drop Path if needed
+      become: true
+      ansible.builtin.file:
+        path: '{{ tdh_drop_path }}'
+        state: directory
+        mode: '0777'
+    - name: Copy TDH dropzone
+      ansible.builtin.copy:
+        src: '{{ tdh_dist_path }}'
+        dest: '{{ tdh_drop_path }}'
+        mode: '0755'
+    - name: Show resulting drop
+      ansible.builtin.shell: 'ls -l {{ tdh_drop_path }}'
+      register: dropls
+    - ansible.builtin.debug: var=dropls

@@ -1,60 +1,59 @@
 ---
-
 - name: Check for TDH tarball drop
-  stat:
+  ansible.builtin.stat:
     path: '{{ tdh_dropfile }}'
   register: tdhdropstat
 
 - name: Check for TDH Config Drop
-  stat:
+  tags: [tdh-config]
+  ansible.builtin.stat:
     path: '{{ tdh_config_dropfile }}'
-  tags: [ tdh-config ]
   register: tdhconfigstat
 
 - name: Check for TDH-MGR Drop
-  stat:
+  tags: [tdh-mgr]
+  ansible.builtin.stat:
     path: '{{ tdh_mgr_dropfile }}'
-  tags: [ tdh-mgr ]
   register: tdhmgrstat
 
 - name: Check for Anaconda Drop
-  stat:
+  tags: [tdh-python]
+  ansible.builtin.stat:
     path: '{{ tdh_python3_dropfile }}'
-  tags: [ tdh-python ]
   register: tdhpystat
 
-- name: TDH Deploy...
-  block:
-  - name:  Remove previous TDH installation
-    file:
-      path: '{{ tdh_install_path }}'
-      state: absent
-  - name: Extract TDH Package
-    unarchive:
-      src: '{{ tdh_dropfile }}'
-      dest: '/opt'
-      remote_src: 'yes'
-      owner: '{{ tdh_user }}'
-      group: '{{ tdh_group }}'
-      mode: 0755
-      creates: '{{ tdh_install_path }}'
-  - name: Cleanup TDH install package
-    file:
-      path: '{{ tdh_dropfile }}'
-      state: absent
-  - name: Create the opt TDH/hadoop link
-    file:
-      src: '{{ tdh_install_path }}'
-      dest: '/opt/hadoop'
-      state: link
+- name: TDH Deploy
   become: true
   when: tdhdropstat.stat.exists
+  block:
+    - name: Remove previous TDH installation
+      ansible.builtin.file:
+        path: '{{ tdh_install_path }}'
+        state: absent
+    - name: Extract TDH Package
+      ansible.builtin.unarchive:
+        src: '{{ tdh_dropfile }}'
+        dest: '/opt'
+        remote_src: 'yes'
+        owner: '{{ tdh_user }}'
+        group: '{{ tdh_group }}'
+        mode: '0755'
+        creates: '{{ tdh_install_path }}'
+    - name: Cleanup TDH install package
+      ansible.builtin.file:
+        path: '{{ tdh_dropfile }}'
+        state: absent
+    - name: Create the opt TDH/hadoop link
+      ansible.builtin.file:
+        src: '{{ tdh_install_path }}'
+        dest: '/opt/hadoop'
+        state: link
 
 - name: Check for existing TDH Install
-  stat:
+  tags: [tdh-config, tdh-mgr]
+  ansible.builtin.stat:
     path: '{{ tdh_install_path }}'
   register: tdhstat
-  tags: [ tdh-config, tdh-mgr ]
 
 - ansible.builtin.include_tasks: tdh-config-deploy.yml
   when: tdhconfigstat.stat.exists and tdhstat.stat.exists

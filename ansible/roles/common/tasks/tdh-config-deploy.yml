@@ -1,38 +1,38 @@
 ---
 - name: TDH Config Deploy
+  tags: [tdh-config]
   block:
-  - name: Extract TDH Config package
-    unarchive:
-      src: '{{ tdh_config_dropfile }}'
-      dest: '{{ tdh_tmp_path }}'
-      remote_src: 'yes'
-      owner: '{{ tdh_user }}'
-      group: '{{ tdh_group }}'
-      mode: 0755
-      creates: '{{ tdh_config_path }}'
-  - name: Synchronize TDH Config
-    shell: 'rsync -aK {{ tdh_config_path }}/ {{ tdh_install_path }}/'
-  - name: Cleanup TDH Config install path
-    file:
-      path: '{{ tdh_config_path }}'
-      state: absent
-  - name: Cleanup TDH Config Package
-    file:
-      path: '{{ tdh_config_dropfile }}'
-      state: absent
-  - name: Configure core-site s3 endpoint
-    replace:
-      path: '{{ tdh_install_path }}/hadoop/etc/hadoop/core-site.xml'
-      regexp: '%% S3_ENDPOINT %%'
-      replace: '{{ s3_endpoint }}'
-  - name: Configure core-site s3 access key
-    replace:
-      path: '{{ tdh_install_path }}/hadoop/etc/hadoop/core-site.xml'
-      regexp: '%% S3_ACCESS_KEY %%'
-      replace: '{{ s3_access_key }}'
-  - name: Configure core-site s3 secret key
-    replace:
-      path: '{{ tdh_install_path }}/hadoop/etc/hadoop/core-site.xml'
-      regexp: '%% S3_SECRET_KEY %%'
-      replace: '{{ s3_secret_key }}'
-  tags: [ tdh-config ]
+    - name: Extract TDH Config package
+      ansible.builtin.unarchive:
+        src: '{{ tdh_config_dropfile }}'
+        dest: '{{ tdh_tmp_path }}'
+        creates: '{{ tdh_config_path }}'
+        owner: '{{ tdh_user }}'
+        group: '{{ tdh_group }}'
+        remote_src: true
+        mode: '0755'
+    - name: Synchronize TDH Config
+      ansible.builtin.shell: 'rsync -aK {{ tdh_config_path }}/ {{ tdh_install_path }}/'
+    - name: Cleanup TDH Config install path
+      ansible.builtin.file:
+        path: '{{ tdh_config_path }}'
+        state: absent
+    - name: Cleanup TDH Config Package
+      ansible.builtin.file:
+        path: '{{ tdh_config_dropfile }}'
+        state: absent
+    - name: Configure core-site s3 endpoint
+      ansible.builtin.replace:
+        path: '{{ tdh_install_path }}/hadoop/etc/hadoop/core-site.xml'
+        regexp: '%% S3_ENDPOINT %%'
+        replace: '{{ s3_endpoint }}'
+    - name: Configure core-site s3 access key
+      ansible.builtin.replace:
+        path: '{{ tdh_install_path }}/hadoop/etc/hadoop/core-site.xml'
+        regexp: '%% S3_ACCESS_KEY %%'
+        replace: '{{ s3_access_key }}'
+    - name: Configure core-site s3 secret key
+      ansible.builtin.replace:
+        path: '{{ tdh_install_path }}/hadoop/etc/hadoop/core-site.xml'
+        regexp: '%% S3_SECRET_KEY %%'
+        replace: '{{ s3_secret_key }}'

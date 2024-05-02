@@ -1,6 +1,6 @@
 TDH-GCP
 =========
-Timothy C. Arland  ( tcarland@gmail.com  |  tarland@trace3.com )
+Timothy C. Arland <tcarland@gmail.com>
 
 ## Overview
 

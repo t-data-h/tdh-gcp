@@ -1,7 +1,8 @@
 ---
 #  Setup Mysql
 - name: Mysql Root accounts
-  mysql_user:
+  when: inventory_hostname in groups['mysql_master'] or inventory_hostname in groups['mysql_slave']
+  community.mysql.mysql_user:
     login_user: 'root'
     login_password: '{{ mysql_root_password }}'
     name: 'root'
@@ -10,24 +11,22 @@
     priv: '*.*:ALL,GRANT'
     state: present
   with_items: '{{ tdh_mysql_master_hosts }}'
-  when: inventory_hostname in groups['mysql_master'] or inventory_hostname in groups['mysql_slave']
 
 - name: Mysql DB Setup
-  block:
-  - name: Create Hive Database
-    mysql_db:
-      login_user: 'root'
-      login_password: '{{ mysql_root_password }}'
-      name: '{{ mysql_hive_db }}'
-      state: present
-  - name: Create Hive User
-    mysql_user:
-      login_user: 'root'
-      login_password: '{{ mysql_root_password }}'
-      name: '{{ mysql_hive_user }}'
-      password: '{{ mysql_hive_password }}'
-      priv: 'metastore.*:ALL'
-      host: '{{ item }}'
-    with_items: '{{ tdh_mysql_client_hosts }}'
   when: inventory_hostname in groups['mysql_master']
-
+  block:
+    - name: Create Hive Database
+      community.mysql.mysql_db:
+        login_user: 'root'
+        login_password: '{{ mysql_root_password }}'
+        name: '{{ mysql_hive_db }}'
+        state: present
+    - name: Create Hive User
+      community.mysql.mysql_user:
+        login_user: 'root'
+        login_password: '{{ mysql_root_password }}'
+        name: '{{ mysql_hive_user }}'
+        password: '{{ mysql_hive_password }}'
+        priv: 'metastore.*:ALL'
+        host: '{{ item }}'
+      with_items: '{{ tdh_mysql_client_hosts }}'

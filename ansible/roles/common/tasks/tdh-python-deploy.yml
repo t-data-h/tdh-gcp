@@ -1,27 +1,27 @@
 ---
 - name: Python3 Deploy...
-  block:
-  - name: Remove previous Anaconda
-    file:
-      path: '{{ tdh_python3_path }}'
-      state: absent
-  - name: Ensure python3 path exists
-    file:
-      path: '{{ tdh_python3_install_path }}'
-      state: directory
-      mode: 0755
-  - name: Extract Anaconda package
-    unarchive:
-      src: '{{ tdh_python3_dropfile }}'
-      dest: '{{ tdh_python3_install_path }}'
-      remote_src: 'yes'
-      owner: 'root'
-      group: 'root'
-      mode: 0755
-      creates: '{{ tdh_python3_path }}'
-  - name: Cleanup Anaconda package
-    file:
-      path: '{{ tdh_python3_dropfile }}'
-      state: absent
-  tags: [ tdh-python ]
   become: true
+  tags: [tdh-python]
+  block:
+    - name: Remove previous Anaconda
+      ansible.builtin.file:
+        path: '{{ tdh_python3_path }}'
+        state: absent
+    - name: Ensure python3 path exists
+      ansible.builtin.file:
+        path: '{{ tdh_python3_install_path }}'
+        state: directory
+        mode: '0755'
+    - name: Extract Anaconda package
+      ansible.builtin.unarchive:
+        src: '{{ tdh_python3_dropfile }}'
+        dest: '{{ tdh_python3_install_path }}'
+        creates: '{{ tdh_python3_path }}'
+        remote_src: 'yes'
+        owner: 'root'
+        group: 'root'
+        mode: '0755'
+    - name: Cleanup Anaconda package
+      ansible.builtin.file:
+        path: '{{ tdh_python3_dropfile }}'
+        state: absent

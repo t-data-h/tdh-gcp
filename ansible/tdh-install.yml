@@ -1,22 +1,22 @@
 ---
 - name: Install TDH
   hosts: all
-  gather_facts: True
+  gather_facts: true
 
 - name: Deploy TDH Workers
   hosts: workers
-  tags: [ 'tdh_worker' ]
+  tags: ['tdh_worker']
   roles:
     - 'tdh_worker'
 
 - name: Deploy TDH Masters
   hosts: masters
-  tags: [ 'tdh_master' ]
+  tags: ['tdh_master']
   roles:
     - 'tdh_master'
 
 - name: Deploy TDH clients
   hosts: clients
-  tags: [ "tdh_clients" ]
+  tags: ["tdh_clients"]
   roles:
     - "tdh_client"
