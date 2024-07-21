@@ -1,7 +1,0 @@
-# .ansible-lint
-skip_list:
-  - command-instead-of-shell
-  - meta-no-info
-  - no-changed-when
-  - var-naming
-  - name

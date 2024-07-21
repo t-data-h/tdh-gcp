@@ -1,7 +1,0 @@
----
-mysql_root_password: 'myrootpw'
-mysql_repl_password: 'myreplpw'
-mysql_hive_password: 'myhivepw'
-
-s3_access_key: 'minio'
-s3_secret_key: 'minio123'
