@@ -177,7 +177,7 @@ option.
 Example:
 ```sh
 ./bin/gcp-networks.sh -a 10.10.64.0/23 create tdhnet tdhc1
-./bin/gke-init -A -N tdhnet -n tdhc1 -c 8 -P '73.26.197.175/32' create tdhc
+./bin/gke-init.sh -A -N tdhnet -n tdhc1 -c 8 -P '73.26.197.175/32' create tdhc1
 ```
 
 <br>

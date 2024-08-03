@@ -173,18 +173,24 @@ if [ -z "$GCP" ]; then
     exit 1
 fi
 
+
 cluster_vers=$(gcloud container get-server-config 2>/dev/null | \
   grep 'defaultClusterVersion:' | \
   awk -F: '{ print $2 }' | sed 's/^[[:space:]]*//')
 
+
 case "$action" in
+
+##      CREATE
 create)
     if [ -z "$cluster" ]; then
         echo "$TDH_PNAME ERROR, name of cluster is required." >&2
         exit 1
     fi
 
-    args=("--machine-type=$mtype" "--disk-size=$dsize" "--num-nodes=$nodecnt")
+    args=("--machine-type=$mtype" 
+          "--disk-size=$dsize" 
+          "--num-nodes=$nodecnt")
 
     if [ $ssd -eq 1 ]; then
         args+=("--disk-type=pd-ssd")
@@ -228,6 +234,7 @@ create)
     fi
     ;;
 
+##      UPDATE
 update)
     if [ -z "$cluster" ]; then
         echo "$TDH_PNAME ERROR, name of cluster is required." >&2
@@ -236,10 +243,19 @@ update)
     if [ -z "$private" ]; then
         echo "$TDH_NAME ERROR, private access addresses not provided." >&2
         exit 1
+    fi
 
-    ( gcloud container clusters update $cluster --enable-master-authorized-networks --master-authorized-networks=$private )
+    args=("--enable-master-authorized-networks"
+          "--master-authorized-networks=$private")
+
+    echo "( gcloud container clusters update $cluster ${args[@]} )"
+
+    if [ $dryrun -eq 0 ]; then
+        ( gcloud container clusters update $cluster ${args[@]} )
+    fi 
     ;;
 
+##      DELETE
 del|delete|destroy)
     if [ -z "$cluster" ]; then
         echo "$TDH_PNAME ERROR, name of cluster is required." >&2
@@ -251,10 +267,12 @@ del|delete|destroy)
     fi
     ;;
 
+##      LIST
 list)
     ( gcloud container clusters list )
     ;;
 
+##      DESCRIBE
 describe|info)
     if [ -z "$cluster" ]; then
         echo "$TDH_PNAME ERROR, name of cluster is required." >&2
