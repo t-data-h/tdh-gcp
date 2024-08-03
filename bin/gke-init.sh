@@ -28,8 +28,8 @@ tags=
 
 # private cluster options
 master_ipv4="172.16.10.0/28"
-cluster_ipv4="10.88.0.0/14"
-services_ipv4="10.92.0.0/20"
+cluster_ipv4="10.12.0.0/16"
+services_ipv4="10.10.128.0/20"
 cluster_vers=
 
 # -----------------------------------
@@ -58,10 +58,10 @@ Options:
    -V|--version             : Show Version Info and exit.
    
 Where <action> is one of the following:
-    create                  : Initialize a new GKE Cluster
-    delete                  : Delete a GKE Cluster
+    create      <name>      : Initialize a new GKE Cluster
+    delete      <name>      : Delete a GKE Cluster
     list                    : List Clusters
-    update                  : Update a private cluster 'master-authorized-networks'.
+    update <name> <cidr1,>  : Update a private cluster 'master-authorized-networks'.
                               The provided list is an overwrite, not an append.
     get-credentials <name>  : Get cluster credentials
 
@@ -233,9 +233,11 @@ update)
         echo "$TDH_PNAME ERROR, name of cluster is required." >&2
         exit 1
     fi
-    if [ -n "$private" ]; then
-        ( gcloud container clusters update $cluster --enable-master-authorized-networks --master-authorized-networks=$private )
-    fi
+    if [ -z "$private" ]; then
+        echo "$TDH_NAME ERROR, private access addresses not provided." >&2
+        exit 1
+
+    ( gcloud container clusters update $cluster --enable-master-authorized-networks --master-authorized-networks=$private )
     ;;
 
 del|delete|destroy)

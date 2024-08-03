@@ -120,12 +120,6 @@ case "$action" in
         exit 1
     fi
 
-    if [[ ! "$protoport" =~ ":" ]]; then 
-        echo "$TDH_PNAME ERROR, Rule must provide port as 'protocol:port' eg. 'tcp:22'" >&2
-        echo "$usage" 
-        exit 1
-    fi
-
     args=("--allow $protoport" "--direction INGRESS" "--source-ranges $cidr" "--network $network")
 
     if [ -n "$tags" ]; then
