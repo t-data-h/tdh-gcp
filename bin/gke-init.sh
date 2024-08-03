@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Initialize a GKE cluster
+# Initializes and manages a GKE cluster.
 #
 # @author Timothy C. Arland <tcarland@gmail.com>
 #

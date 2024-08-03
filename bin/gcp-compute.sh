@@ -225,96 +225,96 @@ maxvols=${#chars[@]}
 
 while [ $# -gt 0 ]; do
     case "$1" in
-        -a|--async)
-            async=1
-            ;;
-        -A|--attach)
-            attach=1
-            ;;
-        -b|--bootsize)
-            bootsize="$2"
-            shift
-            ;;
-        'help'|-h|--help)
-            echo "$usage"
-            exit $rt
-            ;;
-        -d|--disksize)
-            volsize="$2"
-            shift
-            ;;
-        -D|--disknum)
-            volnum=$2
-            shift
-            ;;
-        -F|--ip-forward)
-            ipfwd=1
-            ;;
-        -k|--keep*)
-            keep=1
-            ;;
-        -l|--list|list)
-            ( gcloud compute instances list )
-            exit $rt
-            ;;
-        -L|--list-types|--list-machine-types)
-            list_machine_types
-            exit $rt
-            ;;
-        --list-disk-types)
-            list_disk_types
-            exit $rt
-            ;;
-        --list-os-types)
-            list_os_types
-            exit $rt
-            ;;
-        --dryrun|--dry-run)
-            dryrun=1
-            ;;
-        -N|--network)
-            network="$2"
-            shift
-            ;;
-        -n|--subnet)
-            subnet="$2"
-            shift
-            ;;
-        -p|--prefix)
-            prefix="$2"
-            shift
-            ;;
-        -S|--ssd)
-            ssd=1
-            ;;
-        -t|--type)
-            mtype="$2"
-            shift
-            ;;
-        -T|--tags)
-            tags="$2"
-            shift
-            ;;
-        -v|--vga)
-            vga=1
-            ;;
-        -z|--zone)
-            zone="$2"
-            shift
-            ;;
-        -X|--no-serial)
-            serial=0
-            ;;
-        'version'|-V|--version)
-            tdh_version
-            exit $rt
-            ;;
-        *)
-            action="${1,,}"
-            shift
-            names="$@"
-            shift $#
-            ;;
+    -a|--async)
+        async=1
+        ;;
+    -A|--attach)
+        attach=1
+        ;;
+    -b|--bootsize)
+        bootsize="$2"
+        shift
+        ;;
+    'help'|-h|--help)
+        echo "$usage"
+        exit $rt
+        ;;
+    -d|--disksize)
+        volsize="$2"
+        shift
+        ;;
+    -D|--disknum)
+        volnum=$2
+        shift
+        ;;
+    -F|--ip-forward)
+        ipfwd=1
+        ;;
+    -k|--keep*)
+        keep=1
+        ;;
+    -l|--list|list)
+        ( gcloud compute instances list )
+        exit $rt
+        ;;
+    -L|--list-types|--list-machine-types)
+        list_machine_types
+        exit $rt
+        ;;
+    --list-disk-types)
+        list_disk_types
+        exit $rt
+        ;;
+    --list-os-types)
+        list_os_types
+        exit $rt
+        ;;
+    --dryrun|--dry-run)
+        dryrun=1
+        ;;
+    -N|--network)
+        network="$2"
+        shift
+        ;;
+    -n|--subnet)
+        subnet="$2"
+        shift
+        ;;
+    -p|--prefix)
+        prefix="$2"
+        shift
+        ;;
+    -S|--ssd)
+        ssd=1
+        ;;
+    -t|--type)
+        mtype="$2"
+        shift
+        ;;
+    -T|--tags)
+        tags="$2"
+        shift
+        ;;
+    -v|--vga)
+        vga=1
+        ;;
+    -z|--zone)
+        zone="$2"
+        shift
+        ;;
+    -X|--no-serial)
+        serial=0
+        ;;
+    'version'|-V|--version)
+        tdh_version
+        exit $rt
+        ;;
+    *)
+        action="${1,,}"
+        shift
+        names="$@"
+        shift $#
+        ;;
     esac
     shift
 done
@@ -385,9 +385,13 @@ for name in $names; do
 
     case "$action" in
     create)
-        args=("--image-family=$image" "--image-project=$image_project")
-        args+=("--zone" $zone "--machine-type=$mtype" "--boot-disk-size=$bootsize")
-        args+=("--verbosity" "error" "--tags" $tags)
+        args=("--image-family=$image" 
+              "--image-project=$image_project"
+              "--zone=$zone" 
+              "--machine-type=$mtype" 
+              "--boot-disk-size=$bootsize"
+              "--verbosity=error" 
+              "--tags" "$tags")
 
         if [ $ssd -eq 1 ]; then
             args+=("--boot-disk-type=pd-ssd")
