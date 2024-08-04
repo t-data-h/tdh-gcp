@@ -166,6 +166,20 @@ and worker nodes.
     --use-xfs run d01 d02 d03 d04
   ```
 
+## Creating GKE clusters
+
+Creating a private GKE cluster requires an existing VPC Network and Subnet.
+A private cluster is designated at create by providing a set of IP Addresses
+allowed to reach the public endpoint dynamically created by GKE. The 
+*gke-init.sh* script defines this private filter list via the `-P` or `--private` 
+option.
+
+Example:
+```sh
+./bin/gcp-networks.sh -a 10.10.64.0/23 create tdhnet tdhc1
+./bin/gke-init.sh -A -N tdhnet -n tdhc1 -c 8 -P '73.26.197.175/32' create tdhc1
+```
+
 <br>
 
 ---

@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 #  Bulk format attached volumes across multiple instances.
+#  (linux)
 #
 #  @author Timothy C. Arland <tcarland@gmail.com>
 #
@@ -170,6 +171,7 @@ for host in $hosts; do
 
     echo "( $scp ${tdh_path}/../tools/${format} ${user}@${host}: )"
     echo "( $hostssh 'chmod +x ./$format' )"
+
     if [ $dryrun -eq 0 ]; then
         ( $scp ${tdh_path}/../tools/${format} ${user}@${host}: )
         ( $hostssh "chmod +x ./$format" )
@@ -181,9 +183,9 @@ for host in $hosts; do
         else
             device="/dev/${devtype}${chars[i++]}"
         fi
+
         dnum=$( printf "%02d" $i )
         mnt="/${pathpfx}${dnum}"
-
         cmd="./$format"
         args=()
 
@@ -196,8 +198,8 @@ for host in $hosts; do
         fi
 
         args+=("$device" "$mnt")
-
         echo "( $hostssh \"$cmd ${args[@]}\" )"
+
         if [ $dryrun -eq 0 ]; then
             ( $hostssh "$cmd ${args[@]}" )
             rt=$?

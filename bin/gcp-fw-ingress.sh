@@ -16,6 +16,7 @@ name=
 action=
 cidr=
 protoport=
+direction="INGRESS"
 network="${GCP_NETWORK:-default}"
 tags=
 dryrun=0
@@ -31,6 +32,7 @@ Synopsis:
 
 Options:
   -h|--help            : Show usage and exit
+  -E|--egress          : Switch direction to EGRESS from default INGRESS
   -N|--network <name>  : Name of network to apply rule if not 'default'
      --dryrun          : Enables dryrun, no action is taken
   -q|--quiet           : Quiet mode disables prompts
@@ -61,38 +63,41 @@ rt=0
 
 while [ $# -gt 0 ]; do
     case "$1" in
-        'help'|-h|--help)
-            echo "$usage"
-            exit $rt
-            ;;
-        -l|--list)
-            action="list"
-            ;;
-        --dryrun|--dry-run)
-            dryrun=1
-            ;;
-        -N|--network)
-            network="$2"
-            shift
-            ;;
-        -q|--quiet|--force)
-            noprompt=1
-            ;;
-        -T|--tags)
-            tags="$2"
-            shift
-            ;;
-        'version'|-V|--version)
-            tdh_version
-            exit $rt
-            ;;
-        *)
-            action="${1,,}"
-            name="$2"
-            cidr="$3"
-            protoport="$4"
-            shift $#
-            ;;
+    'help'|-h|--help)
+        echo "$usage"
+        exit $rt
+        ;;
+    -E|--egress)
+        direction="EGRESS"
+        ;;
+    -l|--list)
+        action="list"
+        ;;
+    --dryrun|--dry-run)
+        dryrun=1
+        ;;
+    -N|--network)
+        network="$2"
+        shift
+        ;;
+    -q|--quiet|--force)
+        noprompt=1
+        ;;
+    -T|--tags)
+        tags="$2"
+        shift
+        ;;
+    'version'|-V|--version)
+        tdh_version
+        exit $rt
+        ;;
+    *)
+        action="${1,,}"
+        name="$2"
+        cidr="$3"
+        protoport="$4"
+        shift $#
+        ;;
     esac
     shift
 done
@@ -120,13 +125,10 @@ case "$action" in
         exit 1
     fi
 
-    if [[ ! "$protoport" =~ ":" ]]; then 
-        echo "$TDH_PNAME ERROR, Rule must provide port as 'protocol:port' eg. 'tcp:22'" >&2
-        echo "$usage" 
-        exit 1
-    fi
-
-    args=("--allow $protoport" "--direction INGRESS" "--source-ranges $cidr" "--network $network")
+    args=("--allow $protoport" 
+          "--direction $direction" 
+          "--source-ranges $cidr" 
+          "--network $network")
 
     if [ -n "$tags" ]; then
         args+=("--target-tags $tags")

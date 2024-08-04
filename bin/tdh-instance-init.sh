@@ -78,68 +78,68 @@ chars=( {b..z} )
 
 while [ $# -gt 0 ]; do
     case "$1" in
-        'help'|-h|--help)
-            echo "$usage"
-            exit 0
-            ;;
-        -A|--attach)
-            attach=1
-            ;;
-        -b|--bootsize)
-            bootsize="$2"
-            shift
-            ;;
-        -d|--disksize)
-            disksize="$2"
-            shift
-            ;;
-        -D|--disknum)
-            disknum=$2
-            shift
-            ;;
-        -p|--prefix)
-            prefix="$2"
-            shift
-            ;;
-        --dryrun|--dry-run)
-            dryrun=1
-            ;;
-        -N|--network)
-            network="$2"
-            shift
-            ;;
-        -n|--subnet)
-            subnet="$2"
-            shift
-            ;;
-        -S|-ssd)
-            ssd=1
-            ;;
-        -t|--type)
-            mtype="$2"
-            shift
-            ;;
-        -T|--tags)
-            tags="$2"
-            shift
-            ;;
-        -x|--use-xfs)
-            xfs=1
-            ;;
-        -z|--zone)
-            zone="$2"
-            shift
-            ;;
-        'version'|-V|--version)
-            tdh_version
-            exit 0
-            ;;
-        *)
-            action="${1,,}"
-            shift
-            names="$@"
-            shift $#
-            ;;
+    'help'|-h|--help)
+        echo "$usage"
+        exit 0
+        ;;
+    -A|--attach)
+        attach=1
+        ;;
+    -b|--bootsize)
+        bootsize="$2"
+        shift
+        ;;
+    -d|--disksize)
+        disksize="$2"
+        shift
+        ;;
+    -D|--disknum)
+        disknum=$2
+        shift
+        ;;
+    -p|--prefix)
+        prefix="$2"
+        shift
+        ;;
+    --dryrun|--dry-run)
+        dryrun=1
+        ;;
+    -N|--network)
+        network="$2"
+        shift
+        ;;
+    -n|--subnet)
+        subnet="$2"
+        shift
+        ;;
+    -S|-ssd)
+        ssd=1
+        ;;
+    -t|--type)
+        mtype="$2"
+        shift
+        ;;
+    -T|--tags)
+        tags="$2"
+        shift
+        ;;
+    -x|--use-xfs)
+        xfs=1
+        ;;
+    -z|--zone)
+        zone="$2"
+        shift
+        ;;
+    'version'|-V|--version)
+        tdh_version
+        exit 0
+        ;;
+    *)
+        action="${1,,}"
+        shift
+        names="$@"
+        shift $#
+        ;;
     esac
     shift
 done
@@ -177,7 +177,7 @@ elif [ "$action" == "reset" ]; then
             name="${prefix}-${name}"
         fi
 
-        nf=$( ssh-keygen -f ${HOME}/.ssh/known_hosts -R "$name" >/dev/null  )
+        nf=$(ssh-keygen -f ${HOME}/.ssh/known_hosts -R "$name" >/dev/null)
         if [ $? -eq 0 ]; then
             if [ -z "$nf" ]; then
                 printf " -> Host $name removed from ${HOME}/.ssh/known_hosts \n"
@@ -202,28 +202,37 @@ if [ -n "$zone" ]; then
     GSCP="$GSCP --zone $zone"
 fi
 
-printf "$C_CYN -> Creating instance(s) ${C_NC}${C_WHT}'%s'${C_NC}${C_CYN}\
- for ${C_NC}{${C_WHT} ${names} ${C_NC}} \n\n" $mtype
+printf "$C_CYN -> Creating instance(s) ${C_NC}${C_WHT}'%s'${C_NC}${C_CYN}for ${C_NC}{${C_WHT} ${names} ${C_NC}} \n\n" $mtype
 
 for name in $names; do
     host="${prefix}-${name}"
-    args=("--prefix" $prefix "--type" $mtype "--bootsize" "$bootsize")
+
+    args=("--prefix"   "$prefix" 
+          "--type"     "$mtype" 
+          "--bootsize" "$bootsize")
 
     if [ -n "$network" ]; then
         args+=("--network" "$network" "--subnet" "$subnet")
     fi
+
     if [ -n "$zone" ]; then
         args+=("--zone" "$zone")
     fi
+
     if [ $dryrun -gt 0 ]; then
         args+=("--dryrun")
     fi
+
     if [ $attach -gt 0 ]; then
-        args+=("--attach" "--disksize" "$disksize" "--disknum" "$disknum")
+        args+=("--attach" 
+               "--disksize" "$disksize" 
+               "--disknum" "$disknum")
     fi
+
     if [ $ssd -gt 0 ]; then
         args+=("--ssd")
     fi
+
     if [ -n "$tags" ]; then
         args+=("--tags" "$tags")
     fi
@@ -304,7 +313,8 @@ for name in $names; do
         echo "( $GSSH $host --command 'sudo systemctl stop firewalld; sudo systemctl disable firewalld' )"
 
         if [ $dryrun -eq 0 ]; then
-            ( $GSSH $host --command "sudo systemctl stop firewalld; sudo systemctl disable firewalld" )
+            ( $GSSH $host --command "sudo systemctl stop firewalld; \
+              sudo systemctl disable firewalld" )
         fi
     fi
 
@@ -327,12 +337,12 @@ for name in $names; do
     # ssh
     printf "$C_CYN -> Configure ssh host keys $C_NC \n"
 
-    echo "( $GSSH ${host} --command \"ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa; \
-      cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys\" )"
+    echo "( $GSSH ${host} --command \"ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa; cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys\" )"
 
     if [ $dryrun -eq 0 ]; then
         ( $GSSH ${host} --command "ssh-keygen -t rsa -b 2048 -N '' -f ~/.ssh/id_rsa; \
-          cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 600 .ssh/authorized_keys" )
+          cat .ssh/id_rsa.pub >> .ssh/authorized_keys; \
+          chmod 600 .ssh/authorized_keys" )
     fi
 
     if [ -e "$master_id_file" ]; then
@@ -341,7 +351,9 @@ for name in $names; do
 
         if [ $dryrun -eq 0 ]; then
             ( $GSCP ${master_id_file} ${host}:.ssh/ )
-            ( $GSSH ${host} --command "cat .ssh/${master_id} >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys" )
+            ( $GSSH ${host} --command "cat .ssh/${master_id} >> .ssh/authorized_keys; \
+              chmod 700 .ssh; \
+              chmod 600 .ssh/authorized_keys" )
         fi
     else
         echo "( $GSCP ${host}:.ssh/id_rsa.pub ${master_id_file} )"
@@ -350,7 +362,9 @@ for name in $names; do
         if [ $dryrun -eq 0 ]; then
             echo " -> Primary host is '$host'"
             ( $GSCP ${host}:.ssh/id_rsa.pub ${master_id_file} )
-            ( $GSSH $host --command "cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys" )
+            ( $GSSH $host --command "cat .ssh/id_rsa.pub >> .ssh/authorized_keys; \
+              chmod 700 .ssh; \
+              chmod 600 .ssh/authorized_keys" )
         fi
     fi
 

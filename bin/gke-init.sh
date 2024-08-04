@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Initialize a GKE cluster
+# Initializes and manages a GKE cluster.
 #
 # @author Timothy C. Arland <tcarland@gmail.com>
 #
@@ -28,8 +28,8 @@ tags=
 
 # private cluster options
 master_ipv4="172.16.10.0/28"
-cluster_ipv4="10.88.0.0/14"
-services_ipv4="10.92.0.0/20"
+cluster_ipv4="10.12.0.0/16"
+services_ipv4="10.10.128.0/20"
 cluster_vers=
 
 # -----------------------------------
@@ -58,10 +58,10 @@ Options:
    -V|--version             : Show Version Info and exit.
    
 Where <action> is one of the following:
-    create                  : Initialize a new GKE Cluster
-    delete                  : Delete a GKE Cluster
+    create      <name>      : Initialize a new GKE Cluster
+    delete      <name>      : Delete a GKE Cluster
     list                    : List Clusters
-    update                  : Update a private cluster 'master-authorized-networks'.
+    update <name> <cidr1,>  : Update a private cluster 'master-authorized-networks'.
                               The provided list is an overwrite, not an append.
     get-credentials <name>  : Get cluster credentials
 
@@ -173,18 +173,24 @@ if [ -z "$GCP" ]; then
     exit 1
 fi
 
+
 cluster_vers=$(gcloud container get-server-config 2>/dev/null | \
   grep 'defaultClusterVersion:' | \
   awk -F: '{ print $2 }' | sed 's/^[[:space:]]*//')
 
+
 case "$action" in
+
+##      CREATE
 create)
     if [ -z "$cluster" ]; then
         echo "$TDH_PNAME ERROR, name of cluster is required." >&2
         exit 1
     fi
 
-    args=("--machine-type=$mtype" "--disk-size=$dsize" "--num-nodes=$nodecnt")
+    args=("--machine-type=$mtype" 
+          "--disk-size=$dsize" 
+          "--num-nodes=$nodecnt")
 
     if [ $ssd -eq 1 ]; then
         args+=("--disk-type=pd-ssd")
@@ -228,16 +234,28 @@ create)
     fi
     ;;
 
+##      UPDATE
 update)
     if [ -z "$cluster" ]; then
         echo "$TDH_PNAME ERROR, name of cluster is required." >&2
         exit 1
     fi
-    if [ -n "$private" ]; then
-        ( gcloud container clusters update $cluster --enable-master-authorized-networks --master-authorized-networks=$private )
+    if [ -z "$private" ]; then
+        echo "$TDH_NAME ERROR, private access addresses not provided." >&2
+        exit 1
     fi
+
+    args=("--enable-master-authorized-networks"
+          "--master-authorized-networks=$private")
+
+    echo "( gcloud container clusters update $cluster ${args[@]} )"
+
+    if [ $dryrun -eq 0 ]; then
+        ( gcloud container clusters update $cluster ${args[@]} )
+    fi 
     ;;
 
+##      DELETE
 del|delete|destroy)
     if [ -z "$cluster" ]; then
         echo "$TDH_PNAME ERROR, name of cluster is required." >&2
@@ -249,10 +267,12 @@ del|delete|destroy)
     fi
     ;;
 
+##      LIST
 list)
     ( gcloud container clusters list )
     ;;
 
+##      DESCRIBE
 describe|info)
     if [ -z "$cluster" ]; then
         echo "$TDH_PNAME ERROR, name of cluster is required." >&2

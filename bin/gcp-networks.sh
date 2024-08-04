@@ -305,6 +305,12 @@ describe-subnet)
         ( gcloud compute networks subnets describe $network )
     fi
     ;;
+delete-subnet)
+    delete_subnet "$network" "$region"
+    ;;
+delete-network)
+    delete_network "$network" 
+    ;;
 *)
     echo "$TDH_PNAME ERROR, action not recognized: '$action'" >&2
     echo "$usage"
