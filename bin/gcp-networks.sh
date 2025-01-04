@@ -29,8 +29,8 @@ Synopsis:
   $TDH_PNAME [-a iprange] {options} [action]
 
 Options:
-  -a|--addr  <ipaddr/mb>    : IpAddress/range of the subnet, required.
-  -r|--region <name>        : Region to create the subnet. Default is '$region'.
+  -a|--addr   <cidr>        : IpAddress/range of the subnet, required.
+  -r|--region <name>        : Region to create the network. Default is '$region'.
   -n|--dryrun               : Enable dryrun, no action is taken.
   -y|--yes                  : Do not prompt on create. This will auto-create
                               the network, if it does not already exist.
@@ -114,12 +114,12 @@ create_subnet()
     local net="$1"
     local subnet="$2"
     local reg="$3"
-    local addy="$4"
+    local cidr="$4"
     local rtn=0
 
-    echo "( gcloud compute networks subnets create $subnet --network $net --region $reg --range $addy )"
+    echo "( gcloud compute networks subnets create $subnet --network $net --region $reg --range $cidr )"
     if [ $dryrun -eq 0 ]; then
-        ( gcloud compute networks subnets create $subnet --network $net --region $reg --range $addy )
+        ( gcloud compute networks subnets create $subnet --network $net --region $reg --range $cidr )
         rtn=$?
     fi
 
@@ -263,7 +263,7 @@ create)
     fi
 
     # Create default fw rule
-    rule_name="$subnet-allow-local"
+    rule_name="$network-allow-local"
     gfw="gcloud compute firewall-rules"
 
     ( $gfw list --filter="name=($rule_name)" 2>/dev/null | grep "$rule_name" )

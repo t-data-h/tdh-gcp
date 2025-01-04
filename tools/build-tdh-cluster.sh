@@ -9,8 +9,8 @@ if [ -f ${tdh_path}/../bin/tdh-gcp-env.sh ]; then
 fi
 
 network="tdh-net"
-subnet="tdh-net-west1-5"
-prefix="10.10.5.0/24"
+subnet="tdhw1"
+prefix="10.10.16.0/24"
 
 mtype="n1-standard-2"
 dtype="n1-standard-4"
