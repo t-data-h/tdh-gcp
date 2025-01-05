@@ -61,8 +61,8 @@ Where <action> is one of the following:
     create      <name>      : Initialize a new GKE Cluster
     delete      <name>      : Delete a GKE Cluster
     list                    : List Clusters
-    update <name> <cidr1,>  : Update a private cluster 'master-authorized-networks'.
-                              The provided list is an overwrite, not an append.
+    update      <name>      : Update a private cluster 'master-authorized-networks'.
+                              The provided list '-P' is an overwrite, not an append.
     get-credentials <name>  : Get cluster credentials
 
 The following environment variables are honored for overrides:
@@ -252,7 +252,8 @@ update)
     fi
 
     args=("--enable-master-authorized-networks"
-          "--master-authorized-networks=$private")
+          "--master-authorized-networks=$private"
+          "--zone=$zone")
 
     echo "( gcloud container clusters update $cluster ${args[@]} )"
 
@@ -267,9 +268,9 @@ del|delete|destroy)
         echo "$TDH_PNAME ERROR, name of cluster is required." >&2
         exit 1
     fi
-    echo "( gcloud container clusters delete $cluster )"
+    echo "( gcloud container clusters delete $cluster --zone=$zone )"
     if [ $dryrun -eq 0 ]; then
-        ( gcloud container clusters delete $cluster )
+        ( gcloud container clusters delete $cluster --zone=$zone )
     fi
     ;;
 
@@ -284,7 +285,7 @@ describe|info)
         echo "$TDH_PNAME ERROR, name of cluster is required." >&2
         exit 1
     fi
-    ( gcloud container clusters describe $cluster )
+    ( gcloud container clusters describe $cluster --zone=$zone )
     ;;
 
 get-cred*|get)
@@ -292,7 +293,7 @@ get-cred*|get)
         echo "$TDH_PNAME ERROR, name of cluster is required." >&2
         exit 1
     fi
-    ( gcloud container clusters get-credentials $cluster )
+    ( gcloud container clusters get-credentials $cluster --zone=$zone )
     ;;
 
 help)
