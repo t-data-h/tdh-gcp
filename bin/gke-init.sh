@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Initializes and manages a GKE cluster.
+# Initialize and manage a GKE cluster.
 #
 # @author Timothy C. Arland <tcarland@gmail.com>
 #
@@ -43,9 +43,9 @@ Synopsis:
 Options:
    -a|--async               : Run actions asynchronously.
    -A|--ipalias             : Enables ip-alias during cluster creation.
-   -c|--count    <cnt>      : Number of nodes to deploy, Default is $nodecnt.
+   -c|--count    <cnt>      : Number of nodes to deploy, Default is '$nodecnt'.
    -h|--help                : Display usage info and exit.
-   -d|--disksize <xxGB>     : Size of boot disk. Default is $dsize.
+   -d|--disksize <xxGB>     : Size of boot disk. Default is '$dsize'.
       --dryrun              : Enable dryrun.
    -N|--network  <name>     : Name of GCP Network if not default.
    -n|--subnet   <name>     : Name of GCP Subnet if not default.
@@ -79,7 +79,7 @@ customized with the following settings:
 
 Default Machine Type is '$mtype'
 Default Boot Disk size  '$dsize'
-Default GCP Zone is     '$GCP_DEFAULT_ZONE'
+Default GCP Zone is     '$zone'
 "
 
 # -----------------------------------
@@ -173,6 +173,11 @@ if [ -z "$GCP" ]; then
     exit 1
 fi
 
+if [ -z "$zone" ]; then
+    echo "$TDH_PNAME Error, zone is required" >&2
+    exit 2
+fi
+
 
 cluster_vers=$(gcloud container get-server-config 2>/dev/null | \
   grep 'defaultClusterVersion:' | \
@@ -190,7 +195,8 @@ create)
 
     args=("--machine-type=$mtype" 
           "--disk-size=$dsize" 
-          "--num-nodes=$nodecnt")
+          "--num-nodes=$nodecnt"
+          "--zone=$zone")
 
     if [ $ssd -eq 1 ]; then
         args+=("--disk-type=pd-ssd")
