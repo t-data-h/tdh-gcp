@@ -180,6 +180,20 @@ Example:
 ./bin/gke-init.sh -A -N tdhnet -n tdhc1 -c 8 -P '73.26.197.175/32' create tdhc1
 ```
 
+Private GKE clusters cannot reach external repositories without configuring DNS
+to allow resolving the internal VIP, but can reach gcr.io. Note, that the 
+Google Container Registry has been deprecated in favor of the Artifact service.
+Containers are now stored by region such as `us-west1-docker.pkg.dev/repo/image:tag` 
+```sh
+gcloud artifacts repositories create minio \
+--repository-format=docker \
+--location=us-west1 \
+--description="MinIO Docker Repository"
+docker push ...
+gcloud artifacts docker listtags $region-docker.pkg.dev/$projectId/$repo/$name
+```
+
+
 <br>
 
 ---

@@ -12,7 +12,7 @@ PNAME=${0##*\/}
 # -----------------------------------
 
 yum_prereqs="wget yum-utils coreutils bind-utils jq net-tools rng-tools rsync make iputils ethtool epel-release"
-apt_prereqs="wget coreutils dnsutils jq net-tools rng-tools rsync make iputils-arping iputils-ping ethtool"
+apt_prereqs="wget apt-utils coreutils dnsutils jq net-tools rng-tools rsync make iputils-arping iputils-ping ethtool"
 
 cloudsdk="/etc/yum.repos.d/google-cloud.repo"
 gcp=0

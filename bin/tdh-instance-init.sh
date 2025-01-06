@@ -25,7 +25,7 @@ subnet="$GCP_SUBNET"
 
 gcpcompute="${tdh_path}/gcp-compute.sh"
 master_id="master-id_rsa.pub"
-master_id_file="${tdh_path}/../ansible/.ansible/${master_id}"
+master_id_file="$master_id"
 
 attach=0
 disknum=1
@@ -50,6 +50,7 @@ Options:
   -D|--disknum   <n>    : Number of additional attached volumes.
   -h|--help             : Display usage and exit.
      --dryrun           : Enable dryrun, no action is taken.
+  -I|--identity <file>  : Path and name of the SSH pubkey to install.
   -N|--network <name>   : GCP Network name.
   -n|--subnet  <name>   : GCP Network subnet name. 
   -p|--prefix  <name>   : Prefix name to use for instances.
@@ -95,6 +96,10 @@ while [ $# -gt 0 ]; do
         ;;
     -D|--disknum)
         disknum=$2
+        shift
+        ;;
+    -I|--identity)
+        master_id_file="$2"
         shift
         ;;
     -p|--prefix)
@@ -186,10 +191,6 @@ elif [ "$action" == "reset" ]; then
             fi
         fi
     done
-    if [ -f $master_id_file ]; then
-        printf " -> Removing master id file '$master_id_file' \n"
-        ( unlink $master_id_file )
-    fi
     exit $?
 else
     printf "$C_CYN -> Action provided is: ${C_NC}'%s'. ${C_CYN}Use${C_NC} 'run' ${C_CYN}to execute. $C_NC \n" $action
@@ -356,7 +357,7 @@ for name in $names; do
               chmod 600 .ssh/authorized_keys" )
         fi
     else
-        echo "( $GSCP ${host}:.ssh/id_rsa.pub ${master_id_file} )"
+        echo "( $GSCP ${host}:.ssh/id_rsa.pub ${host}-${master_id_file} )"
         echo "( $GSSH ${host} --command \"cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys\" )"
 
         if [ $dryrun -eq 0 ]; then

@@ -9,26 +9,32 @@ if [ -f ${tdh_path}/../bin/tdh-gcp-env.sh ]; then
 fi
 
 network="tdh-net"
-subnet="tdh-net-west1-5"
-prefix="10.10.5.0/24"
+subnet="tdhw1"
+prefix="10.10.16.0/24"
 
 mtype="n1-standard-2"
 dtype="n1-standard-4"
 
 # --------------
 
-if [ ! -x ./bin/gcp-networks.sh ]; then
-    echo "gcp-networks.sh not found. Run this from tdh-gcp project directory."
-    exit 1
+gcpnet=$(which gcp-networks.sh 2>/dev/null)
+if [ -z "$gcpnet" ]; then
+    if [[ ! -x ./bin/gcp-networks.sh ]]; then
+        echo "gcp-networks.sh not found. Run this from tdh-gcp project directory."
+        exit 1
+    else
+        gcpnet="./bin/gcp-networks.sh"
 fi
 
-if ./bin/gcp-networks.sh list-subnets | grep "^$subnet" >/dev/null; then
+if $gcpnet list-subnets | grep "^$subnet" >/dev/null; then
     echo "GCP Network '$subnet' already exists.."
-    network=$(./bin/gcp-networks.sh list-subnets | grep "^$subnet" | awk '{ print $3 }')
-    prefix=$(./bin/gcp-networks.sh list-subnets | grep "^$subnet" | awk '{ print $4 }')
+    network=$($gcpnet list-subnets | grep "^$subnet" | awk '{ print $3 }')
+    prefix=$($gcpnet list-subnets | grep "^$subnet" | awk '{ print $4 }')
 else
-    echo "( ./bin/gcp-networks.sh --addr $prefix --yes create $network $subnet )"
+    echo "( $gcpnet --addr $prefix --yes create $network $subnet )"
 fi
+
+# --------------
 
 # 3 masters
 echo " -> Masters:"

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Initializes and manages a GKE cluster.
+# Initialize and manage a GKE cluster.
 #
 # @author Timothy C. Arland <tcarland@gmail.com>
 #
@@ -43,9 +43,9 @@ Synopsis:
 Options:
    -a|--async               : Run actions asynchronously.
    -A|--ipalias             : Enables ip-alias during cluster creation.
-   -c|--count    <cnt>      : Number of nodes to deploy, Default is $nodecnt.
+   -c|--count    <cnt>      : Number of nodes to deploy, Default is '$nodecnt'.
    -h|--help                : Display usage info and exit.
-   -d|--disksize <xxGB>     : Size of boot disk. Default is $dsize.
+   -d|--disksize <xxGB>     : Size of boot disk. Default is '$dsize'.
       --dryrun              : Enable dryrun.
    -N|--network  <name>     : Name of GCP Network if not default.
    -n|--subnet   <name>     : Name of GCP Subnet if not default.
@@ -61,8 +61,8 @@ Where <action> is one of the following:
     create      <name>      : Initialize a new GKE Cluster
     delete      <name>      : Delete a GKE Cluster
     list                    : List Clusters
-    update <name> <cidr1,>  : Update a private cluster 'master-authorized-networks'.
-                              The provided list is an overwrite, not an append.
+    update      <name>      : Update a private cluster 'master-authorized-networks'.
+                              The provided list '-P' is an overwrite, not an append.
     get-credentials <name>  : Get cluster credentials
 
 The following environment variables are honored for overrides:
@@ -79,7 +79,7 @@ customized with the following settings:
 
 Default Machine Type is '$mtype'
 Default Boot Disk size  '$dsize'
-Default GCP Zone is     '$GCP_DEFAULT_ZONE'
+Default GCP Zone is     '$zone'
 "
 
 # -----------------------------------
@@ -173,6 +173,11 @@ if [ -z "$GCP" ]; then
     exit 1
 fi
 
+if [ -z "$zone" ]; then
+    echo "$TDH_PNAME Error, zone is required" >&2
+    exit 2
+fi
+
 
 cluster_vers=$(gcloud container get-server-config 2>/dev/null | \
   grep 'defaultClusterVersion:' | \
@@ -190,7 +195,8 @@ create)
 
     args=("--machine-type=$mtype" 
           "--disk-size=$dsize" 
-          "--num-nodes=$nodecnt")
+          "--num-nodes=$nodecnt"
+          "--zone=$zone")
 
     if [ $ssd -eq 1 ]; then
         args+=("--disk-type=pd-ssd")
@@ -246,7 +252,8 @@ update)
     fi
 
     args=("--enable-master-authorized-networks"
-          "--master-authorized-networks=$private")
+          "--master-authorized-networks=$private"
+          "--zone=$zone")
 
     echo "( gcloud container clusters update $cluster ${args[@]} )"
 
@@ -261,9 +268,9 @@ del|delete|destroy)
         echo "$TDH_PNAME ERROR, name of cluster is required." >&2
         exit 1
     fi
-    echo "( gcloud container clusters delete $cluster )"
+    echo "( gcloud container clusters delete $cluster --zone=$zone )"
     if [ $dryrun -eq 0 ]; then
-        ( gcloud container clusters delete $cluster )
+        ( gcloud container clusters delete $cluster --zone=$zone )
     fi
     ;;
 
@@ -278,7 +285,7 @@ describe|info)
         echo "$TDH_PNAME ERROR, name of cluster is required." >&2
         exit 1
     fi
-    ( gcloud container clusters describe $cluster )
+    ( gcloud container clusters describe $cluster --zone=$zone )
     ;;
 
 get-cred*|get)
@@ -286,7 +293,7 @@ get-cred*|get)
         echo "$TDH_PNAME ERROR, name of cluster is required." >&2
         exit 1
     fi
-    ( gcloud container clusters get-credentials $cluster )
+    ( gcloud container clusters get-credentials $cluster --zone=$zone )
     ;;
 
 help)
