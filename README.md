@@ -189,7 +189,10 @@ gcloud artifacts repositories create minio \
 --repository-format=docker \
 --location=us-west1 \
 --description="MinIO Docker Repository"
+docker push ...
+gcloud artifacts docker listtags $region-docker.pkg.dev/$projectId/$repo/$name
 ```
+
 
 <br>
 

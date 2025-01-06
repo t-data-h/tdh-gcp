@@ -357,7 +357,7 @@ for name in $names; do
               chmod 600 .ssh/authorized_keys" )
         fi
     else
-        echo "( $GSCP ${host}:.ssh/id_rsa.pub ${master_id_file} )"
+        echo "( $GSCP ${host}:.ssh/id_rsa.pub ${host}-${master_id_file} )"
         echo "( $GSSH ${host} --command \"cat .ssh/id_rsa.pub >> .ssh/authorized_keys; chmod 700 .ssh; chmod 600 .ssh/authorized_keys\" )"
 
         if [ $dryrun -eq 0 ]; then
