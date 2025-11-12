@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#  Format an attached data disk. Intended to be ran directly on a remote
+#  Format an attached data disk. Intended to be ran directly on a
 #  host. Note that this will format the device as a full block device
 #  with no partition table.  `parted -s $dev mklabel loop`
 #
