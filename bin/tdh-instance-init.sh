@@ -2,7 +2,7 @@
 #
 #  Initialize Master GCP instances.
 #
-#  @author Timothy C. Arland <tcarland@gmail.com>
+#  @author Timothy C. Arland <tcarland at gmail dot com>
 #
 tdh_path=$(dirname "$(readlink -f "$0")")
 

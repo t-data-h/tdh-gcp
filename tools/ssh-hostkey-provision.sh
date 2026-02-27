@@ -5,7 +5,7 @@
 #  was not utilized to avoid having to push a private identity 
 #  file out to an insecure host.
 #
-#  @author Timothy C. Arland <tcarland@gmail.com>
+#  @author Timothy C. Arland <tcarland at gmail dot com>
 #
 PNAME="${0##*\/}"
 

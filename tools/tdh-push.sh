@@ -2,7 +2,7 @@
 #
 #  Creates an archive of a given path and pushes to a remote host.
 #
-#  @author Timothy C. Arland <tcarland@gmail.com>
+#  @author Timothy C. Arland <tcarland at gmail dot com>
 #
 PNAME=${0##*\/}
 
