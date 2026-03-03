@@ -24,7 +24,7 @@ worker_bootsize="$GCP_DEFAULT_BOOTSIZE"
 master_count=1
 worker_count=4  
 dataproc_image_version="2.2-debian12"
-dataproc_properties=":=,spark:spark.dataproc.enhanced.optimizer.enabled=true,dataproc:dataproc.cluster.caching.enabled=true"
+dataproc_packages="^#^dataproc:pip.packages="
 dataproc_max_idle="60m"
 network="$GCP_NETWORK"
 subnet="$GCP_SUBNET"
@@ -32,6 +32,41 @@ subnet="$GCP_SUBNET"
 name=
 action=
 
+cluster_properties="${dataproc_packages}pandas==2.3.2,scikit-learn==1.5.2"
+reqs_file=
+
+# -----------------------------------
+
+# read_requirements_file()
+#   Reads a pip requirements file and returns a comma-delimited string
+#   of all non-blank, non-comment entries.
+#   Usage: result=$(read_requirements_file <file>)
+read_requirements_file() {
+    local file="$1"
+    local result=
+
+    if [ -z "$file" ]; then
+        echo "read_requirements_file() error: no file provided" >&2
+        return 1
+    fi
+
+    if [ ! -f "$file" ]; then
+        echo "read_requirements_file() error: file not found: '$file'" >&2
+        return 1
+    fi
+
+    while IFS= read -r line; do
+        # skip blank lines and comments
+        [[ -z "$line" || "$line" == \#* ]] && continue
+        if [ -z "$result" ]; then
+            result="$line"
+        else
+            result="${result},${line}"
+        fi
+    done < "$file"
+
+    echo "$result"
+}
 # -----------------------------------
 
 usage="
@@ -48,6 +83,7 @@ Options:
    -N|--network  <name>     : Name of GCP Network if not default.
    -n|--subnet   <name>     : Name of GCP Subnet if not default.
    -m|--masters   <cnt>     : Number of master nodes to deploy, Default is '$master_count'.
+   -r|--requirements <file> : Path to pip requirements file for cluster initialization.
    -t|--type     <type>     : Worker Instance machine-type, Default is '$worker_mtype'.
    -T|--mtype    <type>     : Master Instance machine-type, Default is '$master_mtype'.
    -w|--workers   <cnt>     : Number of worker nodes to deploy, Default is '$worker_count'.
@@ -107,6 +143,18 @@ while [ $# -gt 0 ]; do
             master_count="$2"
             shift
             ;;
+        -r|--requirements)
+            reqs_file="$2"
+            if [ -f "$reqs_file" ]; then
+                echo "Using pip requirements file: '$reqs_file'"
+                pkgs=$(read_requirements_file "$reqs_file") || exit $?
+                cluster_properties="${dataproc_packages}${pkgs}"
+            else
+                echo "$TDH_PNAME Error, requirements file not found: '$reqs_file'" >&2
+                exit 1
+            fi
+            shift
+            ;;
         -w|--workers)
             worker_count="$2"
             shift
@@ -136,6 +184,7 @@ while [ $# -gt 0 ]; do
     shift
 done
 
+
 if [ -z "$GCP" ]; then
     echo "$TDH_PNAME ERROR, gcloud not available" >&2
     exit 1
@@ -146,8 +195,6 @@ if [ -z "$zone" ]; then
     exit 2
 fi
 
-
-case "$action" in
 
 ##      CREATE
 create)
@@ -172,7 +219,7 @@ create)
         --worker-boot-disk-type "$worker_boottype" \
         --worker-boot-disk-size "$worker_bootsize" \
         --image-version "$dataproc_image_version" \
-        --properties "$dataproc_properties" \
+        --properties "$cluster_properties" \
         --stop-max-idle "$dataproc_max_idle" \
         --optional-components ICEBERG,DELTA \
         --scopes "https://www.googleapis.com/auth/cloud-platform" \
