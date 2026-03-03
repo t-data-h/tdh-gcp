@@ -13,6 +13,7 @@ fi
 # -----------------------------------
 
 prefix="$TDH_GCP_PREFIX"
+region="${GCP_REGION:-${GCP_DEFAULT_REGION}}"
 zone="${GCP_ZONE:-${GCP_DEFAULT_ZONE}}"
 mtype="${GCP_MACHINE_TYPE:-${GCP_DEFAULT_MACHINETYPE}}"
 bootsize="$GCP_DEFAULT_BOOTSIZE"
@@ -35,6 +36,7 @@ async=0
 dryrun=0
 keep=0
 serial=1
+external=0
 
 # -----------------------------------
 # Gcloud CLI required.
@@ -74,6 +76,7 @@ Options:
                             Overrides the default GCP_MACHINE_TYPE.
   -z|--zone  <name>       : Set the GCP zone, default is '$zone'. 
   -v|--vga                : Attach a display device at create.
+  -x|--no-external        : Do not assign an external IP address.
   -X|--no-serial          : Don't enable logging to serial by default.
   -V|--version            : Show version info and exit.
  
@@ -302,6 +305,9 @@ while [ $# -gt 0 ]; do
         zone="$2"
         shift
         ;;
+    -x|--no-external)
+        external=1
+        ;;
     -X|--no-serial)
         serial=0
         ;;
@@ -342,6 +348,12 @@ fi
 if [ -n "$network" ] && [ -z "$subnet" ]; then
     echo "$TDH_PNAME ERROR, --subnet not defined and is required with --network" >&2
     exit 1
+fi
+
+if [ -z "$region" ]; then
+    echo "GCP_DEFAULT_REGION is not set. Set the default first" >&2
+    echo " ( gcloud config set compute/region <region> )" >&2
+    exit 2
 fi
 
 if [ -z "$zone" ]; then
@@ -407,6 +419,10 @@ for name in $names; do
 
         if [ $ipfwd -eq 1 ]; then
             args+=("--can-ip-forward")
+        fi
+
+        if [ $external -eq 1 ]; then
+            args+=("--no-address")
         fi
 
         echo "( gcloud compute instances create ${args[@]} $name ) "

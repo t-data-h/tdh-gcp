@@ -19,7 +19,7 @@ GCP_ENABLE_VGA="--enable-display-device"
 GCP_CENTOS_IMAGE="rocky-linux-8"
 GCP_CENTOS_IMAGE_PROJECT="rocky-linux-cloud"
 
-GCP_UBUNTU_IMAGE="ubuntu-minimal-2404-lts"
+GCP_UBUNTU_IMAGE="ubuntu-minimal-2404-lts-amd64"
 GCP_UBUNTU_IMAGE_PROJECT="ubuntu-os-cloud"
 
 GCP_DEFAULT_IMAGE="$GCP_UBUNTU_IMAGE"
