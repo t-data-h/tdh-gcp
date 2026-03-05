@@ -29,11 +29,45 @@ dataproc_max_idle="60m"
 network="$GCP_NETWORK"
 subnet="$GCP_SUBNET"
 
-name=
+cluster=
 action=
 
 cluster_properties="${dataproc_packages}pandas==2.3.2,scikit-learn==1.5.2"
 reqs_file=
+
+# -----------------------------------
+
+usage="
+Tool for initializing a GCP Dataproc cluster.
+
+Synopsis:
+  $TDH_PNAME [options] <action> <cluster_name>
+
+Options:
+   -h|--help                : Display usage info and exit.
+   -b|--bootsize <xxGB>     : Size of boot disk. Default is '$master_bootsize'.
+   -d|--disksize <xxGB>     : Size of worker boot disk. Default is '$worker_bootsize'.
+   -i|--max-idle  <xxm>     : Dataproc cluster max idle time. Default is '$dataproc_max_idle'.
+   -N|--network  <name>     : Name of GCP Network if not default.
+   -n|--subnet   <name>     : Name of GCP Subnet if not default.
+   -m|--masters   <cnt>     : Number of master nodes to deploy, Default is '$master_count'.
+   -R|--requirements <file> : Path to pip requirements file for cluster initialization.
+   -t|--type     <type>     : Worker Instance machine-type, Default is '$worker_mtype'.
+   -T|--mtype    <type>     : Master Instance machine-type, Default is '$master_mtype'.
+   -w|--workers   <cnt>     : Number of worker nodes to deploy, Default is '$worker_count'.
+   -z|--zone     <name>     : Sets an alternate GCP Zone from default of '$GCP_DEFAULT_ZONE'.
+   -V|--version             : Show Version Info and exit.
+
+Where <action> is one of the following:
+    create    : Create a new Dataproc cluster.
+    start     : Start a Dataproc cluster.
+    stop      : Stop a Dataproc cluster.
+    delete    : Delete a Dataproc cluster.
+    list      : List Dataproc clusters.
+
+Default GCP Region:  '$region'
+Default GCP Zone:    '$zone'
+"
 
 # -----------------------------------
 
@@ -67,39 +101,36 @@ read_requirements_file() {
 
     echo "$result"
 }
-# -----------------------------------
 
-usage="
-Tool for initializing a GCP Dataproc cluster.
+cluster_exists() {
+    local clustername="$1"
 
-Synopsis:
-  $TDH_PNAME [options] <action> <cluster_name>
+    name=$(gcloud dataproc clusters list --format json | \
+        jq -r ".[] | select(.clusterName == \"$clustername\") | .clusterName")
 
-Options:
-   -h|--help                : Display usage info and exit.
-   -b|--bootsize <xxGB>     : Size of boot disk. Default is '$master_bootsize'.
-   -d|--disksize <xxGB>     : Size of worker boot disk. Default is '$worker_bootsize'.
-   -i|--max-idle  <xxm>     : Dataproc cluster max idle time. Default is '$dataproc_max_idle'.
-   -N|--network  <name>     : Name of GCP Network if not default.
-   -n|--subnet   <name>     : Name of GCP Subnet if not default.
-   -m|--masters   <cnt>     : Number of master nodes to deploy, Default is '$master_count'.
-   -r|--requirements <file> : Path to pip requirements file for cluster initialization.
-   -t|--type     <type>     : Worker Instance machine-type, Default is '$worker_mtype'.
-   -T|--mtype    <type>     : Master Instance machine-type, Default is '$master_mtype'.
-   -w|--workers   <cnt>     : Number of worker nodes to deploy, Default is '$worker_count'.
-   -z|--zone     <name>     : Sets an alternate GCP Zone from default of '$GCP_DEFAULT_ZONE'.
-   -V|--version             : Show Version Info and exit.
+    if [ -n "name" ]; then
+        return 0
+    fi
+    
+    return 1
+}
 
-Where <action> is one of the following:
-    create    : Create a new Dataproc cluster.
-    start     : Start a Dataproc cluster.
-    stop      : Stop a Dataproc cluster.
-    delete    : Delete a Dataproc cluster.
-    list      : List Dataproc clusters.
+cluster_running() {
+    local clustername="$1"
+    
+    if ! cluster_exists $clustername; then 
+        return 1
+    fi
 
-Default GCP Zone:    '$zone'
-"
+    name=$(gcloud dataproc clusters list --format json | \
+         jq -r ".[] | select(.status.state == \"RUNNING\") | select(.clusterName == \"$clustername\") | .clusterName")
 
+    if [ -n "$name" ]; then
+        return 0
+    fi
+
+    return 2
+}
 
 # -----------------------------------
 
@@ -143,7 +174,11 @@ while [ $# -gt 0 ]; do
             master_count="$2"
             shift
             ;;
-        -r|--requirements)
+        -r|--region)
+            region="$2"
+            shift
+            ;;
+        -R|--requirements)
             reqs_file="$2"
             if [ -f "$reqs_file" ]; then
                 echo "Using pip requirements file: '$reqs_file'"
@@ -195,6 +230,22 @@ if [ -z "$zone" ]; then
     exit 2
 fi
 
+if ! which jq > /dev/null 2>&1; then
+    echo "$TDH_PNAME Error, 'jq' is required but not found in PATH." >&2
+    exit 1
+fi
+
+if [ -z "$region" ]; then
+    region=$(gcloud config configurations list --format json | \
+        jq -r '.[] | select(.is_active == true) | .properties.dataproc.region')
+fi
+if [ -z "$zone" ]; then
+    zone=$(gcloud config configurations list --format json | \
+        jq -r '.[] | select(.is_active == true) | .properties.dataproc.zone')
+fi
+
+
+case "$action" in
 
 ##      CREATE
 create)
@@ -203,11 +254,16 @@ create)
         exit 3
     fi
 
+    if cluster_exists "$cluster"; then
+        echo "$TDH_PNAME Error, cluster '$cluster' already exists." >&2
+        exit 4
+    fi
+
     echo "Creating Dataproc cluster '$cluster' in zone '$zone' with $worker_count workers..."
 
     gcloud dataproc clusters create "$cluster" \
         --enable-component-gateway \
-        --region "$retion" \
+        --region "$region" \
         --zone "$zone" \
         --subnet "$subnet" \
         --num-masters "$master_count" \
@@ -245,7 +301,16 @@ start)
     if [ -z "$cluster" ]; then
         echo "$TDH_PNAME Error, cluster name is required for start action." >&2
         exit 3
-    fi 
+    fi
+
+    if ! cluster_exists "$cluster"; then
+        echo "$TDH_PNAME Error, cluster '$cluster' does not exist." >&2
+        exit 4
+    fi
+    if cluster_running "$cluster"; then
+        echo "$TDH_PNAME cluster '$cluster' is already running." >&2
+        exit 0
+    fi
 
     echo "Starting Dataproc cluster '$cluster' in zone '$zone'..."
     gcloud dataproc clusters start "$cluster" \
@@ -276,6 +341,40 @@ list)
         --zone "$zone" \
         --project "$GCP_PROJECT_NAME"
     ;;
+
+##    DESCRIBE
+describe)
+    if [ -z "$cluster" ]; then
+        echo "$TDH_PNAME Error, cluster name is required for describe action." >&2
+        exit 3
+    fi
+
+    gcloud dataproc clusters describe "$cluster" \
+        --region "$region" \
+        --zone "$zone" \
+        --project "$GCP_PROJECT_NAME"
+    ;;
+
+##    STATUS
+status)
+    if [ -z "$cluster" ]; then
+        echo "$TDH_PNAME Error, cluster name is required for status action." >&2
+        exit 3
+    fi
+
+    echo "Getting status of Dataproc cluster '$cluster' in zone '$zone'..."
+    if cluster_exists "$cluster"; then
+        if cluster_running "$cluster"; then
+            echo "Cluster '$cluster' is RUNNING."
+        else
+            echo "Cluster '$cluster' is STOPPED."
+        fi
+    else
+        echo "Cluster '$cluster' does not exist."
+        exit 4
+    fi
+    ;;
+
 *)
     echo "$TDH_PNAME Error, unknown action '$action'." >&2
     echo "$usage"

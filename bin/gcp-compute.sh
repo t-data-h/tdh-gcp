@@ -70,6 +70,7 @@ Options:
   -N|--network <name>     : GCP Network name when not using default.
   -n|--subnet  <name>     : Used with --network to define the subnet.
   -p|--prefix  <name>     : Prefix to use for instance names.
+  -r|--region  <name>     : Set the GCP region, default is '$region'.
   -S|--ssd                : Use SSD as attached disk type
   -t|--type  <type>       : GCP Machine type to use for instances.
   -T|--tags  <tag1,..>    : A set of tags to use for instances.
@@ -287,6 +288,10 @@ while [ $# -gt 0 ]; do
         prefix="$2"
         shift
         ;;
+    -r|--region)
+        region="$2"
+        shift
+        ;;
     -S|--ssd)
         ssd=1
         ;;
@@ -351,7 +356,7 @@ if [ -n "$network" ] && [ -z "$subnet" ]; then
 fi
 
 if [ -z "$region" ]; then
-    echo "GCP_DEFAULT_REGION is not set. Set the default first" >&2
+    echo "GCP_REGION is not set. Set the var or set default via:" >&2
     echo " ( gcloud config set compute/region <region> )" >&2
     exit 2
 fi
@@ -361,7 +366,8 @@ if [ -z "$zone" ]; then
 fi
 
 
-printf "\n${C_CYN}  GCP Zone ${C_NC}= ${C_WHT}'$zone'${C_NC}\n"
+printf "\n${C_CYN}  GCP Region ${C_NC}= ${C_WHT}'$region'${C_NC}\n"
+printf "${C_CYN}  GCP Zone ${C_NC}= ${C_WHT}'$zone'${C_NC}\n"
 printf "${C_CYN}  Network  ${C_NC}= ${C_WHT}'$network'${C_NC}\n"
 printf "${C_CYN}  Subnet   ${C_NC}= ${C_WHT}'$subnet'${C_NC}\n\n"
 

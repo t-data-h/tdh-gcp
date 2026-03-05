@@ -25,26 +25,22 @@ GCP_UBUNTU_IMAGE_PROJECT="ubuntu-os-cloud"
 GCP_DEFAULT_IMAGE="$GCP_UBUNTU_IMAGE"
 GCP_DEFAULT_IMAGE_PROJECT="$GCP_UBUNTU_IMAGE_PROJECT"
 
-GCP=$( which gcloud 2>/dev/null )
+GCP=$(which gcloud 2>/dev/null)
 TDH_GCP_CONFIG="${TDH_GCP_CONFIG:-${HOME}/.config/tdh-gcp-config}"
 
 GCPENV="
-GCP_DEFAULT_REGION=\$GCP_DEFAULT_REGION
-GCP_DEFAULT_ZONE=\$GCP_DEFAULT_ZONE
+GCP_REGION=\$GCP_DEFAULT_REGION
+GCP_ZONE=\$GCP_DEFAULT_ZONE
 GCP_PROJECT_NAME=\$GCP_PROJECT_NAME
 "
 
-if [ -f ${TDH_GCP_CONFIG} ]; then
-    GCP_DEFAULT_REGION=$( cat ${TDH_GCP_CONFIG} | grep GCP_DEFAULT_REGION | awk -F'=' '{ print $2 }' )
-    GCP_DEFAULT_ZONE=$( cat ${TDH_GCP_CONFIG} | grep GCP_DEFAULT_ZONE | awk -F'=' '{ print $2 }' )
-    GCP_PROJECT_NAME=$( cat ${TDH_GCP_CONFIG} | grep GCP_PROJECT_NAME | awk -F'=' '{ print $2 }' )
-else
-    gcpconfig=$( $GCP config configurations list | grep True )
-    export GCP_DEFAULT_REGION=$( echo "$gcpconfig" | awk '{ print $6 }' )
-    export GCP_DEFAULT_ZONE=$( echo "$gcpconfig" | awk '{ print $5 }' )
-    export GCP_PROJECT_NAME=$( echo "$gcpconfig" | awk '{ print $4 }' )
-    echo "$GCPENV" | envsubst > ${TDH_GCP_CONFIG}
-fi
+export GCP_DEFAULT_REGION=$(gcloud config configurations list --format json | \
+    jq -r '.[] | select(.is_active == true) | .properties.compute.region')
+export GCP_DEFAULT_ZONE=$(gcloud config configurations list --format json | \
+    jq -r '.[] | select(.is_active == true) | .properties.compute.zone')
+export GCP_PROJECT_NAME=$(gcloud config configurations list --format json | \
+    jq -r '.[] | select(.is_active == true) | .properties.core.project')
+#echo "$GCPENV" | envsubst > ${TDH_GCP_CONFIG}
 
 GSSH="gcloud compute ssh"
 GSCP="gcloud compute scp"
