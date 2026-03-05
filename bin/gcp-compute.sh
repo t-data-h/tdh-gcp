@@ -2,7 +2,7 @@
 #
 #  gcp-compute.sh -  Manage GCP Compute Instances
 #
-#  @author Timothy C. Arland <tcarland@gmail.com>
+#  @author Timothy C. Arland <tcarland at gmail dot com>
 #
 tdh_path=$(dirname "$(readlink -f "$0")")
 
@@ -13,6 +13,7 @@ fi
 # -----------------------------------
 
 prefix="$TDH_GCP_PREFIX"
+region="${GCP_REGION:-${GCP_DEFAULT_REGION}}"
 zone="${GCP_ZONE:-${GCP_DEFAULT_ZONE}}"
 mtype="${GCP_MACHINE_TYPE:-${GCP_DEFAULT_MACHINETYPE}}"
 bootsize="$GCP_DEFAULT_BOOTSIZE"
@@ -35,6 +36,7 @@ async=0
 dryrun=0
 keep=0
 serial=1
+external=0
 
 # -----------------------------------
 # Gcloud CLI required.
@@ -68,12 +70,14 @@ Options:
   -N|--network <name>     : GCP Network name when not using default.
   -n|--subnet  <name>     : Used with --network to define the subnet.
   -p|--prefix  <name>     : Prefix to use for instance names.
+  -r|--region  <name>     : Set the GCP region, default is '$region'.
   -S|--ssd                : Use SSD as attached disk type
   -t|--type  <type>       : GCP Machine type to use for instances.
   -T|--tags  <tag1,..>    : A set of tags to use for instances.
                             Overrides the default GCP_MACHINE_TYPE.
   -z|--zone  <name>       : Set the GCP zone, default is '$zone'. 
   -v|--vga                : Attach a display device at create.
+  -x|--no-external        : Do not assign an external IP address.
   -X|--no-serial          : Don't enable logging to serial by default.
   -V|--version            : Show version info and exit.
  
@@ -284,6 +288,10 @@ while [ $# -gt 0 ]; do
         prefix="$2"
         shift
         ;;
+    -r|--region)
+        region="$2"
+        shift
+        ;;
     -S|--ssd)
         ssd=1
         ;;
@@ -301,6 +309,9 @@ while [ $# -gt 0 ]; do
     -z|--zone)
         zone="$2"
         shift
+        ;;
+    -x|--no-external)
+        external=1
         ;;
     -X|--no-serial)
         serial=0
@@ -344,12 +355,19 @@ if [ -n "$network" ] && [ -z "$subnet" ]; then
     exit 1
 fi
 
+if [ -z "$region" ]; then
+    echo "GCP_REGION is not set. Set the var or set default via:" >&2
+    echo " ( gcloud config set compute/region <region> )" >&2
+    exit 2
+fi
+
 if [ -z "$zone" ]; then
     zone="$GCP_DEFAULT_ZONE"
 fi
 
 
-printf "\n${C_CYN}  GCP Zone ${C_NC}= ${C_WHT}'$zone'${C_NC}\n"
+printf "\n${C_CYN}  GCP Region ${C_NC}= ${C_WHT}'$region'${C_NC}\n"
+printf "${C_CYN}  GCP Zone ${C_NC}= ${C_WHT}'$zone'${C_NC}\n"
 printf "${C_CYN}  Network  ${C_NC}= ${C_WHT}'$network'${C_NC}\n"
 printf "${C_CYN}  Subnet   ${C_NC}= ${C_WHT}'$subnet'${C_NC}\n\n"
 
@@ -407,6 +425,10 @@ for name in $names; do
 
         if [ $ipfwd -eq 1 ]; then
             args+=("--can-ip-forward")
+        fi
+
+        if [ $external -eq 1 ]; then
+            args+=("--no-address")
         fi
 
         echo "( gcloud compute instances create ${args[@]} $name ) "

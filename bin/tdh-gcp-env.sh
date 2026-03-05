@@ -8,10 +8,10 @@ export TDH_GCP_ENV=1
 
 TDH_PNAME=${0##*\/}
 
-TDH_GCP_VERSION="v25.11"
+TDH_GCP_VERSION="v26.03"
 TDH_GCP_PREFIX="tdh"
 
-GCP_DEFAULT_MACHINETYPE="n1-standard-4"
+GCP_DEFAULT_MACHINETYPE="n4-standard-4"
 GCP_DEFAULT_BOOTSIZE="64GB"
 GCP_DEFAULT_DISKSIZE="256GB"
 GCP_ENABLE_VGA="--enable-display-device"
@@ -19,32 +19,28 @@ GCP_ENABLE_VGA="--enable-display-device"
 GCP_CENTOS_IMAGE="rocky-linux-8"
 GCP_CENTOS_IMAGE_PROJECT="rocky-linux-cloud"
 
-GCP_UBUNTU_IMAGE="ubuntu-minimal-2404-lts"
+GCP_UBUNTU_IMAGE="ubuntu-minimal-2404-lts-amd64"
 GCP_UBUNTU_IMAGE_PROJECT="ubuntu-os-cloud"
 
 GCP_DEFAULT_IMAGE="$GCP_UBUNTU_IMAGE"
 GCP_DEFAULT_IMAGE_PROJECT="$GCP_UBUNTU_IMAGE_PROJECT"
 
-GCP=$( which gcloud 2>/dev/null )
+GCP=$(which gcloud 2>/dev/null)
 TDH_GCP_CONFIG="${TDH_GCP_CONFIG:-${HOME}/.config/tdh-gcp-config}"
 
 GCPENV="
-GCP_DEFAULT_REGION=\$GCP_DEFAULT_REGION
-GCP_DEFAULT_ZONE=\$GCP_DEFAULT_ZONE
+GCP_REGION=\$GCP_DEFAULT_REGION
+GCP_ZONE=\$GCP_DEFAULT_ZONE
 GCP_PROJECT_NAME=\$GCP_PROJECT_NAME
 "
 
-if [ -f ${TDH_GCP_CONFIG} ]; then
-    GCP_DEFAULT_REGION=$( cat ${TDH_GCP_CONFIG} | grep GCP_DEFAULT_REGION | awk -F'=' '{ print $2 }' )
-    GCP_DEFAULT_ZONE=$( cat ${TDH_GCP_CONFIG} | grep GCP_DEFAULT_ZONE | awk -F'=' '{ print $2 }' )
-    GCP_PROJECT_NAME=$( cat ${TDH_GCP_CONFIG} | grep GCP_PROJECT_NAME | awk -F'=' '{ print $2 }' )
-else
-    gcpconfig=$( $GCP config configurations list | grep True )
-    export GCP_DEFAULT_REGION=$( echo "$gcpconfig" | awk '{ print $6 }' )
-    export GCP_DEFAULT_ZONE=$( echo "$gcpconfig" | awk '{ print $5 }' )
-    export GCP_PROJECT_NAME=$( echo "$gcpconfig" | awk '{ print $4 }' )
-    echo "$GCPENV" | envsubst > ${TDH_GCP_CONFIG}
-fi
+export GCP_DEFAULT_REGION=$(gcloud config configurations list --format json | \
+    jq -r '.[] | select(.is_active == true) | .properties.compute.region')
+export GCP_DEFAULT_ZONE=$(gcloud config configurations list --format json | \
+    jq -r '.[] | select(.is_active == true) | .properties.compute.zone')
+export GCP_PROJECT_NAME=$(gcloud config configurations list --format json | \
+    jq -r '.[] | select(.is_active == true) | .properties.core.project')
+#echo "$GCPENV" | envsubst > ${TDH_GCP_CONFIG}
 
 GSSH="gcloud compute ssh"
 GSCP="gcloud compute scp"

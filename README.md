@@ -4,18 +4,14 @@ Timothy C. Arland <tcarland@gmail.com>
 
 ## Overview
 
-A framework for building compute instances and deploying the TDH distribution
-of Hadoop.
+A framework for building compute instances, clusters and deploying the 
+TDH distribution.
 
 The compute instances are managed by a set of scripts for initializing the
 master and worker node instances. The scripts wrap the Google Cloud API via
 the *gcloud* CLI tool and accordingly, the Google Cloud SDK should be installed
 for creating GCP-based instances, though GCP is not a strict requirement for
 the bootstrapping scripts provided. 
-
-Ansible playbooks are used for installing or upgrading a TDH cluster. 
-Refer to the `README.md` located in *./ansible*. The playbooks
-are idempotent and are *not* GCP specific.
 
 ## Configuration
 
@@ -29,7 +25,7 @@ tools are intended to be run from the root project directory.
 
 - **gcp-compute.sh**:
 
-  This is the base script for creating or managing a GCP Compute Instance. It
+  This is the base script for creating or managing GCP Compute Instances. It
   will create an instance and optionally attach data disks to the instance as
   well as stopping, deleting, or checking an instance. It is used by the
   *tdh-instance-init* script for creating GCP instances.
@@ -46,6 +42,10 @@ tools are intended to be run from the root project directory.
 
   Script for initializing a Google Kubernetes Cluster (GKE) including options 
   for creating a GKE *Private* Cluster.
+
+- **dataproc-init.sh**:
+
+  Script for initializing, starting and stopping a GCP Dataproc cluster.
 
 
 ## Utility Scripts 
