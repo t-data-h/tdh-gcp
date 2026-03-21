@@ -9,7 +9,7 @@ export TDH_GCP_ENV=1
 TDH_PNAME=${0##*\/}
 
 TDH_GCP_VERSION="v26.03"
-TDH_GCP_PREFIX="tdh"
+TDH_GCP_PREFIX="${TDH_GCP_PREFIX:-tdh}"
 
 GCP_DEFAULT_MACHINETYPE="n4-standard-4"
 GCP_DEFAULT_BOOTSIZE="64GB"
@@ -63,6 +63,27 @@ C_NC='\e[0m'
 function tdh_version() {
     printf "${C_WHT}${TDH_PNAME}:${C_NC} (tdh-gcp) ${C_WHT}${TDH_GCP_VERSION}${C_NC}\n"
 }
+
+function tdh_gcp_env() {
+    echo "
+    TDH_GCP_PREFIX=$TDH_GCP_PREFIX
+
+    GCP_PROJECT_NAME=\"$GCP_PROJECT_NAME\"
+    GCP_DEFAULT_REGION=\"$GCP_DEFAULT_REGION\"
+    GCP_DEFAULT_ZONE=\"$GCP_DEFAULT_ZONE\"
+
+    GCP_REGION=\"$GCP_REGION\"
+    GCP_ZONE=\"$GCP_ZONE\"
+
+    GCP_DEFAULT_MACHINETYPE=\"$GCP_DEFAULT_MACHINE_TYPE\"
+    GCP_DEFAULT_BOOTSIZE=\"$GCP_DEFAULT_BOOTSIZE\"
+    GCP_DEFAULT_DISKSIZE=\"$GCP_DEFAULT_DISKSIZE\"
+    "
+}
+
+function tdh_generate_env() [
+    echo "$GCPENV" | envsubst > "$TDH_GCP_CONFIG"
+]
 
 
 function wait_for_gcphost() {
