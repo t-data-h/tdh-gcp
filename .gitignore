@@ -5,5 +5,8 @@
 *.tar*
 *.jar
 *.zip
+*.crt
+*.cert
+*.key
 
 .gcp

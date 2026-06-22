@@ -14,6 +14,7 @@ fi
 
 cluster=
 nodecnt=3
+region="${GCP_REGION:-${GCP_DEFAULT_REGION}}"
 zone="${GCP_ZONE:-${GCP_DEFAULT_ZONE}}"
 mtype="${GCP_MACHINE_TYPE:-${GCP_DEFAULT_MACHINETYPE}}"
 network="$GCP_NETWORK"
@@ -51,6 +52,7 @@ Options:
    -n|--subnet   <name>     : Name of GCP Subnet if not default.
    -P|--private  <cidr,..>  : Set as private cluster by defining allow prefixes.
                               The list of networks is a comma delimited list.
+   -r|--region   <name>     : The region name if not already set as default.
    -S|--ssd                 : Use 'pd-ssd' as GCP disk type.
    -t|--type     <type>     : GCP Instance machine-type.
    -T|--tags     <tag1,..>  : List of Compute Engine tags to apply to nodes.
@@ -140,6 +142,10 @@ while [ $# -gt 0 ]; do
             ipalias=1
             shift
             ;;
+        -r|--region)
+            region="$2"
+            shift
+            ;;
         -S|--ssd)
             ssd=1
             ;;
@@ -196,6 +202,7 @@ create)
     args=("--machine-type=$mtype" 
           "--disk-size=$dsize" 
           "--num-nodes=$nodecnt"
+          "--region=$region"
           "--zone=$zone")
 
     if [ $ssd -eq 1 ]; then

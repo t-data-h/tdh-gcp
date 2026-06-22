@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#  gcp-dataproc.sh -  Manage GCP Dataproc Clusters
+#  gcp-dataproc.sh - Manage GCP Dataproc Clusters
 #
 #  @author Timothy C. Arland <tcarland at gmail dot com>
 #
@@ -44,19 +44,20 @@ Synopsis:
   $TDH_PNAME [options] <action> <cluster_name>
 
 Options:
-   -h|--help                : Display usage info and exit.
-   -b|--bootsize <xxGB>     : Size of boot disk. Default is '$master_bootsize'.
-   -d|--disksize <xxGB>     : Size of worker boot disk. Default is '$worker_bootsize'.
-   -i|--max-idle  <xxm>     : Dataproc cluster max idle time. Default is '$dataproc_max_idle'.
-   -N|--network  <name>     : Name of GCP Network if not default.
-   -n|--subnet   <name>     : Name of GCP Subnet if not default.
-   -m|--masters   <cnt>     : Number of master nodes to deploy, Default is '$master_count'.
-   -R|--requirements <file> : Path to pip requirements file for cluster initialization.
-   -t|--type     <type>     : Worker Instance machine-type, Default is '$worker_mtype'.
-   -T|--mtype    <type>     : Master Instance machine-type, Default is '$master_mtype'.
-   -w|--workers   <cnt>     : Number of worker nodes to deploy, Default is '$worker_count'.
-   -z|--zone     <name>     : Sets an alternate GCP Zone from default of '$GCP_DEFAULT_ZONE'.
-   -V|--version             : Show Version Info and exit.
+  -h|--help                : Display usage info and exit.
+  -b|--bootsize  <xxGB>    : Size of boot disk. Default is '$master_bootsize'.
+  -d|--disksize  <xxGB>    : Size of worker boot disk. Default is '$worker_bootsize'.
+  -i|--max-idle  <xxm>     : Dataproc cluster max idle time. Default is '$dataproc_max_idle'.
+  -I|--image    <version>  : Dataproc image version, Default is '$dataproc_image_version'.
+  -N|--network  <name>     : Name of GCP Network if not default.
+  -n|--subnet   <name>     : Name of GCP Subnet if not default.
+  -m|--masters   <cnt>     : Number of master nodes to deploy, Default is '$master_count'.
+  -R|--requirements <file> : Path to pip requirements file for cluster initialization.
+  -t|--type     <type>     : Worker Instance machine-type, Default is '$worker_mtype'.
+  -T|--mtype    <type>     : Master Instance machine-type, Default is '$master_mtype'.
+  -w|--workers   <cnt>     : Number of worker nodes to deploy, Default is '$worker_count'.
+  -z|--zone     <name>     : Sets an alternate GCP Zone from default of '$GCP_DEFAULT_ZONE'.
+  -V|--version             : Show Version Info and exit.
 
 Where <action> is one of the following:
     create    : Create a new Dataproc cluster.

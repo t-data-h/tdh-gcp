@@ -4,14 +4,14 @@ Timothy C. Arland <tcarland@gmail.com>
 
 ## Overview
 
-A framework for building compute instances, clusters and deploying the 
+A framework for building compute instances, clusters for deploying the 
 TDH distribution.
 
-The compute instances are managed by a set of scripts for initializing the
-master and worker node instances. The scripts wrap the Google Cloud API via
-the *gcloud* CLI tool and accordingly, the Google Cloud SDK should be installed
-for creating GCP-based instances, though GCP is not a strict requirement for
-the bootstrapping scripts provided. 
+The compute instances are managed by a set of scripts for initializing 
+master and worker node instances. The scripts wrap the Google Cloud API 
+via the *gcloud* CLI tool and accordingly, the Google Cloud SDK should be 
+installed for creating GCP-based instances, though GCP is not a strict 
+requirement for the various bootstrapping scripts provided. 
 
 ## Configuration
 

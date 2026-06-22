@@ -15,6 +15,7 @@ fi
 prefix="$TDH_GCP_PREFIX"
 
 names=
+region="${GCP_REGION:-${GCP_DEFAULT_REGION}}"
 zone="${GCP_ZONE:-${GCP_DEFAULT_ZONE}}"
 mtype="${GCP_MACHINE_TYPE:-${GCP_DEFAULT_MACHINETYPE}}"
 bootsize="$GCP_DEFAULT_BOOTSIZE"
@@ -51,10 +52,11 @@ Options:
   -h|--help             : Display usage and exit.
      --dryrun           : Enable dryrun, no action is taken.
   -I|--identity <file>  : Path and name of the SSH pubkey to install.
-  -N|--network <name>   : GCP Network name.
-  -n|--subnet  <name>   : GCP Network subnet name. 
-  -p|--prefix  <name>   : Prefix name to use for instances.
+  -N|--network  <name>  : GCP Network name.
+  -n|--subnet   <name>  : GCP Network subnet name. 
+  -p|--prefix   <name>  : Prefix name to use for instances.
                           Default prefix is '$prefix'.
+  -r|--region   <name>  : Region name if not configured default.
   -S|--ssd              : Use SSD as attached disk type.
   -t|--type             : Machine type to use for instances.
                           Default is '$mtype'.
@@ -115,6 +117,10 @@ while [ $# -gt 0 ]; do
         ;;
     -n|--subnet)
         subnet="$2"
+        shift
+        ;;
+    -r|--region)
+        region="$2"
         shift
         ;;
     -S|-ssd)
@@ -216,6 +222,9 @@ for name in $names; do
         args+=("--network" "$network" "--subnet" "$subnet")
     fi
 
+    if [ -n "$region" ]; then
+        agrs+=("--region" "$region")
+    fi
     if [ -n "$zone" ]; then
         args+=("--zone" "$zone")
     fi
