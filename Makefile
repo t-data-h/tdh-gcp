@@ -11,6 +11,7 @@ install:
 ifdef TCAMAKE_PREFIX
 	@echo
 	@echo "Installing to ${TCAMAKE_PREFIX}/bin/"
+	$(CP) bin/dataproc-init.sh ${TCAMAKE_PREFIX}
 	$(CP) bin/gcp-compute.sh ${TCAMAKE_PREFIX}/bin/
 	$(CP) bin/gcp-fw-ingress.sh ${TCAMAKE_PREFIX}/bin/
 	$(CP) bin/gcp-networks.sh ${TCAMAKE_PREFIX}/bin/
