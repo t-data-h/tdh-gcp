@@ -8,7 +8,7 @@ export TDH_GCP_ENV=1
 
 TDH_PNAME=${0##*\/}
 
-TDH_GCP_VERSION="v26.03"
+export TDH_GCP_VERSION="v26.11"
 TDH_GCP_PREFIX="${TDH_GCP_PREFIX:-tdh}"
 
 GCP_DEFAULT_MACHINETYPE="n4-standard-4"
@@ -81,9 +81,9 @@ function tdh_gcp_env() {
     "
 }
 
-function tdh_generate_env() [
+function tdh_generate_env() {
     echo "$GCPENV" | envsubst > "$TDH_GCP_CONFIG"
-]
+}
 
 
 function wait_for_gcphost() {
